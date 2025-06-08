@@ -12,9 +12,10 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Prism from 'prismjs';
-import 'prismjs/components/prism-javascript.js';
+import 'prismjs/components/prism-javascript.js'; // JavaScript
 import 'prismjs/components/prism-markup.js'; // HTML
-// …import any other langs you need…
+import 'prismjs/components/prism-python.js'; // Python
+import 'prismjs/components/prism-bash.js'; // Bash
 
 // --- Type Definitions ---
 
@@ -30,7 +31,7 @@ interface BlogPost {
   slug: string;
   title: string;
   author: string;
-  date: string; // Already formatted as YYYY-MM-DD
+  date: string; // YYYY-MM-DD
   summary: string; // Short description for list view
   content: string[]; // Array of strings for paragraph/line-by-line content
   codeBlocks?: { language: string; code: string; }[]; // Structured for code blocks
@@ -82,9 +83,9 @@ const mockProjects: Project[] = [
 const defaultSettings: SettingOption[] = [
     { key: 'themeMode', label: 'Theme Mode', type: 'select', options: ['terminal', 'light', 'dark'], currentValue: 'terminal' }, // 'terminal' is default for minimal
     { key: 'fontSize', label: 'Font Size', type: 'select', options: ['small', 'medium', 'large'], currentValue: 'medium' },
-    { key: 'fontFamily', label: 'Font Family', type: 'select', options: ['Courier New', 'Consolas', 'Monaco', 'Lucida Console', 'IBM Plex Mono', 'Fira Code', 'JetBrains Mono'], currentValue: 'Courier New' }, // Added more monospace fonts
+    { key: 'fontFamily', label: 'Font Family', type: 'select', options: ['Courier New', 'Ubuntu', 'IBM Plex Mono', 'Fira Code', 'JetBrains Mono', 'Tektur'], currentValue: 'Courier New' }, // Added more monospace fonts
     { key: 'showWelcome', label: 'Show Welcome on Home', type: 'boolean', currentValue: true },
-    { key: 'showHelpMenu', label: 'Show Help Menu', type: 'boolean', currentValue: true }
+    // { key: 'showHelpMenu', label: 'Show Help Menu', type: 'boolean', currentValue: true }
 ];
 
 
@@ -131,100 +132,6 @@ const getBlogListDisplay = (highlightedIndex: number, blogs: BlogPost[]): Displa
       lines.push({ type: 'text', value: '' });
   }
   return lines;
-};
-
-// Function to apply basic syntax highlighting for TUI
-const highlightCode = (code: string, language: string): string => {
-    let highlighted = code;
-
-    // Define the type for patterns correctly
-    type Pattern = { regex: RegExp; className: string; replace?: string; };
-
-    // Enhanced regex patterns for better syntax highlighting
-    const patterns: { [key: string]: Pattern[] } = {
-        javascript: [
-            // Keywords (control flow, declarations, etc.)
-            { regex: /\b(function|var|let|const|return|if|else|for|while|import|export|default|class|extends|this|super|new|await|async|try|catch|finally|throw|break|continue|switch|case|do|with|typeof|instanceof|in|of|delete)\b/g, className: 'code-keyword' },
-            // Boolean and null values
-            { regex: /\b(true|false|null|undefined)\b/g, className: 'code-boolean' },
-            // Strings (including template literals)
-            { regex: /(["'`])(?:(?=(\\?))\2.)*?\1/g, className: 'code-string' },
-            // Template literal expressions
-            { regex: /\$\{[^}]*\}/g, className: 'code-template-expression' },
-            // Comments
-            { regex: /\/\/.*$/gm, className: 'code-comment' },
-            { regex: /\/\*[\s\S]*?\*\//g, className: 'code-comment' },
-            // Numbers
-            { regex: /\b\d+(\.\d+)?(e[+-]?\d+)?\b/g, className: 'code-number' },
-            // Built-in objects and methods
-            { regex: /\b(console|document|window|Math|Date|Array|Object|String|Number|Boolean|Promise|JSON|localStorage|sessionStorage)\b/g, className: 'code-builtin' },
-            // Functions calls
-            { regex: /([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/g, className: 'code-function', replace: '<span class="code-function">$1</span>(' },
-            // Properties access
-            { regex: /\.([a-zA-Z_$][a-zA-Z0-9_$]*)/g, className: 'code-property', replace: '.<span class="code-property">$1</span>' },
-        ],
-        jsx: [
-            // JSX/React keywords
-            { regex: /\b(function|var|let|const|return|if|else|for|while|import|export|default|class|extends|this|super|new|await|async|try|catch|finally|throw|break|continue|switch|case|do|with|typeof|instanceof|in|of|delete)\b/g, className: 'code-keyword' },
-            // React specific
-            { regex: /\b(React|useState|useEffect|useRef|useCallback|useMemo|useContext|Component|PureComponent)\b/g, className: 'code-react' },
-            // Boolean and null values
-            { regex: /\b(true|false|null|undefined)\b/g, className: 'code-boolean' },
-            // Strings
-            { regex: /(["'`])(?:(?=(\\?))\2.)*?\1/g, className: 'code-string' },
-            // JSX Tags
-            { regex: /(&lt;\/?)([A-Z][a-zA-Z0-9]*)(.*?)(&gt;)/g, className: 'code-jsx-tag', replace: '$1<span class="code-jsx-tag">$2</span>$3$4' },
-            { regex: /(&lt;\/?)([a-z][a-zA-Z0-9-]*)(.*?)(&gt;)/g, className: 'code-html-tag', replace: '$1<span class="code-html-tag">$2</span>$3$4' },
-            // JSX props with expressions
-            { regex: /(\w+)=\{([^}]*)\}/g, className: 'code-jsx-prop', replace: '<span class="code-jsx-prop">$1</span>={<span class="code-jsx-expression">$2</span>}' },
-            // JSX props with strings
-            { regex: /(\w+)="([^"]*)"/g, className: 'code-jsx-prop', replace: '<span class="code-jsx-prop">$1</span>=<span class="code-string">"$2"</span>' },
-            // Comments
-            { regex: /\/\/.*$/gm, className: 'code-comment' },
-            { regex: /\/\*[\s\S]*?\*\//g, className: 'code-comment' },
-            // Numbers
-            { regex: /\b\d+(\.\d+)?(e[+-]?\d+)?\b/g, className: 'code-number' },
-            // Built-ins
-            { regex: /\b(console|document|window|Math|Date|Array|Object|String|Number|Boolean|Promise|JSON)\b/g, className: 'code-builtin' },
-        ],
-        html: [
-            // HTML tags
-            { regex: /(&lt;\/?)([a-zA-Z0-9]+)(.*?)(&gt;)/g, className: 'code-html-tag', replace: '$1<span class="code-html-tag">$2</span>$3$4' },
-            // Attributes
-            { regex: /([a-zA-Z-]+)="([^"]*)"/g, className: 'code-html-attr', replace: '<span class="code-html-attr">$1</span>=<span class="code-string">"$2"</span>' },
-            // HTML comments
-            { regex: /&lt;!--[\s\S]*?--&gt;/g, className: 'code-comment' },
-        ],
-        css: [
-            // Selectors
-            { regex: /(\.|\#)([a-zA-Z0-9_-]+)/g, className: 'code-css-selector', replace: '$1<span class="code-css-selector">$2</span>' },
-            // Properties
-            { regex: /([a-zA-Z-]+)(?=\s*:)/g, className: 'code-css-property' },
-            // Values
-            { regex: /:\s*([^;{]+)/g, className: 'code-css-value', replace: ': <span class="code-css-value">$1</span>' },
-            // CSS variables
-            { regex: /(--[a-zA-Z0-9-]+)/g, className: 'code-css-variable' },
-            // Units and numbers
-            { regex: /\b\d+(\.\d+)?(px|em|rem|%|vh|vw|pt|pc|in|cm|mm|ex|ch|vmin|vmax|deg|rad|turn|s|ms|Hz|kHz)\b/g, className: 'code-number' },
-            // Hex colors
-            { regex: /#[0-9a-fA-F]{3,8}\b/g, className: 'code-color' },
-            // Comments
-            { regex: /\/\*[\s\S]*?\*\//g, className: 'code-comment' },
-        ]
-    };
-
-    const langPatterns = patterns[language] || patterns['javascript']; // Default to JavaScript
-
-    // Apply highlighting with proper order (most specific first)
-    langPatterns.forEach(pattern => {
-        if (pattern.replace) {
-            highlighted = highlighted.replace(pattern.regex, pattern.replace);
-        } else {
-            highlighted = highlighted.replace(pattern.regex, `<span class="${pattern.className}">$&</span>`);
-        }
-    });
-
-    return highlighted;
 };
 
 const getBlogPostDisplay = (blog: BlogPost): DisplayLine[] => {
@@ -325,6 +232,11 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts }) => { // Accept blogPos
   const [history, setHistory] = useState<('main' | 'blogList' | 'blogContent' | 'about' | 'projects' | 'settings')[]>(['main']); // To track navigation
   const [currentBlogSlug, setCurrentBlogSlug] = useState<string | null>(null); // For blogContent view
 
+  // pull our settings flags
+  const themeMode    = userSettings.find(s => s.key === 'themeMode')?.currentValue as string     || 'terminal';
+  const showWelcome  = userSettings.find(s => s.key === 'showWelcome')?.currentValue as boolean  || false;
+  const showHelpMenu = userSettings.find(s => s.key === 'showHelpMenu')?.currentValue as boolean || false;
+
   const terminalOutputRef = useRef<HTMLDivElement>(null); // Ref to scroll output area
 
   // Load settings from localStorage ONLY after component mounts on the client
@@ -358,23 +270,20 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts }) => { // Accept blogPos
   }, [userSettings]);
 
   // Update terminal font based on settings
-  useEffect(() => {
-    const root = document.documentElement;
-    const fontFamilySetting = userSettings.find(s => s.key === 'fontFamily');
-    const fontSizeSetting = userSettings.find(s => s.key === 'fontSize');
 
-    if (fontFamilySetting && typeof fontFamilySetting.currentValue === 'string') {
-        root.style.setProperty('--terminal-font-family', `"${fontFamilySetting.currentValue}"`); // Add quotes for multi-word fonts
-    }
-    if (fontSizeSetting && typeof fontSizeSetting.currentValue === 'string') {
-        let size = '1em'; // Default medium
-        if (fontSizeSetting.currentValue === 'small') size = '0.85em';
-        if (fontSizeSetting.currentValue === 'large') size = '1.15em';
-        root.style.setProperty('--terminal-font-size', size);
-    }
-    // Apply theme (light/dark/terminal) later when Fancy is implemented.
-    // For Minimal, 'terminal' theme is hardcoded for colors.
-  }, [userSettings]);
+  // Apply CSS variables from settings
+  useEffect(()=>{
+    const root = document.documentElement;
+    const fm = userSettings.find(s=>s.key==='fontFamily')!.currentValue as string;
+    const fs = userSettings.find(s=>s.key==='fontSize')!.currentValue as string;
+    root.style.setProperty('--terminal-font-family', `"${fm}"`);
+    root.style.setProperty('--terminal-font-size',
+      fs==='small'? '0.85em': fs==='large'? '1.15em': '1em'
+    );
+    // update wrapper class
+    root.setAttribute('data-bloglabs-theme', themeMode);
+    // themeMode could toggle elsewhere if you add CSS classes…
+  },[userSettings]);
 
   // Handle display content update based on current view
   useEffect(() => {
@@ -630,7 +539,7 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts }) => { // Accept blogPos
 
 
   return (
-    <div className="terminal-wrapper">
+    <div className={`terminal-wrapper theme-${themeMode}`}>
       <div className="terminal-header">BlogLabs Terminal</div>
       <div className="terminal-output" ref={terminalOutputRef}>
         {/* Render content based on current view */}
