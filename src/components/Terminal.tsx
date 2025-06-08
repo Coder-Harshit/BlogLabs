@@ -11,6 +11,10 @@
 // and applying padding before highlighting.
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import Prism from 'prismjs';
+import 'prismjs/components/prism-javascript.js';
+import 'prismjs/components/prism-markup.js'; // HTML
+// …import any other langs you need…
 
 // --- Type Definitions ---
 
@@ -136,107 +140,121 @@ const highlightCode = (code: string, language: string): string => {
     // Define the type for patterns correctly
     type Pattern = { regex: RegExp; className: string; replace?: string; };
 
-    // Simple regex patterns for common language constructs
+    // Enhanced regex patterns for better syntax highlighting
     const patterns: { [key: string]: Pattern[] } = {
         javascript: [
-            { regex: /\b(function|var|let|const|return|if|else|for|while|import|export|default|class|extends|this|super|new|await|async|try|catch|finally|throw|break|continue|switch|case|true|false|null|undefined|typeof|instanceof)\b/g, className: 'code-keyword' },
-            { regex: /(["'`])(?:(?=(\\?))\2.)*?\1/g, className: 'code-string' }, // Strings
-            { regex: /\/\/.*|\/\*[\s\S]*?\*\//g, className: 'code-comment' }, // Comments
-            { regex: /\b\d+(\.\d+)?\b/g, className: 'code-number' }, // Numbers
-            { regex: /\b(console|document|window|Math|Date|Array|Object|String|Number|Boolean|Promise)\b/g, className: 'code-builtin' }, // Built-ins
-        ],
-        html: [
-            { regex: /(&lt;\/?)([a-zA-Z0-9]+)(.*?)(&gt;)/g, className: 'code-builtin', replace: '$1<span class="code-keyword">$2</span>$3$4' }, // Tags
-            { regex: /(onerror|onload|onclick|onchange|oninput)/g, className: 'code-keyword' }, // Event attributes
-            { regex: /([a-zA-Z-]+)="([^"]*)"/g, className: 'code-text', replace: '<span class="code-builtin">$1</span>=<span class="code-string">"$2"</span>' }, // Attributes & values
-            { regex: /&lt;!--[\s\S]*?--&gt;/g, className: 'code-comment' }, // HTML comments
-        ],
-        css: [
-            { regex: /\b(selector|property|value)\b/g, className: 'code-keyword' }, // Example for CSS keywords
-            { regex: /(\.|\#|\@)([a-zA-Z0-9_-]+)/g, className: 'code-builtin' }, // Classes, IDs, @rules
-            { regex: /([a-zA-Z-]+):/g, className: 'code-keyword', replace: '<span class="code-keyword">$1</span>:' }, // Properties
-            { regex: /(--[a-zA-Z0-9-]+)/g, className: 'code-number' }, // CSS variables (using number color for distinctness)
-            { regex: /(['"])(.*?)\1/g, className: 'code-string' }, // String values
-            { regex: /\/\*[\s\S]*?\*\//g, className: 'code-comment' }, // CSS comments
+            // Keywords (control flow, declarations, etc.)
+            { regex: /\b(function|var|let|const|return|if|else|for|while|import|export|default|class|extends|this|super|new|await|async|try|catch|finally|throw|break|continue|switch|case|do|with|typeof|instanceof|in|of|delete)\b/g, className: 'code-keyword' },
+            // Boolean and null values
+            { regex: /\b(true|false|null|undefined)\b/g, className: 'code-boolean' },
+            // Strings (including template literals)
+            { regex: /(["'`])(?:(?=(\\?))\2.)*?\1/g, className: 'code-string' },
+            // Template literal expressions
+            { regex: /\$\{[^}]*\}/g, className: 'code-template-expression' },
+            // Comments
+            { regex: /\/\/.*$/gm, className: 'code-comment' },
+            { regex: /\/\*[\s\S]*?\*\//g, className: 'code-comment' },
+            // Numbers
+            { regex: /\b\d+(\.\d+)?(e[+-]?\d+)?\b/g, className: 'code-number' },
+            // Built-in objects and methods
+            { regex: /\b(console|document|window|Math|Date|Array|Object|String|Number|Boolean|Promise|JSON|localStorage|sessionStorage)\b/g, className: 'code-builtin' },
+            // Functions calls
+            { regex: /([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/g, className: 'code-function', replace: '<span class="code-function">$1</span>(' },
+            // Properties access
+            { regex: /\.([a-zA-Z_$][a-zA-Z0-9_$]*)/g, className: 'code-property', replace: '.<span class="code-property">$1</span>' },
         ],
         jsx: [
-            { regex: /\b(function|var|let|const|return|if|else|for|while|import|export|default|class|extends|this|super|new|await|async|try|catch|finally|throw|break|continue|switch|case|true|false|null|undefined|typeof|instanceof)\b/g, className: 'code-keyword' },
+            // JSX/React keywords
+            { regex: /\b(function|var|let|const|return|if|else|for|while|import|export|default|class|extends|this|super|new|await|async|try|catch|finally|throw|break|continue|switch|case|do|with|typeof|instanceof|in|of|delete)\b/g, className: 'code-keyword' },
+            // React specific
+            { regex: /\b(React|useState|useEffect|useRef|useCallback|useMemo|useContext|Component|PureComponent)\b/g, className: 'code-react' },
+            // Boolean and null values
+            { regex: /\b(true|false|null|undefined)\b/g, className: 'code-boolean' },
+            // Strings
             { regex: /(["'`])(?:(?=(\\?))\2.)*?\1/g, className: 'code-string' },
-            { regex: /\/\/.*|\/\*[\s\S]*?\*\//g, className: 'code-comment' },
-            { regex: /\b\d+(\.\d+)?\b/g, className: 'code-number' },
-            { regex: /\b(console|document|window|Math|Date|Array|Object|String|Number|Boolean|Promise|React|useState|useEffect|useRef|useCallback)\b/g, className: 'code-builtin' },
-            // JSX specific highlighting
-            { regex: /(&lt;(?:\/)?)([a-zA-Z0-9]+)(.*?)(&gt;)/g, className: 'code-builtin', replace: '$1<span class="code-keyword">$2</span>$3$4' }, // JSX Tags
-            { regex: /(\w+)=\{(.*?)\}/g, className: 'code-text', replace: '<span class="code-builtin">$1</span>={<span class="code-keyword">$2</span>}' }, // JSX props with expressions
-            { regex: /(\w+)="([^"]*)"/g, className: 'code-text', replace: '<span class="code-builtin">$1</span>=<span class="code-string">"$2"</span>' }, // JSX props with string values
+            // JSX Tags
+            { regex: /(&lt;\/?)([A-Z][a-zA-Z0-9]*)(.*?)(&gt;)/g, className: 'code-jsx-tag', replace: '$1<span class="code-jsx-tag">$2</span>$3$4' },
+            { regex: /(&lt;\/?)([a-z][a-zA-Z0-9-]*)(.*?)(&gt;)/g, className: 'code-html-tag', replace: '$1<span class="code-html-tag">$2</span>$3$4' },
+            // JSX props with expressions
+            { regex: /(\w+)=\{([^}]*)\}/g, className: 'code-jsx-prop', replace: '<span class="code-jsx-prop">$1</span>={<span class="code-jsx-expression">$2</span>}' },
+            // JSX props with strings
+            { regex: /(\w+)="([^"]*)"/g, className: 'code-jsx-prop', replace: '<span class="code-jsx-prop">$1</span>=<span class="code-string">"$2"</span>' },
+            // Comments
+            { regex: /\/\/.*$/gm, className: 'code-comment' },
+            { regex: /\/\*[\s\S]*?\*\//g, className: 'code-comment' },
+            // Numbers
+            { regex: /\b\d+(\.\d+)?(e[+-]?\d+)?\b/g, className: 'code-number' },
+            // Built-ins
+            { regex: /\b(console|document|window|Math|Date|Array|Object|String|Number|Boolean|Promise|JSON)\b/g, className: 'code-builtin' },
+        ],
+        html: [
+            // HTML tags
+            { regex: /(&lt;\/?)([a-zA-Z0-9]+)(.*?)(&gt;)/g, className: 'code-html-tag', replace: '$1<span class="code-html-tag">$2</span>$3$4' },
+            // Attributes
+            { regex: /([a-zA-Z-]+)="([^"]*)"/g, className: 'code-html-attr', replace: '<span class="code-html-attr">$1</span>=<span class="code-string">"$2"</span>' },
+            // HTML comments
+            { regex: /&lt;!--[\s\S]*?--&gt;/g, className: 'code-comment' },
+        ],
+        css: [
+            // Selectors
+            { regex: /(\.|\#)([a-zA-Z0-9_-]+)/g, className: 'code-css-selector', replace: '$1<span class="code-css-selector">$2</span>' },
+            // Properties
+            { regex: /([a-zA-Z-]+)(?=\s*:)/g, className: 'code-css-property' },
+            // Values
+            { regex: /:\s*([^;{]+)/g, className: 'code-css-value', replace: ': <span class="code-css-value">$1</span>' },
+            // CSS variables
+            { regex: /(--[a-zA-Z0-9-]+)/g, className: 'code-css-variable' },
+            // Units and numbers
+            { regex: /\b\d+(\.\d+)?(px|em|rem|%|vh|vw|pt|pc|in|cm|mm|ex|ch|vmin|vmax|deg|rad|turn|s|ms|Hz|kHz)\b/g, className: 'code-number' },
+            // Hex colors
+            { regex: /#[0-9a-fA-F]{3,8}\b/g, className: 'code-color' },
+            // Comments
+            { regex: /\/\*[\s\S]*?\*\//g, className: 'code-comment' },
         ]
     };
 
-    const langPatterns = patterns[language] || [];
+    const langPatterns = patterns[language] || patterns['javascript']; // Default to JavaScript
 
-    // Apply highlighting: wrap matched parts in span tags with corresponding classes
-    // Note: order matters for regex patterns. More specific ones first.
+    // Apply highlighting with proper order (most specific first)
     langPatterns.forEach(pattern => {
-        // Ensure HTML entities are properly encoded before regex matching to avoid
-        // interference with HTML structure, then decode for replacements.
-        let tempLine = code.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-        tempLine = tempLine.replace(pattern.regex, (match, ...args) => {
-            const replacement = pattern.replace ? pattern.replace : `<span class="${pattern.className}">${match}</span>`;
-            // Decode HTML entities within the replacement if they were part of the match string
-            return replacement.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-        });
-        highlighted = tempLine; // Update the highlighted string
+        if (pattern.replace) {
+            highlighted = highlighted.replace(pattern.regex, pattern.replace);
+        } else {
+            highlighted = highlighted.replace(pattern.regex, `<span class="${pattern.className}">$&</span>`);
+        }
     });
-
-    // Re-encode HTML entities for final rendering in React's dangerouslySetInnerHTML
-    // This step is crucial to ensure that angle brackets are displayed as text
-    highlighted = highlighted.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
     return highlighted;
 };
 
-
 const getBlogPostDisplay = (blog: BlogPost): DisplayLine[] => {
   const lines: DisplayLine[] = [
-    { type: 'title', value: `─── ${blog.title} ───────────────────` },
-    { type: 'text', value: `Author: ${blog.author} | Date: ${blog.date}` },
-    { type: 'text', value: '──────────────────────────────────────' },
-    { type: 'text', value: '' }
+    { type: 'title',   value: `─── ${blog.title} ───────────────────` },
+    { type: 'text',    value: `Author: ${blog.author} | Date: ${blog.date}` },
+    { type: 'text',    value: '──────────────────────────────────────' },
+    { type: 'text',    value: '' }
   ];
 
-  blog.content.forEach(paragraph => {
-    lines.push({ type: 'text', value: paragraph });
-    lines.push({ type: 'text', value: '' }); // Add empty line between paragraphs
+  // plain paragraphs
+  blog.content.forEach(p => {
+    lines.push({ type: 'text', value: p });
+    lines.push({ type: 'text', value: '' });
   });
 
-  if (blog.codeBlocks && blog.codeBlocks.length > 0) {
+  // Prism‐highlighted fences
+  if (blog.codeBlocks?.length) {
     lines.push({ type: 'title', value: '─── Code Samples ─────────────────────' });
-    lines.push({ type: 'text', value: '' });
-    blog.codeBlocks.forEach(block => {
-      // Calculate max raw line length to determine consistent padding for the ASCII box
-      const codeLines = block.code.split('\n');
-      const maxRawLineLength = codeLines.reduce((max, line) => Math.max(max, line.length), 0);
+    lines.push({ type: 'text',  value: '' });
 
-      // Max width of the terminal (characters) for box drawing.
-      // This is an approximation; precise pixel width in monospace fonts can vary.
-      const terminalWidthChars = 75; // Approx for a standard terminal view (adjust as needed)
-      // Box width includes 2 chars for '│ ' and 2 chars for ' │' + max line length.
-      const boxWidth = Math.min(maxRawLineLength + 4, terminalWidthChars - 2);
+    blog.codeBlocks.forEach(({ language, code }) => {
+      // Prism highlight
+      const grammar    = Prism.languages[language] || Prism.languages.javascript;
+      const highlighted = Prism.highlight(code, grammar, language);
+      const htmlBlock   =
+        `<pre class="language-${language}"><code class="language-${language}">${highlighted}</code></pre>`;
 
-      lines.push({ type: 'text', value: `Language: ${block.language}` });
-      lines.push({ type: 'text', value: `┌${'─'.repeat(boxWidth)}┐` }); // Top border of ASCII box
-
-      codeLines.forEach(codeLine => {
-        // Pad the raw code line *first* to ensure consistent width for each line.
-        // Then, highlight the padded line.
-        const paddedRawLine = codeLine.padEnd(maxRawLineLength);
-        const highlightedCodeLine = highlightCode(paddedRawLine, block.language);
-
-        lines.push({ type: 'code', value: `│ ${highlightedCodeLine} │` }); // Render with ASCII box characters
-      });
-      lines.push({ type: 'text', value: `└${'─'.repeat(boxWidth)}┘` }); // Bottom border of ASCII box
-      lines.push({ type: 'text', value: '' }); // Space after each code block
+      lines.push({ type: 'code', value: htmlBlock });
+      lines.push({ type: 'text', value: '' });
     });
   }
 

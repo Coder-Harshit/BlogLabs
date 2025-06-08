@@ -5,9 +5,7 @@
     as props to the React Terminal component.
     This ensures content is decoupled and reusable.
     Updated: Now uses 'marked' to render Markdown to HTML, with 'marked' configured
-    to explicitly *disable* its own syntax highlighting. This ensures that
-    highlighting is solely handled by the Terminal.tsx component, preventing double rendering.
-    It also ensures fixed width per line in code blocks based on max line length.
+    to use Prism.js for syntax highlighting.
 -->
 ---
 // Import the Terminal React component.
@@ -19,15 +17,20 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 // Import the 'marked' library for Markdown to HTML conversion.
 import { marked } from 'marked';
 
-// Configure marked to NOT perform syntax highlighting.
-// This is crucial so that your Terminal.tsx component's highlightCode function
-// is the sole source of syntax highlighting.
+// Import Prism.js for syntax highlighting.
+import Prism from 'prismjs';
+// Load the languages you need for Prism.js
+import 'prismjs/components/prism-javascript.js';
+import 'prismjs/components/prism-markup.js'; // HTML
+// Add other languages as needed...
+
+// Configure marked to use Prism.js for syntax highlighting.
 marked.setOptions({
-  highlight: function(code, lang) {
-    // By returning the code as-is, we prevent marked from adding its own <span> tags.
-    return code;
-  },
   gfm: true, // Enable GitHub Flavored Markdown for standard parsing
+  highlight(code, lang) {
+    const grammar = Prism.languages[lang] || Prism.languages.javascript;
+    return Prism.highlight(code, grammar, lang);
+  }
 });
 
 // Define the BlogPost type based on your schema (should match src/components/Terminal.tsx)
@@ -48,15 +51,7 @@ const allBlogEntries: CollectionEntry<'blogs'>[] = await getCollection('blogs');
 const blogPosts: BlogPostContent[] = await Promise.all(
   allBlogEntries.map(async (entry) => {
     // Use 'marked' to convert the raw Markdown body (entry.body) to HTML.
-    // Due to marked.setOptions, this HTML will *not* have internal syntax highlighting spans.
-    let rawHtml = await marked(entry.body);
-
-    // --- HTML Cleanup (optional, but good for robustness against unexpected HTML) ---
-    // Remove any extraneous tags like scripts or styles that might be injected.
-    rawHtml = rawHtml
-      .replace(/<!--[\s\S]*?-->/g, '') // Remove HTML comments
-      .replace(/<script[\s\S]*?<\/script>/g, '') // Remove script tags
-      .replace(/<style[\s\S]*?<\/style>/g, ''); // Remove style tags
+    const rawHtml = await marked(entry.body);
 
     // --- Extracting Code Blocks ---
     // This regex looks for <pre><code class="language-xyz">...</code></pre> blocks.
@@ -89,11 +84,28 @@ const blogPosts: BlogPostContent[] = await Promise.all(
     }
 
     // --- Extracting Plain Text Content ---
-    // Now, strip all remaining HTML tags from the modified HTML string
-    // (which no longer contains code blocks) to get the pure plain text content.
-    const plainTextRaw = htmlForPlainText
-      .replace(/<[^>]+>/g, '')    // Remove all other HTML tags (like <p>, <h1>, <ul>, <li>, etc.)
-      .trim(); // Trim leading/trailing whitespace from the entire block
+    // 1) Expand lists, paragraphs, headings & line-breaks
+    let text = htmlForPlainText
+      .replace(/<li>/g, '- ')
+      .replace(/<\/li>/g, '\n')
+      .replace(/<ul[^>]*>/g, '')
+      .replace(/<\/ul>/g, '\n')
+      .replace(/<ol[^>]*>/g, '')
+      .replace(/<\/ol>/g, '\n')
+      .replace(/<p[^>]*>/g, '')
+      .replace(/<\/p>/g, '\n')
+      .replace(/<h[1-6][^>]*>/g, '')
+      .replace(/<\/h[1-6]>/g, '\n')
+      .replace(/<br\s*\/?>/g, '\n')
+      // 2) Decode HTML entities
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+    ;
+    // 3) Strip any remaining tags and trim
+    const plainTextRaw = text.replace(/<[^>]+>/g, '').trim();
 
     // Split into lines, trim each line, and filter out any entirely empty lines.
     const plainTextContent = plainTextRaw
@@ -122,6 +134,10 @@ const blogPosts: BlogPostContent[] = await Promise.all(
     <!-- Favicon link -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="stylesheet" href="src/style/minimal-blog.css">
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/prismjs@1.29.0/themes/prism-okaidia.css"
+    />
 </head>
 <body>
     <!--

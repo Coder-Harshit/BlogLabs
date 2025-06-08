@@ -68,7 +68,7 @@ body {
     /* Subtle glow for text */
     animation: text-flicker 0.1s infinite alternate;
     /* More subtle flicker */
-    /* cursor: none; */
+    cursor: none;
     /* Hide the mouse cursor */
 }
 
@@ -133,6 +133,8 @@ body {
     /* Increased padding */
     overflow-y: auto;
     /* Enable scrolling for content */
+    overflow-x: auto;
+    /* Enable horizontal scrolling for wide code blocks */
     white-space: pre-wrap;
     /* Preserve whitespace and wrap text */
     word-break: break-word;
@@ -163,6 +165,13 @@ body {
 /* Individual line styling in output */
 .terminal-output .line {
     margin-bottom: 2px;
+    white-space: pre;
+    /* Preserve spacing for all line types */
+}
+
+/* Override white-space for non-code lines to allow wrapping */
+.terminal-output .line:not(.code) {
+    white-space: pre-wrap;
 }
 
 .terminal-output .line.welcome {
@@ -212,8 +221,13 @@ body {
     color: var(--code-default);
     font-weight: normal;
     font-family: 'Fira Code', 'JetBrains Mono', 'IBM Plex Mono', monospace;
-    white-space: pre;
+    white-space: normal !important;
+    /* let Prism’s <pre> handle spacing & scrolling */
     line-height: 1.3;
+    overflow-x: visible;
+    /* Allow content to extend if needed */
+    word-break: keep-all;
+    /* Prevent breaking of code */
 }
 
 /* Specific code highlighting classes with VS Code colors */
