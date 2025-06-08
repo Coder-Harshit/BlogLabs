@@ -1,0 +1,401 @@
+/* Define CSS variables for font settings, with fallbacks */
+:root {
+    --terminal-font-family: 'IBM Plex Mono', 'Courier New', Courier, monospace;
+    /* Prioritize a good terminal font */
+    --terminal-font-size: 1em;
+    --terminal-green-light: #00FF00;
+    --terminal-green-dark: #00AA00;
+    --terminal-green-header: #005500;
+    --terminal-green-highlight: #00AA00;
+    --terminal-yellow: #AAFF00;
+    --terminal-red: #FF0000;
+    --terminal-cyan: #00FFFF;
+    --terminal-black: #000;
+
+    /* VS Code inspired syntax highlighting colors for terminal theme */
+    --code-keyword: #C586C0;        /* Purple for keywords */
+    --code-string: #CE9178;         /* Orange for strings */
+    --code-comment: #6A9955;        /* Green for comments */
+    --code-number: #B5CEA8;         /* Light green for numbers */
+    --code-builtin: #4EC9B0;        /* Teal for built-ins */
+    --code-function: #DCDCAA;       /* Yellow for functions */
+    --code-property: #9CDCFE;       /* Light blue for properties */
+    --code-boolean: #569CD6;        /* Blue for booleans */
+    --code-react: #61DAFB;          /* React blue */
+    --code-jsx-tag: #4FC1FF;        /* Light blue for JSX tags */
+    --code-jsx-prop: #92C5F8;       /* Lighter blue for JSX props */
+    --code-jsx-expression: #FFD700; /* Gold for JSX expressions */
+    --code-html-tag: #569CD6;       /* Blue for HTML tags */
+    --code-html-attr: #92C5F8;      /* Light blue for HTML attributes */
+    --code-css-selector: #D7BA7D;   /* Gold for CSS selectors */
+    --code-css-property: #9CDCFE;   /* Light blue for CSS properties */
+    --code-css-value: #CE9178;      /* Orange for CSS values */
+    --code-css-variable: #4FC1FF;   /* Light blue for CSS variables */
+    --code-color: #F44747;          /* Red for color values */
+    --code-template-expression: #FFD700; /* Gold for template expressions */
+    --code-default: #D4D4D4;        /* Light gray for default text */
+}
+
+/* Minimal Blog specific styles, primarily for the Terminal component container */
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* Make body fill the entire viewport */
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--terminal-black);
+    /* Black background for the terminal feel */
+    color: var(--terminal-green-light);
+    /* Green text for consistency */
+    font-family: var(--terminal-font-family);
+    /* Use CSS variable for font family */
+    font-size: var(--terminal-font-size);
+    /* Use CSS variable for font size */
+    overflow: hidden;
+    /* Prevent body scrollbars */
+    user-select: none;
+    /* Prevent text selection */
+    -webkit-user-select: none;
+    /* For Safari */
+    -moz-user-select: none;
+    /* For Firefox */
+    -ms-user-select: none;
+    /* For Internet Explorer/Edge */
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+    /* Subtle glow for text */
+    animation: text-flicker 0.1s infinite alternate;
+    /* More subtle flicker */
+    /* cursor: none; */
+    /* Hide the mouse cursor */
+}
+
+/* Keyframes for a more refined text flicker */
+@keyframes text-flicker {
+    0% {
+        opacity: 1;
+        text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+    }
+
+    50% {
+        opacity: 0.98;
+        text-shadow: 0 0 4px rgba(0, 255, 0, 0.4);
+    }
+
+    100% {
+        opacity: 1;
+        text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+    }
+}
+
+/* Terminal Wrapper for layout and overall terminal look */
+.terminal-wrapper {
+    /* Make terminal wrapper fill almost entire screen */
+    width: 98vw;
+    /* Almost full width */
+    height: 98vh;
+    /* Almost full height */
+    background-color: rgba(0, 0, 0, 0.95);
+    /* Slightly transparent black */
+    border: 2px solid var(--terminal-green-dark);
+    /* Terminal border */
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.6);
+    /* Enhanced green glow */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    /* Hide scrollbars within the wrapper */
+    position: relative;
+    /* For cursor positioning */
+}
+
+/* Terminal Header (top bar of the simulated terminal) */
+.terminal-header {
+    background-color: var(--terminal-green-header);
+    /* Darker green header */
+    color: var(--terminal-yellow);
+    /* Brighter green text */
+    padding: 8px 15px;
+    font-size: 0.9em;
+    text-align: center;
+    border-bottom: 1px solid var(--terminal-green-dark);
+    text-shadow: none;
+    /* No flicker on header */
+}
+
+/* Terminal Output Area (where commands and results are displayed) */
+.terminal-output {
+    flex-grow: 1;
+    /* Takes available space */
+    padding: 15px 20px;
+    /* Increased padding */
+    overflow-y: auto;
+    /* Enable scrolling for content */
+    white-space: pre-wrap;
+    /* Preserve whitespace and wrap text */
+    word-break: break-word;
+    /* Break long words */
+    scrollbar-width: thin;
+    /* Firefox scrollbar */
+    scrollbar-color: var(--terminal-green-dark) var(--terminal-black);
+    /* Firefox scrollbar colors */
+    line-height: 1.4;
+    /* Slightly increased line height for readability */
+}
+
+/* Custom scrollbar for WebKit browsers */
+.terminal-output::-webkit-scrollbar {
+    width: 8px;
+}
+
+.terminal-output::-webkit-scrollbar-track {
+    background: var(--terminal-black);
+}
+
+.terminal-output::-webkit-scrollbar-thumb {
+    background-color: var(--terminal-green-dark);
+    border-radius: 4px;
+    border: 1px solid var(--terminal-green-header);
+}
+
+/* Individual line styling in output */
+.terminal-output .line {
+    margin-bottom: 2px;
+}
+
+.terminal-output .line.welcome {
+    color: var(--terminal-green-light);
+    /* Brighter green for welcome messages */
+    text-align: center;
+    font-weight: bold;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    /* More space after welcome */
+}
+
+.terminal-output .line.title {
+    color: var(--terminal-yellow);
+    /* Yellow-green for section titles */
+    font-weight: bold;
+    margin-top: 10px;
+    /* More space before titles */
+    margin-bottom: 5px;
+    text-decoration: underline;
+    /* Underline titles */
+}
+
+.terminal-output .line.highlight {
+    background-color: var(--terminal-green-highlight);
+    /* Green highlight for selected TUI options */
+    color: var(--terminal-black);
+    /* Black text on highlight */
+    text-shadow: none;
+    /* Remove glow on highlight */
+}
+
+.terminal-output .line.prompt {
+    color: var(--terminal-green-light);
+    /* Green prompt */
+    font-weight: bold;
+}
+
+.terminal-output .line.error {
+    color: var(--terminal-red);
+    /* Red for error messages */
+    font-weight: bold;
+}
+
+/* Styling for the code lines themselves, within the ASCII box */
+.terminal-output .line.code {
+    color: var(--code-default);
+    font-weight: normal;
+    font-family: 'Fira Code', 'JetBrains Mono', 'IBM Plex Mono', monospace;
+    white-space: pre;
+    line-height: 1.3;
+}
+
+/* Specific code highlighting classes with VS Code colors */
+.code-keyword {
+    color: var(--code-keyword);
+    font-weight: bold;
+}
+
+.code-string {
+    color: var(--code-string);
+}
+
+.code-comment {
+    color: var(--code-comment);
+    font-style: italic;
+}
+
+.code-number {
+    color: var(--code-number);
+}
+
+.code-builtin {
+    color: var(--code-builtin);
+}
+
+
+.code-function {
+    color: var(--code-function);
+}
+
+
+.code-property {
+    color: var(--code-property);
+}
+
+.code-boolean {
+    color: var(--code-boolean);
+    font-weight: bold;
+}
+
+.code-react {
+    color: var(--code-react);
+    font-weight: bold;
+}
+
+.code-jsx-tag {
+    color: var(--code-jsx-tag);
+}
+
+.code-jsx-prop {
+    color: var(--code-jsx-prop);
+}
+
+.code-jsx-expression {
+    color: var(--code-jsx-expression);
+}
+
+.code-html-tag {
+    color: var(--code-html-tag);
+}
+
+.code-html-attr {
+    color: var(--code-html-attr);
+}
+
+.code-css-selector {
+    color: var(--code-css-selector);
+}
+
+.code-css-property {
+    color: var(--code-css-property);
+}
+
+.code-css-value {
+    color: var(--code-css-value);
+}
+
+.code-css-variable {
+    color: var(--code-css-variable);
+}
+
+.code-color {
+    color: var(--code-color);
+}
+
+.code-template-expression {
+    color: var(--code-template-expression);
+}
+
+/* Input line (now just a visual prompt with cursor) */
+.input-line {
+    display: flex;
+    align-items: baseline;
+    padding: 5px 20px;
+    /* Match output padding */
+    margin-top: 5px;
+}
+
+.input-line .prompt {
+    color: var(--terminal-green-light);
+    /* Green prompt */
+    margin-right: 5px;
+}
+
+/* Custom blinking cursor block for prompt */
+.cursor-block {
+    display: inline-block;
+    width: 0.75em;
+    /* Width of cursor */
+    height: 1em;
+    /* Height of cursor (approx font-size) */
+    background-color: var(--terminal-green-light);
+    /* Green block cursor */
+    animation: blink-cursor 0.75s step-end infinite;
+    vertical-align: text-bottom;
+    /* Align with text baseline */
+    margin-left: 2px;
+    /* Space after prompt */
+}
+
+@keyframes blink-cursor {
+
+    from,
+    to {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+/* Nano-like bar styling */
+.nano-bar {
+    background-color: var(--terminal-green-header);
+    /* Darker green */
+    color: var(--terminal-yellow);
+    /* Brighter green */
+    padding: 8px 20px;
+    /* Increased padding */
+    font-size: 0.9em;
+    display: flex;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    /* Allow options to wrap */
+    gap: 20px;
+    /* Space between options */
+    border-top: 1px solid var(--terminal-green-dark);
+    text-shadow: none;
+    /* No flicker on nano bar */
+}
+
+.nano-option {
+    font-weight: bold;
+    white-space: nowrap;
+    /* Prevent option labels from breaking */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .terminal-wrapper {
+        width: 100vw;
+        height: 100vh;
+        border: none;
+        /* Remove border on very small screens for max space */
+        box-shadow: none;
+    }
+
+    .terminal-header {
+        font-size: 0.75em;
+        padding: 6px 10px;
+    }
+
+    .terminal-output,
+    .input-line {
+        font-size: 0.85em;
+        padding: 10px 10px;
+    }
+
+    .nano-bar {
+        font-size: 0.7em;
+        padding: 6px 10px;
+        gap: 10px;
+    }
+}
