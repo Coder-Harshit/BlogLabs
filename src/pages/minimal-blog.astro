@@ -84,28 +84,11 @@ const blogPosts: BlogPostContent[] = await Promise.all(
     }
 
     // --- Extracting Plain Text Content ---
-    // 1) Expand lists, paragraphs, headings & line-breaks
-    let text = htmlForPlainText
-      .replace(/<li>/g, '- ')
-      .replace(/<\/li>/g, '\n')
-      .replace(/<ul[^>]*>/g, '')
-      .replace(/<\/ul>/g, '\n')
-      .replace(/<ol[^>]*>/g, '')
-      .replace(/<\/ol>/g, '\n')
-      .replace(/<p[^>]*>/g, '')
-      .replace(/<\/p>/g, '\n')
-      .replace(/<h[1-6][^>]*>/g, '')
-      .replace(/<\/h[1-6]>/g, '\n')
-      .replace(/<br\s*\/?>/g, '\n')
-      // 2) Decode HTML entities
-      .replace(/&amp;/g, '&')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'")
-    ;
-    // 3) Strip any remaining tags and trim
-    const plainTextRaw = text.replace(/<[^>]+>/g, '').trim();
+    // Now, strip all remaining HTML tags from the modified HTML string
+    // (which no longer contains code blocks) to get the pure plain text content.
+    const plainTextRaw = htmlForPlainText
+      .replace(/<[^>]+>/g, '')    // Remove all other HTML tags (like <p>, <h1>, <ul>, <li>, etc.)
+      .trim(); // Trim leading/trailing whitespace from the entire block
 
     // Split into lines, trim each line, and filter out any entirely empty lines.
     const plainTextContent = plainTextRaw
