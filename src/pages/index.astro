@@ -1,16 +1,229 @@
----
+<!-- src/pages/index.astro -->
+<!--
+    This Astro page serves as the initial "boot screen" for your website,
+    mimicking a classic GRUB (GRand Unified Bootloader) menu.
+    It presents two options: "Minimal Blog Experience" and "Fancy Blog Experience",
+    each leading to a different theme/layout for your blog.
 
+    It now features keyboard-only navigation, remembers the last choice via
+    localStorage, and automatically selects an option after a set timeout
+    if no user interaction occurs.
+-->
 ---
-
+// The Astro component script section.
+// Any JavaScript/TypeScript here runs at build time or on the server.
+// No specific server-side logic is needed for this pure frontend boot screen.
+---
+<!DOCTYPE html5>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlogLabs - Boot Options</title>
+    <!-- Favicon link (make sure you have a favicon.svg in the /public directory) -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- Link to the external CSS stylesheet for Grub screen styling -->
+    <link rel="stylesheet" href="/src/style/grub.css">
+</head>
+<body>
+    <div class="grub-container">
+        <div class="grub-header">
+            BlogLabs Boot Menu <span class="cursor">_</span>
+        </div>
+        <div class="grub-menu">
+            <ul>
+                <!--
+                    Menu Option 1: Minimal Blog Experience.
+                    Its ID corresponds to the value stored in localStorage.
+                -->
+                <li id="minimal-blog">
+                    <span class="key">A.</span> Minimal Blog Experience
+                </li>
+                <!--
+                    Menu Option 2: Fancy Blog Experience.
+                    Its ID corresponds to the value stored in localStorage.
+                -->
+                <li id="fancy-blog">
+                    <span class="key">B.</span> Fancy Blog Experience
+                </li>
+            </ul>
+        </div>
+        <!-- Display for the auto-selection countdown -->
+        <div id="countdown"></div>
+        <div class="grub-footer">
+            Use &uarr; and &darr; to navigate. Press &crarr; to select.
+            <br>
+            (Also 'A' for Minimal, 'B' for Fancy)
+        </div>
+    </div>
+
+    <!--
+        Client-side JavaScript for interactive navigation and auto-selection.
+        This script handles keyboard events for navigation, stores/retrieves
+        the last chosen option from localStorage, and implements a countdown
+        timer for automatic selection if no user input is detected.
+    -->
+    <script>
+        // Get all menu list items
+        const menuOptions = Array.from(document.querySelectorAll('.grub-menu li'));
+        const countdownElement = document.getElementById('countdown');
+        const defaultSelectionId = 'minimal-blog'; // Default option if no previous choice is stored
+        const autoSelectTime = 5; // Time in seconds for auto-selection
+
+        let selectedIndex: number; // Tracks the currently highlighted option
+        let autoSelectTimer: number | undefined; // Timer ID for auto-selection
+        let countdownInterval: number | undefined; // Interval ID for countdown display
+		let userHasInteracted = false; // Flag to track if user has pressed any key
+
+
+        /**
+         * Initializes the selected option based on localStorage or default.
+         * Sets up the initial visual selection and starts the auto-selection timer.
+         */
+        function initializeSelection() {
+            const lastChosenId = localStorage.getItem('lastChosenBlogOption');
+            const initialId = lastChosenId || defaultSelectionId;
+
+            selectedIndex = menuOptions.findIndex(option => option.id === initialId);
+            if (selectedIndex === -1) {
+                selectedIndex = 0; // Fallback to first option if stored ID is invalid
+            }
+            updateSelection(); // Apply visual highlight
+
+            startAutoSelectTimer(); // Start the countdown
+        }
+
+        /**
+         * Updates the visual selection in the menu.
+         * Adds 'selected' class to the current option, removes from others.
+         */
+        function updateSelection() {
+            menuOptions.forEach((option, index) => {
+                if (index === selectedIndex) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
+        }
+
+        /**
+         * Navigates to the selected URL and stores the choice in localStorage.
+         * @param {string} targetId The ID of the selected menu option, which is also the URL path segment.
+         */
+        function selectAndNavigate(targetId: string) {
+            clearTimers(); // Stop all timers immediately
+            localStorage.setItem('lastChosenBlogOption', targetId); // Store the last chosen option
+            window.location.href = `/${targetId}`; // Redirect to the chosen path
+        }
+
+        /**
+         * Starts the auto-selection countdown timer.
+         * This function is only called once on initial load if no user interaction.
+         * If any key is pressed, this timer will be cleared.
+         */
+        function startAutoSelectTimer() {
+			if (userHasInteracted) return ; // If user has already interacted, do not start the timer
+
+            let timeLeft = autoSelectTime;
+            updateCountdownDisplay(timeLeft);
+
+            countdownInterval = setInterval(() => {
+                timeLeft--;
+                updateCountdownDisplay(timeLeft);
+                if (timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    // Automatically select the currently highlighted option
+                    const selectedOptionId = menuOptions[selectedIndex].id;
+                    selectAndNavigate(selectedOptionId);
+                }
+            }, 1000) as unknown as number; // Type assertion for setInterval return
+
+            // Set a primary timeout that will execute if the countdown interval finishes
+            autoSelectTimer = setTimeout(() => {
+                // This timeout acts as a backup, though clearInterval on interval should handle it.
+                // It ensures navigation even if interval somehow misfires.
+                const selectedOptionId = menuOptions[selectedIndex].id;
+                selectAndNavigate(selectedOptionId);
+            }, autoSelectTime * 1000) as unknown as number; // Type assertion for setTimeout return
+        }
+
+        /**
+         * Updates the countdown display in the footer.
+         * @param {number} secondsLeft The number of seconds remaining.
+         */
+        function updateCountdownDisplay(secondsLeft: number) {
+            if (countdownElement) {
+                countdownElement.textContent = `Auto-selecting in ${secondsLeft} seconds...`;
+            }
+        }
+
+        /**
+         * Clears both the auto-selection timer and the countdown interval.
+		 * Sets userHasInteracted to true to prevent restarting the timer.
+         * Called when user interacts.
+         */
+        function clearTimers() {
+            if (autoSelectTimer) {
+                clearTimeout(autoSelectTimer);
+                autoSelectTimer = undefined;
+            }
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+                countdownInterval = undefined;
+            }
+            if (countdownElement) {
+                countdownElement.textContent = ''; // Clear countdown text
+            }
+			userHasInteracted = true; // Mark that user has interacted
+        }
+
+        /**
+         * Handles keyboard navigation and selection.
+         * Responds to ArrowUp/Down, 'W'/'S' for navigation,
+         * and 'Enter', 'A'/'B' for selection and redirection.
+         * @param {KeyboardEvent} event The keyboard event object.
+         */
+        function navigate(event: KeyboardEvent) {
+            clearTimers(); // User interaction clears the timer
+
+            const currentId = menuOptions[selectedIndex].id;
+
+            if (event.key === 'ArrowUp' || event.key.toLowerCase() === 'w') {
+                event.preventDefault(); // Prevent page scrolling
+                selectedIndex = (selectedIndex - 1 + menuOptions.length) % menuOptions.length;
+                updateSelection();
+            } else if (event.key === 'ArrowDown' || event.key.toLowerCase() === 's') {
+                event.preventDefault(); // Prevent page scrolling
+                selectedIndex = (selectedIndex + 1) % menuOptions.length;
+                updateSelection();
+            } else if (event.key === 'Enter') {
+                event.preventDefault(); // Prevent any default form submission if applicable
+                selectAndNavigate(menuOptions[selectedIndex].id);
+            } else if (event.key.toLowerCase() === 'a') {
+                event.preventDefault();
+                selectAndNavigate('minimal-blog');
+            } else if (event.key.toLowerCase() === 'b') {
+                event.preventDefault();
+                selectAndNavigate('fancy-blog');
+            }
+
+            // After a key press, if it was just navigation, restart the timer
+            // but only if the action didn't result in immediate navigation.
+            if (!autoSelectTimer && (event.key === 'ArrowUp' || event.key.toLowerCase() === 'w' || event.key === 'ArrowDown' || event.key.toLowerCase() === 's')) {
+                 // Only restart timer if the selection actually changed or was a navigation key,
+                 // and no navigation occurred.
+                if (currentId !== menuOptions[selectedIndex].id) {
+                    startAutoSelectTimer();
+                }
+            }
+        }
+
+        // Add the keyboard event listener to the document
+        document.addEventListener('keydown', navigate);
+
+        // Initialize the selection and start the timer when the script loads
+        document.addEventListener('DOMContentLoaded', initializeSelection);
+    </script>
+</body>
 </html>
