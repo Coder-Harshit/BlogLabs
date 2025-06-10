@@ -36,14 +36,14 @@
                     Menu Option 1: Minimal Blog Experience.
                     Its ID corresponds to the value stored in localStorage.
                 -->
-                <li id="minimal-blog">
+                <li id="minimal">
                     <span class="key">A.</span> Minimal Blog Experience
                 </li>
                 <!--
                     Menu Option 2: Fancy Blog Experience.
                     Its ID corresponds to the value stored in localStorage.
                 -->
-                <li id="fancy-blog">
+                <li id="fancy">
                     <span class="key">B.</span> Fancy Blog Experience
                 </li>
             </ul>
@@ -67,7 +67,7 @@
         // Get all menu list items
         const menuOptions = Array.from(document.querySelectorAll('.grub-menu li'));
         const countdownElement = document.getElementById('countdown');
-        const defaultSelectionId = 'minimal-blog'; // Default option if no previous choice is stored
+        const defaultSelectionId = 'minimal'; // Default option if no previous choice is stored
         const autoSelectTime = 5; // Time in seconds for auto-selection
 
         let selectedIndex: number; // Tracks the currently highlighted option
@@ -114,7 +114,7 @@
         function selectAndNavigate(targetId: string) {
             clearTimers(); // Stop all timers immediately
             localStorage.setItem('lastChosenBlogOption', targetId); // Store the last chosen option
-            window.location.href = `/${targetId}`; // Redirect to the chosen path
+            window.location.href = `/${targetId}/`; // Redirect to the chosen path
         }
 
         /**
@@ -202,10 +202,10 @@
                 selectAndNavigate(menuOptions[selectedIndex].id);
             } else if (event.key.toLowerCase() === 'a') {
                 event.preventDefault();
-                selectAndNavigate('minimal-blog');
+                selectAndNavigate('minimal');
             } else if (event.key.toLowerCase() === 'b') {
                 event.preventDefault();
-                selectAndNavigate('fancy-blog');
+                selectAndNavigate('fancy');
             }
 
             // After a key press, if it was just navigation, restart the timer

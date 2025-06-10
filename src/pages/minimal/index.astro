@@ -9,7 +9,7 @@
 -->
 ---
 // Import the Terminal React component.
-import Terminal from '../components/Terminal.tsx';
+import Terminal from '../../components/Terminal';
 
 // Import Astro's content collection utilities and the CollectionEntry type
 import { getCollection, type CollectionEntry } from 'astro:content';
@@ -18,7 +18,7 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 import { marked } from 'marked';
 
 // Import Prism.js for syntax highlighting.
-import Prism from 'prismjs';
+import * as Prism from 'prismjs';
 // Load the languages you need for Prism.js
 import 'prismjs/components/prism-javascript.js';
 import 'prismjs/components/prism-markup.js'; // HTML
@@ -31,7 +31,7 @@ marked.setOptions({
     const grammar = Prism.languages[lang] || Prism.languages.javascript;
     return Prism.highlight(code, grammar, lang);
   }
-});
+} as any);
 
 // Define the BlogPost type based on your schema (should match src/components/Terminal.tsx)
 interface BlogPostContent {
@@ -116,7 +116,7 @@ const blogPosts: BlogPostContent[] = await Promise.all(
     <title>BlogLabs - Minimal TUI</title>
     <!-- Favicon link -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="stylesheet" href="styles/minimal-blog.css">
+    <link rel="stylesheet" href="/styles/minimal-blog.css">
     <link
       rel="stylesheet"
       href="https://unpkg.com/prismjs@1.29.0/themes/prism-okaidia.css"
