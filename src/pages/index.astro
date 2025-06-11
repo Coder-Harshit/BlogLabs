@@ -45,7 +45,7 @@ import "../styles/grub.css"; // Import the GRUB CSS styles
         <div class="grub-footer">
             Use &uarr; and &darr; to navigate. Press &crarr; to select.
             <br />
-            (Also 'M' for Minimal, 'R' for Rich)
+            (Also 'M' for Minimal, 'R' for Rich, 'Q' for Quit)
         </div>
     </div>
 
@@ -206,8 +206,15 @@ import "../styles/grub.css"; // Import the GRUB CSS styles
             } else if (event.key.toLowerCase() === "r") {
                 event.preventDefault();
                 selectAndNavigate("rich");
+            } else if (event.key.toLowerCase() === "q"){
+                event.preventDefault();
+                window.open('', '_self'); // Open a blank page in the same tab
+                window.close(); // Close the window if 'Q' is pressed
+                // If still not closed within a few seconds, redirect to about:blank
+                setTimeout(() => {
+                    window.location.href = "about:blank";
+                }, 100);
             }
-
             // After a key press, if it was just navigation, restart the timer
             // but only if the action didn't result in immediate navigation.
             if (
