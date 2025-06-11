@@ -77,7 +77,7 @@ The Rich Blog Experience is planned to contain a desktop like feel (shh...i shou
 
 Yup, BlogLabs is kind of my portfolio, but its more than just a simple portfolio showcasing what all i know, what all i have done. It represents the core feelings of mine, which is to never stop learning.
 
-BlogLabs is open for community blogs. Wanna flex your knowledge, rant about Linux, or share that Ahaa!! moment of yours.
+BlogLabs is open for community blogs. Wanna flex your knowledge, rant about Linux, or share that Aha! moment of yours.
 
 Here’s how to contribute:
 
