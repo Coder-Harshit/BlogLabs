@@ -1,0 +1,78 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import "../../styles/rich-blog.css";
+---
+
+<BaseLayout
+    title="BlogLabs Rich Experience - Coming Soon!"
+    description="Get ready for a visually stunning, animated, and interactive desktop-like experience. The rich version of BlogLabs is under construction and launching soon!"
+>
+    <div class="coming-soon-container">
+        <div class="content-wrapper">
+            <h1 class="title">BlogLabs</h1>
+            <h2 class="subtitle">Rich Experience</h2>
+            <p class="status">Coming Soon</p>
+            <p class="message">
+                We're crafting a brand new, immersive interface for BlogLabs.
+                Get ready for a desktop-inspired experience with stunning
+                visuals, smooth animations, and intuitive navigation.
+            </p>
+            <div class="loader">
+                <span class="loader-dot"></span>
+                <span class="loader-dot"></span>
+                <span class="loader-dot"></span>
+            </div>
+            <p class="stay-tuned">Stay tuned for the launch!</p>
+        </div>
+    </div>
+</BaseLayout>
+
+<script>
+    import { gsap } from "gsap";
+    document.addEventListener("DOMContentLoaded", () => {
+        const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
+
+        tl.from(".title", { y: -50, opacity: 0, duration: 0.8, delay: 0.5 })
+            .from(".subtitle", { y: -30, opacity: 0, duration: 0.7 }, "-=0.4")
+            .from(
+                ".status",
+                {
+                    scale: 0.5,
+                    opacity: 0,
+                    duration: 1,
+                    ease: "elastic.out(1, 0.75)",
+                },
+                "-=0.5",
+            )
+            .from(".message", { y: 20, opacity: 0, duration: 0.6 }, "-=0.6")
+            .fromTo(".loader-dot",
+                { opacity: 0.4, scale: 0.6 }, // Initial state: slightly visible and smaller
+                { // Animation to:
+                    opacity: 1,
+                    scale: 1.1, // Pulse slightly larger than their normal size
+                    duration: 0.5, // Duration for one part of the pulse (e.g., scaling up)
+                    repeat: -1,    // Loop this individual dot's animation indefinitely
+                    yoyo: true,    // Make the animation reverse back to the initial state
+                    ease: "power1.inOut",
+                    stagger: {
+                        each: 0.2,  // Time between the start of each dot's animation
+                        from: "start" // Animation starts from the first dot to the last
+                                      // Other options: "center", "edges", "random"
+                    }
+                },
+                "-=0.3" // Adjust timing relative to the previous animation in the timeline
+            )
+            .from(".stay-tuned", { y: 20, opacity: 0, duration: 0.6 }, "-=0.5");
+
+        // Add event listener for the Escape key
+        document.addEventListener("keydown", (event) => {
+            event.preventDefault(); // Prevent default action for the Escape key
+            if (event.key === "Escape"){
+                console.log(
+                    "Escape key pressed, redirecting to boot screen...",
+                );
+                window.location.href = "/"; // Redirect to the boot screen (root)
+            }
+        });
+    });
+</script>

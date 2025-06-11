@@ -1,0 +1,151 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+:global(body) {
+    /* Ensure body allows full-page background from container */
+    margin: 0;
+    background-color: #121212; /* Darker base fallback */
+}
+
+.coming-soon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    /* New Gradient: Deep space blue to a cosmic purple/violet */
+    background: linear-gradient(135deg, #1c1d2c 0%, #3c3d5e 100%);
+    color: #EAEAEA; /* General light text color */
+    font-family: 'Poppins', sans-serif;
+    text-align: center;
+    overflow: hidden;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.content-wrapper {
+    max-width: 700px;
+    padding: 40px 50px;
+    /* Slightly lighter, translucent version of the background for depth */
+    background: rgba(40, 42, 70, 0.6); 
+    border-radius: 15px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
+    animation: fadeInScaleUp 1s ease-out 0.3s forwards;
+    opacity: 0;
+    /* Start hidden for animation */
+}
+
+@keyframes fadeInScaleUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.title {
+    font-size: clamp(2.5rem, 6vw, 3.8rem);
+    font-weight: 700;
+    margin-bottom: 0.2em;
+    letter-spacing: 3px; /* Slightly increased letter spacing */
+    text-transform: uppercase;
+    color: #FFFFFF; /* Pure white for main title */
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+
+.subtitle {
+    font-size: clamp(1.2rem, 3vw, 1.6rem);
+    font-weight: 400;
+    margin-bottom: 1.2em;
+    color: #B0B0D0; /* Muted lavender/light blue for subtitle */
+    letter-spacing: 1px;
+}
+
+.status {
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    font-weight: 600;
+    /* New Accent Color: Vibrant Cyan/Teal */
+    color: #00BCD4; 
+    margin-bottom: 0.6em;
+    animation: pulseStatus 2.2s infinite ease-in-out;
+    text-transform: uppercase;
+}
+
+@keyframes pulseStatus {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.08);
+        opacity: 0.85;
+    }
+}
+
+.message {
+    font-size: clamp(0.9rem, 2.2vw, 1.1rem);
+    line-height: 1.75;
+    margin-bottom: 2.5em;
+    color: #D0D0E0; /* Slightly brighter than subtitle for readability */
+}
+
+.loader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2.5em;
+    height: 20px;
+    /* Give some explicit height */
+}
+
+.loader span, .loader-dot { /* Target both if class name is loader-dot in HTML */
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin: 0 6px;
+    background-color: #00BCD4; /* Use new accent color */
+    border-radius: 50%;
+    /* GSAP will handle the animation. Remove CSS animation properties. */
+    /* animation: bounceLoader 1.4s infinite ease-in-out both; */ 
+}
+
+/* Remove CSS animation delays if GSAP handles staggering */
+/*
+.loader span:nth-child(1) {
+    animation-delay: -0.32s;
+}
+
+.loader span:nth-child(2) {
+    animation-delay: -0.16s;
+}
+*/
+
+/* Remove @keyframes bounceLoader as GSAP handles loader animation */
+/*
+@keyframes bounceLoader {
+
+    0%,
+    80%,
+    100% {
+        transform: scale(0);
+    }
+
+    40% {
+        transform: scale(1.0);
+    }
+}
+*/
+
+.stay-tuned {
+    font-size: clamp(0.85rem, 2vw, 1rem);
+    font-weight: 300;
+    color: #B0B0D0; /* Consistent with subtitle color */
+}
+
+/* Removed the duplicate .loader span rule that was here */
