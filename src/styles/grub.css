@@ -16,20 +16,31 @@
 body {
     margin: 0;
     padding: 0;
-    font-family: 'Courier New', Courier, monospace; /* Classic terminal font */
-    background-color: #000; /* Deep black background */
-    color: #00FF00; /* Vibrant green text for terminal feel */
+    font-family: 'Courier New', Courier, monospace;
+    /* Classic terminal font */
+    background-color: #000;
+    /* Deep black background */
+    color: #00FF00;
+    /* Vibrant green text for terminal feel */
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh; /* Full viewport height */
-    overflow: hidden; /* Prevent scrollbars */
-    text-shadow: 0 0 5px #00FF00; /* Subtle glow effect for text */
-    animation: flicker 0.1s infinite alternate; /* Minimal flicker for authenticity */
-    user-select: none; /* Prevent text selection */
-    -webkit-user-select: none; /* For Safari */
-    -moz-user-select: none; /* For Firefox */
-    -ms-user-select: none; /* For Internet Explorer/Edge */
+    min-height: 100vh;
+    /* Full viewport height */
+    overflow: hidden;
+    /* Prevent scrollbars */
+    text-shadow: 0 0 5px #00FF00;
+    /* Subtle glow effect for text */
+    animation: flicker 0.1s infinite alternate;
+    /* Minimal flicker for authenticity */
+    user-select: none;
+    /* Prevent text selection */
+    -webkit-user-select: none;
+    /* For Safari */
+    -moz-user-select: none;
+    /* For Firefox */
+    -ms-user-select: none;
+    /* For Internet Explorer/Edge */
 }
 
 /*
@@ -42,10 +53,14 @@ body {
     width: 80%;
     max-width: 700px;
     padding: 20px;
-    border: 2px solid #00AA00; /* Darker green border */
-    box-shadow: 0 0 15px #00FF00; /* Stronger glow for the box itself */
-    box-sizing: border-box; /* Include padding and border in the element's total width and height */
-    background-color: rgba(0, 50, 0, 0.1); /* Slightly more transparent green background */
+    border: 2px solid #00AA00;
+    /* Darker green border */
+    box-shadow: 0 0 15px #00FF00;
+    /* Stronger glow for the box itself */
+    box-sizing: border-box;
+    /* Include padding and border in the element's total width and height */
+    background-color: rgba(0, 50, 0, 0.1);
+    /* Slightly more transparent green background */
     /* border-radius: 0; /* Removed for a sharper, more 'grubed' look */
 }
 
@@ -56,10 +71,14 @@ body {
 .grub-header {
     text-align: center;
     margin-bottom: 30px;
-    font-size: 1.8em; /* Relative font size */
-    color: #33FF33; /* Brighter green for prominence */
-    text-transform: uppercase; /* All caps */
-    letter-spacing: 3px; /* Spaced out letters */
+    font-size: 1.8em;
+    /* Relative font size */
+    color: #33FF33;
+    /* Brighter green for prominence */
+    text-transform: uppercase;
+    /* All caps */
+    letter-spacing: 3px;
+    /* Spaced out letters */
 }
 
 /*
@@ -67,7 +86,8 @@ body {
     Removes default list styling and adds padding.
 */
 .grub-menu ul {
-    list-style: none; /* Remove bullet points */
+    list-style: none;
+    /* Remove bullet points */
     padding: 0;
     margin: 0;
 }
@@ -78,11 +98,14 @@ body {
     Updated: Removed `cursor: pointer;` to disable mouse interaction.
 */
 .grub-menu li {
-    padding: 8px 15px; /* Padding for each item */
+    padding: 8px 15px;
+    /* Padding for each item */
     /* cursor: default; /* Changed to default as mouse interaction is ignored */
-    transition: background-color 0.1s ease-in-out, color 0.1s ease-in-out; /* Smooth transition */
+    transition: background-color 0.1s ease-in-out, color 0.1s ease-in-out;
+    /* Smooth transition */
     font-size: 1.2em;
-    margin-bottom: 5px; /* Space between items */
+    margin-bottom: 5px;
+    /* Space between items */
     /* border-radius: 0; /* Removed for a sharper, more 'grubed' look */
 }
 
@@ -92,16 +115,22 @@ body {
     Updated: Removed :hover state, only `selected` class is used for keyboard focus.
 */
 .grub-menu li.selected {
-    background-color: #00AA00; /* Solid green highlight */
-    color: #000; /* Black text on highlight */
-    text-shadow: none; /* No glow when selected */
+    background-color: #00AA00;
+    /* Solid green highlight */
+    color: #000;
+    /* Black text on highlight */
+    text-shadow: none;
+    /* No glow when selected */
 }
 
 /* Styling for the key shortcuts (e.g., "A." or "B.") */
 .grub-menu li span.key {
-    color: #FFAA00; /* Orange for the key shortcuts */
-    font-weight: bold; /* Make it stand out */
-    margin-right: 10px; /* Space before the option description */
+    color: #FFAA00;
+    /* Orange for the key shortcuts */
+    font-weight: bold;
+    /* Make it stand out */
+    margin-right: 10px;
+    /* Space before the option description */
 }
 
 /*
@@ -112,8 +141,10 @@ body {
     margin-top: 40px;
     font-size: 0.9em;
     text-align: center;
-    color: #AAAAAA; /* Muted grey for secondary info */
-    animation: subtle-fade 2s infinite alternate; /* Gentle pulsating fade */
+    color: #AAAAAA;
+    /* Muted grey for secondary info */
+    animation: subtle-fade 2s infinite alternate;
+    /* Gentle pulsating fade */
 }
 
 /*
@@ -121,17 +152,22 @@ body {
 */
 .cursor {
     animation: blink-caret 0.75s step-end infinite;
-    display: inline-block; /* Ensure the underline/caret effect works */
-    width: 1ch; /* Width of one character */
-    vertical-align: middle; /* Align with text */
-    border-right: 0.15em solid #00FF00; /* The blinking "caret" */
+    display: inline-block;
+    /* Ensure the underline/caret effect works */
+    width: 1ch;
+    /* Width of one character */
+    vertical-align: middle;
+    /* Align with text */
+    border-right: 0.15em solid #00FF00;
+    /* The blinking "caret" */
 }
 
 /* New: Countdown display for auto-selection */
 #countdown {
     margin-top: 15px;
     font-size: 1em;
-    color: #AAAAAA; /* Same as footer for consistency */
+    color: #AAAAAA;
+    /* Same as footer for consistency */
 }
 
 /*
@@ -141,19 +177,42 @@ body {
     - `subtle-fade`: Makes the footer text gently fade in and out.
 */
 @keyframes flicker {
-    0% { text-shadow: 0 0 5px #00FF00; opacity: 0.98; }
-    50% { text-shadow: 0 0 3px #00CC00; opacity: 1; }
-    100% { text-shadow: 0 0 5px #00FF00; opacity: 0.98; }
+    0% {
+        text-shadow: 0 0 5px #00FF00;
+        opacity: 0.98;
+    }
+
+    50% {
+        text-shadow: 0 0 3px #00CC00;
+        opacity: 1;
+    }
+
+    100% {
+        text-shadow: 0 0 5px #00FF00;
+        opacity: 0.98;
+    }
 }
 
 @keyframes blink-caret {
-    from, to { border-color: transparent }
-    50% { border-color: #00FF00; }
+
+    from,
+    to {
+        border-color: transparent
+    }
+
+    50% {
+        border-color: #00FF00;
+    }
 }
 
 @keyframes subtle-fade {
-    0% { opacity: 0.7; }
-    100% { opacity: 1; }
+    0% {
+        opacity: 0.7;
+    }
+
+    100% {
+        opacity: 1;
+    }
 }
 
 /*
@@ -165,17 +224,21 @@ body {
         width: 95%;
         padding: 15px;
     }
+
     .grub-header {
         font-size: 1.5em;
         letter-spacing: 2px;
     }
+
     .grub-menu li {
         font-size: 1em;
         padding: 6px 10px;
     }
+
     .grub-footer {
         font-size: 0.8em;
     }
+
     #countdown {
         font-size: 0.9em;
     }

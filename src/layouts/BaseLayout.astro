@@ -1,72 +1,46 @@
 ---
-// src/layouts/BaseLayout.astro
-// This layout provides the basic HTML structure, metadata, and links the global Tailwind CSS.
-// All "Fancy" pages will use this layout.
-
-// Props for the layout:
-// - title: Page title (string)
-// - description: Page description for SEO (string, optional)
-// - ogImage: Open Graph image URL for social sharing (string, optional)
+/**
+ * Generic BaseLayout for BlogLabs.
+ * Provides minimal HTML structure, metadata, and a slot for content.
+ * No theme-specific logic, fonts, or scripts.
+ *
+ * Props:
+ * - title: string (required)
+ * - description?: string (optional)
+ * - ogImage?: string (optional)
+ */
 interface Props {
-  title: string;
-  description?: string;
-  ogImage?: string;
+    title: string;
+    description?: string;
+    ogImage?: string;
 }
-
-const { title, description = 'A modern and fancy blog built with Astro and React.', ogImage } = Astro.props;
+const {
+    title,
+    description = "BlogLabs - A modern blog platform.",
+    ogImage,
+} = Astro.props;
+import '../styles/global.css';
 ---
-<!DOCTYPE html>
+
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{title} | BlogLabs Fancy</title>
-
-    <!-- SEO Meta Tags -->
-    <meta name="description" content={description} />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content={Astro.url.href} />
-    {ogImage && <meta property="og:image" content={ogImage} />}
-
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-
-    <!-- Google Fonts: Inter (for modern UI feel) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Global Stylesheet (including Tailwind CSS) -->
-    <link rel="stylesheet" href="/src/styles/global.css" />
-
-    <!-- Optional: Add a theme script here if you want to apply dark/light mode immediately on load
-         before React hydrates, to prevent FOUC (Flash Of Unstyled Content) -->
-    <script is:inline>
-        const getTheme = () => {
-            if (typeof localStorage !== 'undefined' && localStorage.getItem('fancyBlogTheme')) {
-                return localStorage.getItem('fancyBlogTheme');
-            }
-            if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                return 'dark';
-            }
-            return 'light';
-        };
-
-        const theme = getTheme();
-        document.documentElement.classList.add(theme); // Apply class to html tag
-
-        // Listen for changes in localStorage for persistent theme
-        window.addEventListener('storage', (e) => {
-            if (e.key === 'fancyBlogTheme' && e.newValue) {
-                document.documentElement.classList.remove('light', 'dark');
-                document.documentElement.classList.add(e.newValue);
-            }
-        });
-    </script>
-</head>
-<body class="bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-gray-100 min-h-screen flex flex-col">
-    <slot />
-</body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={Astro.url.href} />
+        {ogImage && <meta property="og:image" content={ogImage} />}
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link
+            rel="stylesheet"
+            href="https://unpkg.com/prismjs@1.29.0/themes/prism-okaidia.css"
+        />
+    </head>
+    <body>
+        <slot />
+    </body>
 </html>

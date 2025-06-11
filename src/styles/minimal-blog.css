@@ -16,50 +16,92 @@
     --terminal-black: #000;
 
     /* VS Code inspired syntax highlighting colors for terminal theme */
-    --code-keyword: #C586C0;        /* Purple for keywords */
-    --code-string: #CE9178;         /* Orange for strings */
-    --code-comment: #6A9955;        /* Green for comments */
-    --code-number: #B5CEA8;         /* Light green for numbers */
-    --code-builtin: #4EC9B0;        /* Teal for built-ins */
-    --code-function: #DCDCAA;       /* Yellow for functions */
-    --code-property: #9CDCFE;       /* Light blue for properties */
-    --code-boolean: #569CD6;        /* Blue for booleans */
-    --code-react: #61DAFB;          /* React blue */
-    --code-jsx-tag: #4FC1FF;        /* Light blue for JSX tags */
-    --code-jsx-prop: #92C5F8;       /* Lighter blue for JSX props */
-    --code-jsx-expression: #FFD700; /* Gold for JSX expressions */
-    --code-html-tag: #569CD6;       /* Blue for HTML tags */
-    --code-html-attr: #92C5F8;      /* Light blue for HTML attributes */
-    --code-css-selector: #D7BA7D;   /* Gold for CSS selectors */
-    --code-css-property: #9CDCFE;   /* Light blue for CSS properties */
-    --code-css-value: #CE9178;      /* Orange for CSS values */
-    --code-css-variable: #4FC1FF;   /* Light blue for CSS variables */
-    --code-color: #F44747;          /* Red for color values */
-    --code-template-expression: #FFD700; /* Gold for template expressions */
-    --code-default: #D4D4D4;        /* Light gray for default text */
+    --code-keyword: #C586C0;
+    /* Purple for keywords */
+    --code-string: #CE9178;
+    /* Orange for strings */
+    --code-comment: #6A9955;
+    /* Green for comments */
+    --code-number: #B5CEA8;
+    /* Light green for numbers */
+    --code-builtin: #4EC9B0;
+    /* Teal for built-ins */
+    --code-function: #DCDCAA;
+    /* Yellow for functions */
+    --code-property: #9CDCFE;
+    /* Light blue for properties */
+    --code-boolean: #569CD6;
+    /* Blue for booleans */
+    --code-react: #61DAFB;
+    /* React blue */
+    --code-jsx-tag: #4FC1FF;
+    /* Light blue for JSX tags */
+    --code-jsx-prop: #92C5F8;
+    /* Lighter blue for JSX props */
+    --code-jsx-expression: #FFD700;
+    /* Gold for JSX expressions */
+    --code-html-tag: #569CD6;
+    /* Blue for HTML tags */
+    --code-html-attr: #92C5F8;
+    /* Light blue for HTML attributes */
+    --code-css-selector: #D7BA7D;
+    /* Gold for CSS selectors */
+    --code-css-property: #9CDCFE;
+    /* Light blue for CSS properties */
+    --code-css-value: #CE9178;
+    /* Orange for CSS values */
+    --code-css-variable: #4FC1FF;
+    /* Light blue for CSS variables */
+    --code-color: #F44747;
+    /* Red for color values */
+    --code-template-expression: #FFD700;
+    /* Gold for template expressions */
+    --code-default: #D4D4D4;
+    /* Light gray for default text */
 
     /* Light Theme Syntax Colors */
-    --lt-code-keyword: #0000FF;       /* Blue for keywords */
-    --lt-code-string: #A31515;        /* Dark red for strings */
-    --lt-code-comment: #008000;       /* Green for comments */
-    --lt-code-number: #098658;        /* Dark teal for numbers */
-    --lt-code-builtin: #267F99;       /* Teal for built-ins */
-    --lt-code-function: #795E26;      /* Brown for functions */
-    --lt-code-property: #001080;      /* Dark blue for properties */
-    --lt-code-boolean: #0000FF;       /* Blue for booleans */
-    --lt-code-react: #007ACC;         /* Darker React blue */
-    --lt-code-jsx-tag: #800000;       /* Maroon for JSX tags */
-    --lt-code-jsx-prop: #FF0000;      /* Red for JSX props */
-    --lt-code-jsx-expression: #A52A2A;/* Brown for JSX expressions */
-    --lt-code-html-tag: #800000;      /* Maroon for HTML tags */
-    --lt-code-html-attr: #FF0000;     /* Red for HTML attributes */
-    --lt-code-css-selector: #800000;  /* Maroon for CSS selectors */
-    --lt-code-css-property: #0000FF;  /* Blue for CSS properties */
-    --lt-code-css-value: #098658;     /* Dark teal for CSS values */
-    --lt-code-css-variable: #267F99;  /* Teal for CSS variables */
-    --lt-code-color: #FF0000;         /* Red for color values */
-    --lt-code-template-expression: #A52A2A; /* Brown for template expressions */
-    --lt-code-default: #1E1E1E;       /* Dark gray for default text in light theme */
+    --lt-code-keyword: #0000FF;
+    /* Blue for keywords */
+    --lt-code-string: #A31515;
+    /* Dark red for strings */
+    --lt-code-comment: #008000;
+    /* Green for comments */
+    --lt-code-number: #098658;
+    /* Dark teal for numbers */
+    --lt-code-builtin: #267F99;
+    /* Teal for built-ins */
+    --lt-code-function: #795E26;
+    /* Brown for functions */
+    --lt-code-property: #001080;
+    /* Dark blue for properties */
+    --lt-code-boolean: #0000FF;
+    /* Blue for booleans */
+    --lt-code-react: #007ACC;
+    /* Darker React blue */
+    --lt-code-jsx-tag: #800000;
+    /* Maroon for JSX tags */
+    --lt-code-jsx-prop: #FF0000;
+    /* Red for JSX props */
+    --lt-code-jsx-expression: #A52A2A;
+    /* Brown for JSX expressions */
+    --lt-code-html-tag: #800000;
+    /* Maroon for HTML tags */
+    --lt-code-html-attr: #FF0000;
+    /* Red for HTML attributes */
+    --lt-code-css-selector: #800000;
+    /* Maroon for CSS selectors */
+    --lt-code-css-property: #0000FF;
+    /* Blue for CSS properties */
+    --lt-code-css-value: #098658;
+    /* Dark teal for CSS values */
+    --lt-code-css-variable: #267F99;
+    /* Teal for CSS variables */
+    --lt-code-color: #FF0000;
+    /* Red for color values */
+    --lt-code-template-expression: #A52A2A;
+    /* Brown for template expressions */
+    --lt-code-default: #1E1E1E;
+    /* Dark gray for default text in light theme */
 }
 
 /* Minimal Blog specific styles, primarily for the Terminal component container */
@@ -100,7 +142,8 @@ body {
 
 /* Default terminal theme styles for body */
 html[data-bloglabs-theme="terminal"] body,
-body { /* Fallback if attribute isn't set, assuming terminal is default */
+body {
+    /* Fallback if attribute isn't set, assuming terminal is default */
     background-color: var(--terminal-black);
     color: var(--terminal-green-light);
     text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
@@ -108,15 +151,19 @@ body { /* Fallback if attribute isn't set, assuming terminal is default */
 }
 
 html[data-bloglabs-theme="light"] body {
-    background-color: #f0f0f0; /* Light gray page background */
-    color: #333333; /* Default dark text for the page */
+    background-color: #f0f0f0;
+    /* Light gray page background */
+    color: #333333;
+    /* Default dark text for the page */
     text-shadow: none;
     animation: none;
 }
 
 html[data-bloglabs-theme="dark"] body {
-    background-color: #121212; /* Dark page background */
-    color: #e0e0e0; /* Default light text for the page */
+    background-color: #121212;
+    /* Dark page background */
+    color: #e0e0e0;
+    /* Default light text for the page */
     text-shadow: none;
     animation: none;
 }
@@ -162,25 +209,36 @@ html[data-bloglabs-theme="dark"] body {
 
 /* Theme selector via wrapper class */
 .terminal-wrapper.theme-light {
-    background-color: #f8f8f8; /* Slightly off-white wrapper background */
-    color: #2c3e50; /* Dark blue-gray text */
-    border: 2px solid #bdc3c7; /* Light silver border */
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.15); /* Softer shadow */
-    text-shadow: none; /* Ensure no inherited glow */
-    animation: none; /* Ensure no inherited flicker */
+    background-color: #f8f8f8;
+    /* Slightly off-white wrapper background */
+    color: #2c3e50;
+    /* Dark blue-gray text */
+    border: 2px solid #bdc3c7;
+    /* Light silver border */
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
+    /* Softer shadow */
+    text-shadow: none;
+    /* Ensure no inherited glow */
+    animation: none;
+    /* Ensure no inherited flicker */
 }
 
 .terminal-wrapper.theme-light .terminal-header {
-    background-color: #e8e8e8; /* Light gray header */
-    color: #34495e; /* Darker blue-gray for header text */
+    background-color: #e8e8e8;
+    /* Light gray header */
+    color: #34495e;
+    /* Darker blue-gray for header text */
     border-bottom-color: #bdc3c7;
     text-shadow: none;
 }
 
 .terminal-wrapper.theme-light .terminal-output {
-    background-color: #ffffff; /* White output area */
-    color: #333333; /* Blackish text for output */
-    scrollbar-color: #bdc3c7 #f0f0f0; /* Light scrollbar */
+    background-color: #ffffff;
+    /* White output area */
+    color: #333333;
+    /* Blackish text for output */
+    scrollbar-color: #bdc3c7 #f0f0f0;
+    /* Light scrollbar */
     text-shadow: none;
 }
 
@@ -198,68 +256,147 @@ html[data-bloglabs-theme="dark"] body {
 }
 
 .terminal-wrapper.theme-light .terminal-output .line.welcome {
-    color: #27ae60; /* Emerald green for welcome */
+    color: #27ae60;
+    /* Emerald green for welcome */
 }
 
 .terminal-wrapper.theme-light .terminal-output .line.title {
-    color: #2980b9; /* Peter river blue for titles */
+    color: #2980b9;
+    /* Peter river blue for titles */
     text-decoration-color: #2980b9;
 }
 
 .terminal-wrapper.theme-light .terminal-output .line.highlight {
-    background-color: #3498db; /* Brighter blue highlight */
-    color: #ffffff; /* White text on highlight */
+    background-color: #3498db;
+    /* Brighter blue highlight */
+    color: #ffffff;
+    /* White text on highlight */
 }
 
 .terminal-wrapper.theme-light .terminal-output .line.prompt {
-    color: #27ae60; /* Emerald green for prompt */
+    color: #27ae60;
+    /* Emerald green for prompt */
 }
 
 .terminal-wrapper.theme-light .terminal-output .line.error {
-    color: #c0392b; /* Pomegranate red for errors */
+    color: #c0392b;
+    /* Pomegranate red for errors */
 }
 
 .terminal-wrapper.theme-light .terminal-output .line.code {
-    color: var(--lt-code-default); /* Default dark text for code */
-    background-color: #f9f9f9; /* Very light gray background for code blocks */
+    color: var(--lt-code-default);
+    /* Default dark text for code */
+    background-color: #f9f9f9;
+    /* Very light gray background for code blocks */
     border: 1px solid #eee;
-    padding: 0.2em 0.4em; /* Minimal padding inside the line for code */
+    padding: 0.2em 0.4em;
+    /* Minimal padding inside the line for code */
 }
 
 /* Light Theme Syntax Highlighting */
-.terminal-wrapper.theme-light .code-keyword { color: var(--lt-code-keyword); font-weight: bold; }
-.terminal-wrapper.theme-light .code-string { color: var(--lt-code-string); }
-.terminal-wrapper.theme-light .code-comment { color: var(--lt-code-comment); font-style: italic; }
-.terminal-wrapper.theme-light .code-number { color: var(--lt-code-number); }
-.terminal-wrapper.theme-light .code-builtin { color: var(--lt-code-builtin); }
-.terminal-wrapper.theme-light .code-function { color: var(--lt-code-function); }
-.terminal-wrapper.theme-light .code-property { color: var(--lt-code-property); }
-.terminal-wrapper.theme-light .code-boolean { color: var(--lt-code-boolean); font-weight: bold; }
-.terminal-wrapper.theme-light .code-react { color: var(--lt-code-react); font-weight: bold; }
-.terminal-wrapper.theme-light .code-jsx-tag { color: var(--lt-code-jsx-tag); }
-.terminal-wrapper.theme-light .code-jsx-prop { color: var(--lt-code-jsx-prop); }
-.terminal-wrapper.theme-light .code-jsx-expression { color: var(--lt-code-jsx-expression); }
-.terminal-wrapper.theme-light .code-html-tag { color: var(--lt-code-html-tag); }
-.terminal-wrapper.theme-light .code-html-attr { color: var(--lt-code-html-attr); }
-.terminal-wrapper.theme-light .code-css-selector { color: var(--lt-code-css-selector); }
-.terminal-wrapper.theme-light .code-css-property { color: var(--lt-code-css-property); }
-.terminal-wrapper.theme-light .code-css-value { color: var(--lt-code-css-value); }
-.terminal-wrapper.theme-light .code-css-variable { color: var(--lt-code-css-variable); }
-.terminal-wrapper.theme-light .code-color { color: var(--lt-code-color); }
-.terminal-wrapper.theme-light .code-template-expression { color: var(--lt-code-template-expression); }
-.terminal-wrapper.theme-light .code-default { color: var(--lt-code-default); }
+.terminal-wrapper.theme-light .code-keyword {
+    color: var(--lt-code-keyword);
+    font-weight: bold;
+}
+
+.terminal-wrapper.theme-light .code-string {
+    color: var(--lt-code-string);
+}
+
+.terminal-wrapper.theme-light .code-comment {
+    color: var(--lt-code-comment);
+    font-style: italic;
+}
+
+.terminal-wrapper.theme-light .code-number {
+    color: var(--lt-code-number);
+}
+
+.terminal-wrapper.theme-light .code-builtin {
+    color: var(--lt-code-builtin);
+}
+
+.terminal-wrapper.theme-light .code-function {
+    color: var(--lt-code-function);
+}
+
+.terminal-wrapper.theme-light .code-property {
+    color: var(--lt-code-property);
+}
+
+.terminal-wrapper.theme-light .code-boolean {
+    color: var(--lt-code-boolean);
+    font-weight: bold;
+}
+
+.terminal-wrapper.theme-light .code-react {
+    color: var(--lt-code-react);
+    font-weight: bold;
+}
+
+.terminal-wrapper.theme-light .code-jsx-tag {
+    color: var(--lt-code-jsx-tag);
+}
+
+.terminal-wrapper.theme-light .code-jsx-prop {
+    color: var(--lt-code-jsx-prop);
+}
+
+.terminal-wrapper.theme-light .code-jsx-expression {
+    color: var(--lt-code-jsx-expression);
+}
+
+.terminal-wrapper.theme-light .code-html-tag {
+    color: var(--lt-code-html-tag);
+}
+
+.terminal-wrapper.theme-light .code-html-attr {
+    color: var(--lt-code-html-attr);
+}
+
+.terminal-wrapper.theme-light .code-css-selector {
+    color: var(--lt-code-css-selector);
+}
+
+.terminal-wrapper.theme-light .code-css-property {
+    color: var(--lt-code-css-property);
+}
+
+.terminal-wrapper.theme-light .code-css-value {
+    color: var(--lt-code-css-value);
+}
+
+.terminal-wrapper.theme-light .code-css-variable {
+    color: var(--lt-code-css-variable);
+}
+
+.terminal-wrapper.theme-light .code-color {
+    color: var(--lt-code-color);
+}
+
+.terminal-wrapper.theme-light .code-template-expression {
+    color: var(--lt-code-template-expression);
+}
+
+.terminal-wrapper.theme-light .code-default {
+    color: var(--lt-code-default);
+}
 
 .terminal-wrapper.theme-light .input-line .prompt {
-    color: #27ae60; /* Emerald green prompt */
+    color: #27ae60;
+    /* Emerald green prompt */
 }
 
 .terminal-wrapper.theme-light .cursor-block {
-    background-color: #333333; /* Dark cursor */
+    background-color: #333333;
+    /* Dark cursor */
 }
 
 .terminal-wrapper.theme-light .nano-bar {
-    background-color: #e8e8e8; /* Light gray nano bar */
-    color: #34495e; /* Darker blue-gray for nano bar text */
+    background-color: #e8e8e8;
+    /* Light gray nano bar */
+    color: #34495e;
+    /* Darker blue-gray for nano bar text */
     border-top-color: #bdc3c7;
     text-shadow: none;
 }
@@ -267,6 +404,7 @@ html[data-bloglabs-theme="dark"] body {
 .terminal-wrapper.theme-dark {
     background-color: #1e1e1e;
 }
+
 .terminal-wrapper.theme-dark .terminal-output {
     background-color: #1e1e1e;
     color: #d4d4d4;
@@ -545,6 +683,11 @@ html[data-bloglabs-theme="dark"] body {
     font-weight: bold;
     white-space: nowrap;
     /* Prevent option labels from breaking */
+}
+
+.nano-option--right {
+    margin-left: auto;
+    /* Push right-aligned options to the right */
 }
 
 /* Responsive adjustments */

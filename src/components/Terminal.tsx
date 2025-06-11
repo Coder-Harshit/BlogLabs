@@ -68,11 +68,6 @@ const mockProjects: Project[] = [
     githubUrl: 'https://github.com/yourusername/bloglabs'
   },
   {
-    name: 'Portfolio Site (Fancy)',
-    description: 'A visually rich and interactive portfolio website, showcasing modern web design.',
-    githubUrl: 'https://github.com/yourusername/fancy-portfolio'
-  },
-  {
     name: 'CLI Game Engine',
     description: 'A personal project building a simple text-based adventure game engine.',
     githubUrl: 'https://github.com/yourusername/cli-game'
@@ -81,11 +76,11 @@ const mockProjects: Project[] = [
 
 // Dummy settings data. Values will be managed by localStorage.
 const defaultSettings: SettingOption[] = [
-    { key: 'themeMode', label: 'Theme Mode', type: 'select', options: ['terminal', 'light', 'dark'], currentValue: 'terminal' }, // 'terminal' is default for minimal
-    { key: 'fontSize', label: 'Font Size', type: 'select', options: ['small', 'medium', 'large'], currentValue: 'medium' },
-    { key: 'fontFamily', label: 'Font Family', type: 'select', options: ['Courier New', 'Ubuntu', 'IBM Plex Mono', 'Fira Code', 'JetBrains Mono', 'Tektur'], currentValue: 'Courier New' }, // Added more monospace fonts
-    { key: 'showWelcome', label: 'Show Welcome on Home', type: 'boolean', currentValue: true },
-    // { key: 'showHelpMenu', label: 'Show Help Menu', type: 'boolean', currentValue: true }
+  { key: 'themeMode', label: 'Theme Mode', type: 'select', options: ['terminal', 'light', 'dark'], currentValue: 'terminal' }, // 'terminal' is default for minimal
+  { key: 'fontSize', label: 'Font Size', type: 'select', options: ['small', 'medium', 'large'], currentValue: 'medium' },
+  { key: 'fontFamily', label: 'Font Family', type: 'select', options: ['Courier New', 'Ubuntu', 'IBM Plex Mono', 'Fira Code', 'JetBrains Mono', 'Tektur'], currentValue: 'Courier New' }, // Added more monospace fonts
+  { key: 'showWelcome', label: 'Show Welcome on Home', type: 'boolean', currentValue: true },
+  // { key: 'showHelpMenu', label: 'Show Help Menu', type: 'boolean', currentValue: true }
 ];
 
 
@@ -98,7 +93,8 @@ const getWelcomeScreen = (): DisplayLine[] => {
     { type: 'welcome', value: '└───────────────────────────────────┘' },
     { type: 'text', value: '' },
     { type: 'text', value: 'Navigate using ↑↓ arrows and Enter.' },
-    { type: 'text', value: 'Press \'h\' for Help, \'a\' for About, \'p\' for Projects, \'s\' for Settings.' },
+    // { type: 'text', value: 'Press \'h\' for Help, \'a\' for About, \'p\' for Projects, \'s\' for Settings.' },
+    { type: 'text', value: 'Press \'a\' for About, \'p\' for Projects, \'s\' for Settings.' },
     { type: 'text', value: '' },
     { type: 'prompt', value: 'Choose an option below:' },
     { type: 'text', value: '' } // Empty line for spacing
@@ -127,19 +123,19 @@ const getBlogListDisplay = (highlightedIndex: number, blogs: BlogPost[]): Displa
   });
   lines.push({ type: 'text', value: '' });
   if (blogs[highlightedIndex]) {
-      lines.push({ type: 'text', value: '─── Summary ──────────────────────────' });
-      lines.push({ type: 'text', value: blogs[highlightedIndex].summary });
-      lines.push({ type: 'text', value: '' });
+    lines.push({ type: 'text', value: '─── Summary ──────────────────────────' });
+    lines.push({ type: 'text', value: blogs[highlightedIndex].summary });
+    lines.push({ type: 'text', value: '' });
   }
   return lines;
 };
 
 const getBlogPostDisplay = (blog: BlogPost): DisplayLine[] => {
   const lines: DisplayLine[] = [
-    { type: 'title',   value: `─── ${blog.title} ───────────────────` },
-    { type: 'text',    value: `Author: ${blog.author} | Date: ${blog.date}` },
-    { type: 'text',    value: '──────────────────────────────────────' },
-    { type: 'text',    value: '' }
+    { type: 'title', value: `─── ${blog.title} ───────────────────` },
+    { type: 'text', value: `Author: ${blog.author} | Date: ${blog.date}` },
+    { type: 'text', value: '──────────────────────────────────────' },
+    { type: 'text', value: '' }
   ];
 
   // plain paragraphs
@@ -151,13 +147,13 @@ const getBlogPostDisplay = (blog: BlogPost): DisplayLine[] => {
   // Prism‐highlighted fences
   if (blog.codeBlocks?.length) {
     lines.push({ type: 'title', value: '─── Code Samples ─────────────────────' });
-    lines.push({ type: 'text',  value: '' });
+    lines.push({ type: 'text', value: '' });
 
     blog.codeBlocks.forEach(({ language, code }) => {
       // Prism highlight
-      const grammar    = Prism.languages[language] || Prism.languages.javascript;
+      const grammar = Prism.languages[language] || Prism.languages.javascript;
       const highlighted = Prism.highlight(code, grammar, language);
-      const htmlBlock   =
+      const htmlBlock =
         `<pre class="language-${language}"><code class="language-${language}">${highlighted}</code></pre>`;
 
       lines.push({ type: 'code', value: htmlBlock });
@@ -169,55 +165,55 @@ const getBlogPostDisplay = (blog: BlogPost): DisplayLine[] => {
 };
 
 const getAboutMeDisplay = (): DisplayLine[] => {
-    return [
-        { type: 'title', value: '─── About Me ─────────────────────────' },
-        { type: 'text', value: '' },
-        { type: 'text', value: 'Hello! I\'m BlogLabs Admin, a passionate developer and learner.' },
-        { type: 'text', value: 'I love building web applications and exploring new technologies.' },
-        { type: 'text', value: 'This platform is my space to share knowledge and projects.' },
-        { type: 'text', value: 'You can reach me at: admin@bloglabs.com' },
-        { type: 'text', value: '' },
-        { type: 'text', value: '──────────────────────────────────────' },
-        { type: 'text', value: '' }
-    ];
+  return [
+    { type: 'title', value: '─── About Me ─────────────────────────' },
+    { type: 'text', value: '' },
+    { type: 'text', value: 'Hello! I\'m BlogLabs Admin, a passionate developer and learner.' },
+    { type: 'text', value: 'I love building web applications and exploring new technologies.' },
+    { type: 'text', value: 'This platform is my space to share knowledge and projects.' },
+    { type: 'text', value: 'You can reach me at: admin@bloglabs.com' },
+    { type: 'text', value: '' },
+    { type: 'text', value: '──────────────────────────────────────' },
+    { type: 'text', value: '' }
+  ];
 };
 
 const getProjectsDisplay = (projects: Project[]): DisplayLine[] => {
-    const lines: DisplayLine[] = [
-        { type: 'title', value: '─── My Projects ──────────────────────' },
-        { type: 'text', value: '' }
-    ];
-    projects.forEach(project => {
-        lines.push({ type: 'text', value: `- ${project.name}` });
-        lines.push({ type: 'text', value: `  ${project.description}` });
-        lines.push({ type: 'text', value: `  GitHub: ${project.githubUrl}` });
-        lines.push({ type: 'text', value: '' });
-    });
-    return lines;
+  const lines: DisplayLine[] = [
+    { type: 'title', value: '─── My Projects ──────────────────────' },
+    { type: 'text', value: '' }
+  ];
+  projects.forEach(project => {
+    lines.push({ type: 'text', value: `- ${project.name}` });
+    lines.push({ type: 'text', value: `  ${project.description}` });
+    lines.push({ type: 'text', value: `  GitHub: ${project.githubUrl}` });
+    lines.push({ type: 'text', value: '' });
+  });
+  return lines;
 };
 
 const getSettingsDisplay = (settings: SettingOption[], highlightedIndex: number): DisplayLine[] => {
-    const lines: DisplayLine[] = [
-        { type: 'title', value: '─── Settings ─────────────────────────' },
-        { type: 'text', value: '' }
-    ];
+  const lines: DisplayLine[] = [
+    { type: 'title', value: '─── Settings ─────────────────────────' },
+    { type: 'text', value: '' }
+  ];
 
-    settings.forEach((setting, index) => {
-        const isSelected = index === highlightedIndex;
-        let displayValue = '';
-        if (setting.type === 'boolean') {
-            displayValue = setting.currentValue ? '[X]' : '[ ]';
-        } else if (setting.type === 'select' && setting.options) {
-            displayValue = `[${setting.currentValue || 'N/A'}]`;
-        }
-        lines.push({
-            type: isSelected ? 'highlight' : 'text',
-            value: `${isSelected ? '> ' : '  '}${setting.label.padEnd(20)} ${displayValue}`
-        });
+  settings.forEach((setting, index) => {
+    const isSelected = index === highlightedIndex;
+    let displayValue = '';
+    if (setting.type === 'boolean') {
+      displayValue = setting.currentValue ? '[X]' : '[ ]';
+    } else if (setting.type === 'select' && setting.options) {
+      displayValue = `[${setting.currentValue || 'N/A'}]`;
+    }
+    lines.push({
+      type: isSelected ? 'highlight' : 'text',
+      value: `${isSelected ? '> ' : '  '}${setting.label.padEnd(20)} ${displayValue}`
     });
+  });
 
-    lines.push({ type: 'text', value: '' });
-    return lines;
+  lines.push({ type: 'text', value: '' });
+  return lines;
 };
 
 
@@ -233,8 +229,8 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts }) => { // Accept blogPos
   const [currentBlogSlug, setCurrentBlogSlug] = useState<string | null>(null); // For blogContent view
 
   // pull our settings flags
-  const themeMode    = userSettings.find(s => s.key === 'themeMode')?.currentValue as string     || 'terminal';
-  const showWelcome  = userSettings.find(s => s.key === 'showWelcome')?.currentValue as boolean  || false;
+  const themeMode = userSettings.find(s => s.key === 'themeMode')?.currentValue as string || 'terminal';
+  const showWelcome = userSettings.find(s => s.key === 'showWelcome')?.currentValue as boolean || false;
   const showHelpMenu = userSettings.find(s => s.key === 'showHelpMenu')?.currentValue as boolean || false;
 
   const terminalOutputRef = useRef<HTMLDivElement>(null); // Ref to scroll output area
@@ -247,8 +243,8 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts }) => { // Accept blogPos
         if (storedSettings) {
           const parsed = JSON.parse(storedSettings);
           setUserSettings(prevSettings => defaultSettings.map(defaultSetting => {
-              const found = parsed.find((s: SettingOption) => s.key === defaultSetting.key);
-              return found ? { ...defaultSetting, currentValue: found.currentValue } : defaultSetting;
+            const found = parsed.find((s: SettingOption) => s.key === defaultSetting.key);
+            return found ? { ...defaultSetting, currentValue: found.currentValue } : defaultSetting;
           }));
         }
       }
@@ -272,18 +268,18 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts }) => { // Accept blogPos
   // Update terminal font based on settings
 
   // Apply CSS variables from settings
-  useEffect(()=>{
+  useEffect(() => {
     const root = document.documentElement;
-    const fm = userSettings.find(s=>s.key==='fontFamily')!.currentValue as string;
-    const fs = userSettings.find(s=>s.key==='fontSize')!.currentValue as string;
+    const fm = userSettings.find(s => s.key === 'fontFamily')!.currentValue as string;
+    const fs = userSettings.find(s => s.key === 'fontSize')!.currentValue as string;
     root.style.setProperty('--terminal-font-family', `"${fm}"`);
     root.style.setProperty('--terminal-font-size',
-      fs==='small'? '0.85em': fs==='large'? '1.15em': '1em'
+      fs === 'small' ? '0.85em' : fs === 'large' ? '1.15em' : '1em'
     );
     // update wrapper class
     root.setAttribute('data-bloglabs-theme', themeMode);
     // themeMode could toggle elsewhere if you add CSS classes…
-  },[userSettings]);
+  }, [userSettings]);
 
   // Handle display content update based on current view
   useEffect(() => {
@@ -294,12 +290,12 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts }) => { // Accept blogPos
       case 'main':
         const showWelcome = userSettings.find(s => s.key === 'showWelcome')?.currentValue;
         if (showWelcome) {
-            content = getWelcomeScreen();
+          content = getWelcomeScreen();
         }
         const mainOptions = getMainMenuOptions();
         content = [...content, ...mainOptions.map((option, index) => ({
-            type: index === selectedOptionIndex ? 'highlight' : 'text',
-            value: `${index === selectedOptionIndex ? '> ' : '  '}${option}`
+          type: index === selectedOptionIndex ? 'highlight' : 'text',
+          value: `${index === selectedOptionIndex ? '> ' : '  '}${option}`
         }))] as DisplayLine[];
         currentOptionsLength = mainOptions.length;
         break;
@@ -333,15 +329,24 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts }) => { // Accept blogPos
 
     // Reset selection if it's out of bounds for the new view
     if (selectedOptionIndex >= currentOptionsLength && currentOptionsLength > 0) {
-        setSelectedOptionIndex(0);
+      setSelectedOptionIndex(0);
     } else if (currentOptionsLength === 0 && selectedOptionIndex !== 0) {
-        setSelectedOptionIndex(0); // For views with no options
+      setSelectedOptionIndex(0); // For views with no options
     }
 
 
-    // Ensure terminal scrolls to bottom after content update
+    // // Ensure terminal scrolls to bottom after content update
+    // if (terminalOutputRef.current) {
+    //   terminalOutputRef.current.scrollTop = terminalOutputRef.current.scrollHeight;
+    // }
+    // Scroll to top for blog content, otherwise to bottom
     if (terminalOutputRef.current) {
-        terminalOutputRef.current.scrollTop = terminalOutputRef.current.scrollHeight;
+        terminalOutputRef.current.scrollTop = 0;
+      // if (currentView === 'blogContent') {
+      //   terminalOutputRef.current.scrollTop = 0;
+      // } else {
+      //   terminalOutputRef.current.scrollTop = terminalOutputRef.current.scrollHeight;
+      // }
     }
   }, [currentView, selectedOptionIndex, currentBlogSlug, userSettings, blogPosts]); // Add blogPosts to dependency array
 
@@ -351,12 +356,40 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts }) => { // Accept blogPos
   const handleGlobalKeyDown = useCallback((e: KeyboardEvent) => {
     // Prevent default browser actions for navigation keys
     const preventDefaultKeys = [
-        'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter',
-        'Backspace', 'Delete', // Delete key for back too?
-        'h', 'b', 'a', 'p', 's', 'c', 'escape'
+      'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter',
+      'Backspace',
+      'b', 'a', 'p', 's', 'c', 'escape', 'g',
+      // vim motions
+      'h', 'j', 'k', 'l'
     ];
     if (preventDefaultKeys.includes(e.key) || preventDefaultKeys.includes(e.key.toLowerCase())) {
-        e.preventDefault();
+      e.preventDefault();
+    }
+
+    // ── vim/arrow scroll only in content‐scrollable views ──
+    const scrollEl = terminalOutputRef.current;
+    const isScrollableView = ['blogContent', 'about', 'projects', 'settings'].includes(currentView);
+    if (isScrollableView && scrollEl) {
+      // down
+      if (e.key === 'j' || e.key === 'ArrowDown') {
+        scrollEl.scrollBy({ top: scrollEl.clientHeight * 0.8, behavior: 'smooth' });
+        return;
+      }
+      // up
+      if (e.key === 'k' || e.key === 'ArrowUp') {
+        scrollEl.scrollBy({ top: -scrollEl.clientHeight * 0.8, behavior: 'smooth' });
+        return;
+      }
+      // right
+      if (e.key === 'l' || e.key === 'ArrowRight') {
+        scrollEl.scrollBy({ left: 100, behavior: 'smooth' });
+        return;
+      }
+      // left
+      if (e.key === 'h' || e.key === 'ArrowLeft') {
+        scrollEl.scrollBy({ left: -100, behavior: 'smooth' });
+        return;
+      }
     }
 
     let newSelectedOptionIndex = selectedOptionIndex;
@@ -364,49 +397,66 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts }) => { // Accept blogPos
 
     // --- Common Navigation / Hotkeys ---
     if (e.key === 'Backspace' || e.key.toLowerCase() === 'c') { // 'c' for cancel/back
-        if (history.length > 1) { // If there's a history to go back to
-            const prevView = history[history.length - 2];
-            setHistory(prevHistory => prevHistory.slice(0, -1)); // Remove current view from history
-            setCurrentView(prevView); // Go to previous view
-            setSelectedOptionIndex(0); // Reset selection for previous view
-            handled = true;
-        } else if (currentView !== 'main') { // If only one history entry, go to main
-            setHistory(['main']);
-            setCurrentView('main');
-            setSelectedOptionIndex(0);
-            handled = true;
-        }
-    } else if (e.key.toLowerCase() === 'h' && currentView !== 'main') { // 'h' for help (if not already on main welcome)
-        setHistory(prev => [...prev, 'main']);
-        setCurrentView('main');
-        setSelectedOptionIndex(0);
+      if (history.length > 1) { // If there's a history to go back to
+        const prevView = history[history.length - 2];
+        setHistory(prevHistory => prevHistory.slice(0, -1)); // Remove current view from history
+        setCurrentView(prevView); // Go to previous view
+        setSelectedOptionIndex(0); // Reset selection for previous view
         handled = true;
-    } else if (e.key.toLowerCase() === 'b' && currentView !== 'blogList') { // 'b' for blogs
-        setHistory(prev => [...prev, 'blogList']);
-        setCurrentView('blogList');
-        setSelectedOptionIndex(0);
-        handled = true;
-    } else if (e.key.toLowerCase() === 'a' && currentView !== 'about') { // 'a' for about
-        setHistory(prev => [...prev, 'about']);
-        setCurrentView('about');
-        setSelectedOptionIndex(0);
-        handled = true;
-    } else if (e.key.toLowerCase() === 'p' && currentView !== 'projects') { // 'p' for projects
-        setHistory(prev => [...prev, 'projects']);
-        setCurrentView('projects');
-        setSelectedOptionIndex(0);
-        handled = true;
-    } else if (e.key.toLowerCase() === 's' && currentView !== 'settings') { // 's' for settings
-        setHistory(prev => [...prev, 'settings']);
-        setCurrentView('settings');
-        setSelectedOptionIndex(0);
-        handled = true;
-    } else if (e.key === 'Escape' && currentView !== 'main') { // Esc to go to main (or back)
+      } else if (currentView !== 'main') { // If only one history entry, go to main
         setHistory(['main']);
         setCurrentView('main');
         setSelectedOptionIndex(0);
         handled = true;
+      }
+      // } else if (e.key.toLowerCase() === 'h' && currentView !== 'main') { // 'h' for help (if not already on main welcome)
+      //   setHistory(prev => [...prev, 'main']);
+      //   setCurrentView('main');
+      //   setSelectedOptionIndex(0);
+      //   handled = true;
+    } else if (e.key.toLowerCase() === 'b' && currentView !== 'blogList') { // 'b' for blogs
+      setHistory(prev => [...prev, 'blogList']);
+      setCurrentView('blogList');
+      setSelectedOptionIndex(0);
+      handled = true;
+    } else if (e.key.toLowerCase() === 'a' && currentView !== 'about') { // 'a' for about
+      setHistory(prev => [...prev, 'about']);
+      setCurrentView('about');
+      setSelectedOptionIndex(0);
+      handled = true;
+    } else if (e.key.toLowerCase() === 'p' && currentView !== 'projects') { // 'p' for projects
+      setHistory(prev => [...prev, 'projects']);
+      setCurrentView('projects');
+      setSelectedOptionIndex(0);
+      handled = true;
+    } else if (e.key.toLowerCase() === 's' && currentView !== 'settings') { // 's' for settings
+      setHistory(prev => [...prev, 'settings']);
+      setCurrentView('settings');
+      setSelectedOptionIndex(0);
+      handled = true;
+    } else if (e.key === 'Escape') {
+      if (currentView === 'main') { // Esc to go to main (or back)
+        window.location.href = '/'; // Redirect to home page
+      } else {
+        setHistory(['main']);
+        setCurrentView('main');
+        setSelectedOptionIndex(0);
+        handled = true;
+      }
+    } else if (e.key.toLowerCase() === 'g') {
+      window.open('https://github.com/Coder-Harshit/bloglabs');
+      handled = true;
     }
+    // } else if (e.key === 'Escape' && currentView !== 'main') { // Esc to go to main (or back)
+    //     setHistory(['main']);
+    //     setCurrentView('main');
+    //     setSelectedOptionIndex(0);
+    //     handled = true;
+    // } else if (e.key === 'Escape' && currentView === 'settings') { // 's' for settings
+    //     window.location.href = '/'; // Redirect to home page  
+    //     setSelectedOptionIndex(0);
+    //     handled = true;
+    // }
 
     if (handled) return; // If a common hotkey was handled, stop here.
 
@@ -436,50 +486,55 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts }) => { // Accept blogPos
             setHistory(prev => [...prev, 'settings']);
             setCurrentView('settings');
             setSelectedOptionIndex(0);
+          } else if (selectedOption === 'Reboot!') {
+            // Optional: if we want a way to go back to the boot menu from here
+            window.location.href = '/'; // Redirect to home page
           }
         }
         break;
       case 'blogList':
         if (e.key === 'ArrowUp') {
-            newSelectedOptionIndex = (selectedOptionIndex - 1 + blogPosts.length) % blogPosts.length; // Use blogPosts.length
+          newSelectedOptionIndex = (selectedOptionIndex - 1 + blogPosts.length) % blogPosts.length; // Use blogPosts.length
         } else if (e.key === 'ArrowDown') {
-            newSelectedOptionIndex = (selectedOptionIndex + 1) % blogPosts.length; // Use blogPosts.length
+          newSelectedOptionIndex = (selectedOptionIndex + 1) % blogPosts.length; // Use blogPosts.length
         } else if (e.key === 'Enter') {
-            const selectedBlog = blogPosts[selectedOptionIndex]; // Use blogPosts
-            if (selectedBlog) {
-                setHistory(prev => [...prev, 'blogContent']);
-                setCurrentView('blogContent');
-                setCurrentBlogSlug(selectedBlog.slug); // Store slug to load content
-                // setSelectedOptionIndex(0); // No internal selection for content
-            }
+          const selectedBlog = blogPosts[selectedOptionIndex]; // Use blogPosts
+          if (selectedBlog) {
+            setHistory(prev => [...prev, 'blogContent']);
+            setCurrentView('blogContent');
+            setCurrentBlogSlug(selectedBlog.slug); // Store slug to load content
+            // setSelectedOptionIndex(0); // No internal selection for content
+          }
         }
         break;
       case 'settings':
         if (e.key === 'ArrowUp') {
-            newSelectedOptionIndex = (selectedOptionIndex - 1 + userSettings.length) % userSettings.length;
+          newSelectedOptionIndex = (selectedOptionIndex - 1 + userSettings.length) % userSettings.length;
         } else if (e.key === 'ArrowDown') {
-            newSelectedOptionIndex = (selectedOptionIndex + 1) % userSettings.length;
+          newSelectedOptionIndex = (selectedOptionIndex + 1) % userSettings.length;
         } else if (e.key === 'Enter') {
-            const setting = userSettings[selectedOptionIndex];
-            if (setting) {
-                if (setting.type === 'boolean') {
-                    // Toggle boolean setting
-                    setUserSettings(prevSettings => prevSettings.map((s, idx) =>
-                        idx === selectedOptionIndex ? { ...s, currentValue: !s.currentValue } : s
-                    ));
-                } else if (setting.type === 'select' && setting.options) {
-                    // Cycle through select options
-                    const currentOptIdx = setting.options.indexOf(setting.currentValue as string);
-                    const nextOptIdx = (currentOptIdx + 1) % setting.options.length;
-                    setUserSettings(prevSettings => prevSettings.map((s, idx) =>
-                        idx === selectedOptionIndex ? { ...s, currentValue: setting.options![nextOptIdx] } : s
-                    ));
-                }
+          const setting = userSettings[selectedOptionIndex];
+          if (setting) {
+            if (setting.type === 'boolean') {
+              // Toggle boolean setting
+              setUserSettings(prevSettings => prevSettings.map((s, idx) =>
+                idx === selectedOptionIndex ? { ...s, currentValue: !s.currentValue } : s
+              ));
+            } else if (setting.type === 'select' && setting.options) {
+              // Cycle through select options
+              const currentOptIdx = setting.options.indexOf(setting.currentValue as string);
+              const nextOptIdx = (currentOptIdx + 1) % setting.options.length;
+              setUserSettings(prevSettings => prevSettings.map((s, idx) =>
+                idx === selectedOptionIndex ? { ...s, currentValue: setting.options![nextOptIdx] } : s
+              ));
             }
+          }
         }
         break;
       case 'blogContent':
+        break;
       case 'about':
+        break;
       case 'projects':
         // These views primarily display content. Navigation out is via hotkeys (Backspace/C, H, A, P, S).
         // No specific arrow key navigation within them for now.
@@ -488,7 +543,7 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts }) => { // Accept blogPos
 
     // Update selected index if it changed
     if (newSelectedOptionIndex !== selectedOptionIndex && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
-        setSelectedOptionIndex(newSelectedOptionIndex);
+      setSelectedOptionIndex(newSelectedOptionIndex);
     }
   }, [selectedOptionIndex, currentView, history, userSettings, currentBlogSlug, blogPosts]); // Add blogPosts to dependency array
 
@@ -505,35 +560,43 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts }) => { // Accept blogPos
 
   // Helper to determine active nano bar options
   const getNanoBarOptions = useCallback(() => {
-    const options: { key: string; label: string }[] = [];
+    const options: { key: string; label: string; align?: string }[] = [];
     // Back/Cancel option always available if not on main view
     if (currentView !== 'main') {
-        options.push({ key: '^C / Backspace', label: 'Back' });
+      options.push({ key: '^C / Backspace', label: 'Back' });
     }
     // Add view-specific options
     switch (currentView) {
-        case 'main':
-            options.push({ key: '↑↓ Enter', label: 'Navigate/Select' });
-            options.push({ key: 'H', label: 'Help' }); // 'Help' is implicit in main view
-            options.push({ key: 'B', label: 'Blogs' });
-            options.push({ key: 'A', label: 'About' });
-            options.push({ key: 'P', label: 'Projects' });
-            options.push({ key: 'S', label: 'Settings' });
-            break;
-        case 'blogList':
-            options.push({ key: '↑↓ Enter', label: 'Navigate/Read' });
-            options.push({ key: 'H', label: 'Help' });
-            break;
-        case 'blogContent':
-        case 'about':
-        case 'projects':
-            options.push({ key: 'H', label: 'Help' }); // For returning to main menu
-            break;
-        case 'settings':
-            options.push({ key: '↑↓ Enter', label: 'Navigate/Change' });
-            options.push({ key: 'H', label: 'Help' });
-            break;
+      case 'main':
+        options.push({ key: '↑↓ Enter', label: 'Navigate/Select' });
+        // options.push({ key: 'H', label: 'Help' }); // 'Help' is implicit in main view
+        options.push({ key: 'B', label: 'Blogs' });
+        options.push({ key: 'A', label: 'About' });
+        options.push({ key: 'P', label: 'Projects' });
+        options.push({ key: 'S', label: 'Settings' });
+        options.push({ key: 'Esc', label: 'Reboot' });
+        break;
+      case 'blogList':
+        options.push({ key: '↑↓ Enter', label: 'Navigate/Read' });
+        // options.push({ key: 'H', label: 'Help' });
+        break;
+      case 'blogContent':
+        options.push({ key: 'h/j/k/l', label: 'Scroll' });
+        break;
+      case 'about':
+        options.push({ key: 'h/j/k/l', label: 'Scroll' });
+        break;
+      case 'projects':
+        // options.push({ key: 'H', label: 'Help' }); // For returning to main menu
+        options.push({ key: 'h/j/k/l', label: 'Scroll' });
+        break;
+      case 'settings':
+        options.push({ key: '↑↓ Enter', label: 'Navigate/Change' });
+        options.push({ key: 'h/j/k/l', label: 'Scroll' });
+        // options.push({ key: 'H', label: 'Help' });
+        break;
     }
+    options.push({ key: 'G', label: 'GitHub', align: 'right' }); // Always show GitHub link
     return options;
   }, [currentView]);
 
@@ -570,17 +633,17 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts }) => { // Accept blogPos
             acting as a visual cue for where interaction is.
             It's not a real input field, just a display of the active state. */}
         {currentView === 'main' && (
-             <div className="input-line">
-                 <span className="prompt">user@bloglabs:~/$ </span>
-                 <span className="cursor-block"></span> {/* Visual blinking cursor */}
-             </div>
+          <div className="input-line">
+            <span className="prompt">user@bloglabs:~/$ </span>
+            <span className="cursor-block"></span> {/* Visual blinking cursor */}
+          </div>
         )}
       </div>
 
       {/* Nano-like bar at the bottom */}
       <div className="nano-bar">
         {getNanoBarOptions().map((option, index) => (
-          <span key={index} className="nano-option">
+          <span key={index} className={`nano-option ${option.align === 'right' ? ' nano-option--right' : ''}`}>
             {option.key}: {option.label}
           </span>
         ))}

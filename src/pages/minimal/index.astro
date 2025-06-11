@@ -1,27 +1,22 @@
-<!-- src/pages/minimal-blog.astro -->
-<!--
-    This Astro page serves as the entry point for the "Minimal Blog Experience".
-    It fetches blog posts from the Astro Content Collection and passes them
-    as props to the React Terminal component.
-    This ensures content is decoupled and reusable.
-    Updated: Now uses 'marked' to render Markdown to HTML, with 'marked' configured
-    to use Prism.js for syntax highlighting.
--->
 ---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+import "../../styles/minimal-blog.css";
+
 // Import the Terminal React component.
-import Terminal from '../../components/Terminal';
+import Terminal from "../../components/Terminal";
 
 // Import Astro's content collection utilities and the CollectionEntry type
-import { getCollection, type CollectionEntry } from 'astro:content';
+import { getCollection, type CollectionEntry } from "astro:content";
 
 // Import the 'marked' library for Markdown to HTML conversion.
-import { marked } from 'marked';
+import { marked } from "marked";
 
 // Import Prism.js for syntax highlighting.
-import * as Prism from 'prismjs';
+import * as Prism from "prismjs";
 // Load the languages you need for Prism.js
-import 'prismjs/components/prism-javascript.js';
-import 'prismjs/components/prism-markup.js'; // HTML
+import "prismjs/components/prism-javascript.js";
+import "prismjs/components/prism-markup.js"; // HTML
 // Add other languages as needed...
 
 // Configure marked to use Prism.js for syntax highlighting.
@@ -30,7 +25,7 @@ marked.setOptions({
   highlight(code, lang) {
     const grammar = Prism.languages[lang] || Prism.languages.javascript;
     return Prism.highlight(code, grammar, lang);
-  }
+  },
 } as any);
 
 // Define the BlogPost type based on your schema (should match src/components/Terminal.tsx)
@@ -41,11 +36,11 @@ interface BlogPostContent {
   date: string; // Already formatted as INSEE-MM-DD
   summary: string; // Short description for list view
   content: string[]; // Parsed paragraphs
-  codeBlocks?: { language: string; code: string; }[]; // Structured for code blocks
+  codeBlocks?: { language: string; code: string }[]; // Structured for code blocks
 }
 
 // Fetch all blog posts from the 'blogs' content collection.
-const allBlogEntries: CollectionEntry<'blogs'>[] = await getCollection('blogs');
+const allBlogEntries: CollectionEntry<"blogs">[] = await getCollection("blogs");
 
 // Preprocess the blog entries to extract plain text content and code blocks.
 const blogPosts: BlogPostContent[] = await Promise.all(
@@ -56,8 +51,9 @@ const blogPosts: BlogPostContent[] = await Promise.all(
     // --- Extracting Code Blocks ---
     // This regex looks for <pre><code class="language-xyz">...</code></pre> blocks.
     // It captures the language and the raw code content within the <code> tags.
-    const codeBlockRegex = /<pre><code class="language-(\w+)">([\s\S]*?)<\/code><\/pre>/g;
-    const extractedCodeBlocks: { language: string; code: string; }[] = [];
+    const codeBlockRegex =
+      /<pre><code class="language-(\w+)">([\s\S]*?)<\/code><\/pre>/g;
+    const extractedCodeBlocks: { language: string; code: string }[] = [];
     let match;
 
     // Create a copy of rawHtml to progressively remove code blocks for plain text processing
@@ -69,30 +65,31 @@ const blogPosts: BlogPostContent[] = await Promise.all(
       let code = match[2]; // This 'code' should now be raw, without highlight spans from marked.
 
       // Decode HTML entities (e.g., &lt; becomes <, &amp; becomes &)
-      code = code.replace(/&amp;/g, '&')
-                 .replace(/&lt;/g, '<')
-                 .replace(/&gt;/g, '>')
-                 .replace(/&quot;/g, '"')
-                 .replace(/&#39;/g, "'")
-                 .trim(); // Trim any leading/trailing whitespace
+      code = code
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .trim(); // Trim any leading/trailing whitespace
 
       extractedCodeBlocks.push({ language, code });
 
       // Remove the *original* matched code block from `htmlForPlainText`
       // so it's not included in the plain text content.
-      htmlForPlainText = htmlForPlainText.replace(match[0], '');
+      htmlForPlainText = htmlForPlainText.replace(match[0], "");
     }
 
     // --- Extracting Plain Text Content ---
     // Now, strip all remaining HTML tags from the modified HTML string
     // (which no longer contains code blocks) to get the pure plain text content.
     const plainTextRaw = htmlForPlainText
-      .replace(/<[^>]+>/g, '')    // Remove all other HTML tags (like <p>, <h1>, <ul>, <li>, etc.)
+      .replace(/<[^>]+>/g, "") // Remove all other HTML tags (like <p>, <h1>, <ul>, <li>, etc.)
       .trim(); // Trim leading/trailing whitespace from the entire block
 
     // Split into lines, trim each line, and filter out any entirely empty lines.
     const plainTextContent = plainTextRaw
-      .split('\n')
+      .split("\n")
       .map((line: string) => line.trim())
       .filter((line: string) => line.length > 0);
 
@@ -100,35 +97,33 @@ const blogPosts: BlogPostContent[] = await Promise.all(
       slug: entry.slug,
       title: entry.data.title,
       author: entry.data.author,
-      date: entry.data.date.toISOString().split('T')[0], // Format date as YYYY-MM-DD
+      date: entry.data.date.toISOString().split("T")[0], // Format date as YYYY-MM-DD
       summary: entry.data.summary,
       content: plainTextContent,
-      codeBlocks: extractedCodeBlocks.length > 0 ? extractedCodeBlocks : undefined,
+      codeBlocks:
+        extractedCodeBlocks.length > 0 ? extractedCodeBlocks : undefined,
     };
-  })
+  }),
 );
 ---
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BlogLabs - Minimal TUI</title>
-    <!-- Favicon link -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="stylesheet" href="/styles/minimal-blog.css">
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/prismjs@1.29.0/themes/prism-okaidia.css"
-    />
-</head>
-<body>
-    <!--
+
+<!-- src/pages/minimal-blog.astro --><!--
+    This Astro page serves as the entry point for the "Minimal Blog Experience".
+    It fetches blog posts from the Astro Content Collection and passes them
+    as props to the React Terminal component.
+    This ensures content is decoupled and reusable.
+    Updated: Now uses 'marked' to render Markdown to HTML, with 'marked' configured
+    to use Prism.js for syntax highlighting.
+-->
+<BaseLayout
+  title="BlogLabs - Minimal TUI"
+  description="A minimal terminal UI for BlogLabs."
+>
+  <!--
         The Astro.js component that renders our React Terminal application.
         The `client:load` directive ensures that the React component
         is hydrated and interactive on the client-side as soon as possible.
         This is crucial for handling keyboard events and managing dynamic UI.
     -->
-    <Terminal client:load blogPosts={blogPosts} />
-</body>
-</html>
+  <Terminal client:load blogPosts={blogPosts} />
+</BaseLayout>
