@@ -440,7 +440,7 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
 
     // ── vim/arrow scroll only in content‐scrollable views ──
     const scrollEl = terminalOutputRef.current;
-    const isScrollableView = ['blogContent', 'about', 'projects', 'settings'].includes(currentView);
+    const isScrollableView = ['blogContent', 'about', 'projects'].includes(currentView);
     if (isScrollableView && scrollEl) {
       // down
       if (e.key === 'j' || e.key === 'ArrowDown'){
