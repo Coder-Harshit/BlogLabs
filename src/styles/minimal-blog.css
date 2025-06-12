@@ -205,6 +205,44 @@ html[data-bloglabs-theme="dark"] body {
     /* Hide scrollbars within the wrapper */
     position: relative;
     /* For cursor positioning */
+    cursor: none;
+    /* Ensure default cursor is hidden for the terminal area */
+}
+
+/* Custom tech cursor */
+.custom-tech-cursor {
+    position: fixed;
+    /* Use fixed to position relative to viewport, works well if terminal is full-screenish */
+    width: 10px;
+    /* Width of the block cursor */
+    height: 1.5em;
+    /* Height, can be tied to line-height */
+    background-color: var(--terminal-cursor-color, var(--terminal-foreground-color, #00FF00));
+    /* Use existing or new CSS var */
+    z-index: 9999;
+    pointer-events: none;
+    /* Important: allows clicks to pass through to elements underneath */
+    opacity: 0;
+    /* Start hidden */
+    transition: opacity 0.1s ease-out;
+    /* Smooth fade for visibility */
+    transform: translate(-2px, -2px);
+    /* Slight offset so top-left of cursor aligns with pointer tip */
+}
+
+.custom-tech-cursor.visible {
+    opacity: 1;
+}
+
+.custom-tech-cursor.blinking.visible {
+    /* Only blink when visible */
+    animation: blinkAnimation 1s steps(2, start) infinite;
+}
+
+@keyframes blinkAnimation {
+    to {
+        background-color: transparent;
+    }
 }
 
 /* Theme selector via wrapper class */
@@ -513,6 +551,25 @@ html[data-bloglabs-theme="dark"] body {
     color: var(--terminal-red);
     /* Red for error messages */
     font-weight: bold;
+}
+
+/* Styling for links within rendered Markdown content (inside .line.code) */
+.terminal-output .line.code a {
+    color: var(--terminal-link-color, #87CEFA); /* e.g., LightSkyBlue - define this variable or use a direct color */
+    text-decoration: underline;
+    /* Make links clearly identifiable */
+    cursor: pointer !important;
+    /* IMPORTANT: Override global 'cursor: none' specifically for links */
+}
+
+.terminal-output .line.code a:hover,
+.terminal-output .line.code a:focus,
+.terminal-output .line.code a:focus-visible {
+    color: var(--terminal-link-hover-color, #FFD700); /* e.g., Gold - for hover/focus */
+    background-color: var(--terminal-link-hover-bg, rgba(80, 80, 0, 0.2));
+    /* Subtle background on hover/focus */
+    outline: 1px dotted var(--terminal-link-hover-color, #FFD700);
+    /* Ensure focus is visible */
 }
 
 /* Styling for the code lines themselves, within the ASCII box */

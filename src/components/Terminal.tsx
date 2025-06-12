@@ -53,9 +53,16 @@ interface SettingOption {
   currentValue?: string | boolean; // For display
 }
 
+// Defines the structure for about content.
+interface AboutContent {
+  title: string;
+  bodyLines: string[];
+}
+
 // Props for the Terminal component
 interface TerminalProps {
   blogPosts: BlogPost[]; // Now receives blog posts as a prop
+  aboutContent: AboutContent; // Now receives about content as a prop
 }
 
 // --- Mock Data (Only for projects and settings now, blogs come from props) ---
@@ -164,18 +171,40 @@ const getBlogPostDisplay = (blog: BlogPost): DisplayLine[] => {
   return lines;
 };
 
-const getAboutMeDisplay = (): DisplayLine[] => {
-  return [
-    { type: 'title', value: '─── About Me ─────────────────────────' },
-    { type: 'text', value: '' },
-    { type: 'text', value: 'Hello! I\'m BlogLabs Admin, a passionate developer and learner.' },
-    { type: 'text', value: 'I love building web applications and exploring new technologies.' },
-    { type: 'text', value: 'This platform is my space to share knowledge and projects.' },
-    { type: 'text', value: 'You can reach me at: admin@bloglabs.com' },
-    { type: 'text', value: '' },
-    { type: 'text', value: '──────────────────────────────────────' },
-    { type: 'text', value: '' }
+const getAboutMeDisplay = (aboutData: AboutContent): DisplayLine[] => {
+  const lines: DisplayLine[] = [
+    { type: 'title', value: `─── ${aboutData.title} ${'─'.repeat(Math.max(0, 30 - aboutData.title.length))} ` },
+    { type: 'text', value: '' }, // Blank line after title
   ];
+
+  aboutData.bodyLines.forEach(htmlLine => {
+    // Each htmlLine is an HTML string from a Markdown paragraph.
+    // Use type 'code' to leverage existing dangerouslySetInnerHTML rendering.
+    // If the line is empty (e.g. from an empty paragraph in MD), render it as an empty text line for spacing.
+    if (htmlLine.trim() === "") {
+        lines.push({ type: 'text', value: '' });
+    } else {
+        lines.push({ type: 'code', value: htmlLine });
+    }
+    // Add an empty text line after each paragraph's content for better readability,
+    // unless it's the last line or the line itself was just for spacing.
+    if (htmlLine.trim() !== "") {
+        lines.push({ type: 'text', value: '' }); 
+    }
+  });
+
+  // Ensure there's at least one blank line before the separator if content was added
+  if (aboutData.bodyLines.length > 0 && lines[lines.length -1]?.value !== '') {
+    lines.push({ type: 'text', value: '' });
+  } else if (aboutData.bodyLines.length === 0) {
+    // If no body lines, add a placeholder or just a blank line
+    lines.push({ type: 'text', value: '(No additional content)'});
+    lines.push({ type: 'text', value: '' });
+  }
+  
+  lines.push({ type: 'text', value: '──────────────────────────────────────' });
+  lines.push({ type: 'text', value: '' });
+  return lines;
 };
 
 const getProjectsDisplay = (projects: Project[]): DisplayLine[] => {
@@ -219,7 +248,7 @@ const getSettingsDisplay = (settings: SettingOption[], highlightedIndex: number)
 
 // --- Main Terminal Component ---
 
-const Terminal: React.FC<TerminalProps> = ({ blogPosts }) => { // Accept blogPosts as prop
+const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // Accept blogPosts and aboutContent as props
   // Initialize userSettings with default values for SSR
   const [userSettings, setUserSettings] = useState<SettingOption[]>(defaultSettings);
   const [displayedContent, setDisplayedContent] = useState<DisplayLine[]>([]); // Current content to show
@@ -230,8 +259,8 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts }) => { // Accept blogPos
 
   // pull our settings flags
   const themeMode = userSettings.find(s => s.key === 'themeMode')?.currentValue as string || 'terminal';
-  const showWelcome = userSettings.find(s => s.key === 'showWelcome')?.currentValue as boolean || false;
-  const showHelpMenu = userSettings.find(s => s.key === 'showHelpMenu')?.currentValue as boolean || false;
+  const terminalWrapperRef = useRef<HTMLDivElement>(null); // Assuming you have this for focus
+  const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null); // For standard cursor auto-hide
 
   const terminalOutputRef = useRef<HTMLDivElement>(null); // Ref to scroll output area
 
@@ -313,7 +342,7 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts }) => { // Accept blogPos
         currentOptionsLength = 0; // No interactive options in this view
         break;
       case 'about':
-        content = getAboutMeDisplay();
+        content = getAboutMeDisplay(aboutContent); // Use aboutContent from props
         currentOptionsLength = 0; // No interactive options
         break;
       case 'projects':
@@ -334,22 +363,65 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts }) => { // Accept blogPos
       setSelectedOptionIndex(0); // For views with no options
     }
 
-
-    // // Ensure terminal scrolls to bottom after content update
-    // if (terminalOutputRef.current) {
-    //   terminalOutputRef.current.scrollTop = terminalOutputRef.current.scrollHeight;
-    // }
     // Scroll to top for blog content, otherwise to bottom
     if (terminalOutputRef.current) {
         terminalOutputRef.current.scrollTop = 0;
-      // if (currentView === 'blogContent') {
-      //   terminalOutputRef.current.scrollTop = 0;
-      // } else {
-      //   terminalOutputRef.current.scrollTop = terminalOutputRef.current.scrollHeight;
-      // }
     }
-  }, [currentView, selectedOptionIndex, currentBlogSlug, userSettings, blogPosts]); // Add blogPosts to dependency array
+  }, [currentView, selectedOptionIndex, currentBlogSlug, userSettings, blogPosts, aboutContent]); // Add aboutContent to dependency array
 
+  // Effect for standard cursor auto-hide logic
+  useEffect(() => {
+    const wrapper = terminalWrapperRef.current;
+    if (!wrapper) return;
+
+    const showStandardCursor = () => {
+        wrapper.style.cursor = 'default'; // Or 'text', 'auto', depending on preference
+    };
+
+    const hideStandardCursor = () => {
+        wrapper.style.cursor = 'none';
+    };
+
+    const resetInactivityTimer = () => {
+        if (inactivityTimerRef.current) {
+            clearTimeout(inactivityTimerRef.current);
+        }
+        // Hide after .2 seconds of inactivity. Adjust as needed.
+        inactivityTimerRef.current = setTimeout(hideStandardCursor, 200);
+    };
+
+    const handleMouseMove = () => {
+        showStandardCursor();
+        resetInactivityTimer();
+    };
+
+    const handleMouseEnter = () => {
+        showStandardCursor(); // Show cursor immediately when mouse enters
+        resetInactivityTimer();
+    };
+
+    const handleMouseLeave = () => {
+        // Optionally, hide cursor immediately or let the timer run out
+    };
+
+    // Attach listeners to the terminal wrapper itself
+    wrapper.addEventListener('mousemove', handleMouseMove);
+    wrapper.addEventListener('mouseenter', handleMouseEnter);
+    wrapper.addEventListener('mouseleave', handleMouseLeave);
+
+    // Initial state: cursor visible, then timer starts
+    showStandardCursor();
+    resetInactivityTimer();
+
+    return () => {
+        wrapper.removeEventListener('mousemove', handleMouseMove);
+        wrapper.removeEventListener('mouseenter', handleMouseEnter);
+        wrapper.removeEventListener('mouseleave', handleMouseLeave);
+        if (inactivityTimerRef.current) {
+            clearTimeout(inactivityTimerRef.current);
+        }
+    };
+  }, []); // Empty dependency array means this runs once on mount and cleans up on unmount
 
   // --- Keyboard Navigation Logic ---
 
@@ -409,11 +481,6 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts }) => { // Accept blogPos
         setSelectedOptionIndex(0);
         handled = true;
       }
-      // } else if (e.key.toLowerCase() === 'h' && currentView !== 'main') { // 'h' for help (if not already on main welcome)
-      //   setHistory(prev => [...prev, 'main']);
-      //   setCurrentView('main');
-      //   setSelectedOptionIndex(0);
-      //   handled = true;
     } else if (e.key.toLowerCase() === 'b' && currentView !== 'blogList') { // 'b' for blogs
       setHistory(prev => [...prev, 'blogList']);
       setCurrentView('blogList');
@@ -447,16 +514,6 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts }) => { // Accept blogPos
       window.open('https://github.com/Coder-Harshit/bloglabs');
       handled = true;
     }
-    // } else if (e.key === 'Escape' && currentView !== 'main') { // Esc to go to main (or back)
-    //     setHistory(['main']);
-    //     setCurrentView('main');
-    //     setSelectedOptionIndex(0);
-    //     handled = true;
-    // } else if (e.key === 'Escape' && currentView === 'settings') { // 's' for settings
-    //     window.location.href = '/'; // Redirect to home page  
-    //     setSelectedOptionIndex(0);
-    //     handled = true;
-    // }
 
     if (handled) return; // If a common hotkey was handled, stop here.
 
@@ -503,7 +560,6 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts }) => { // Accept blogPos
             setHistory(prev => [...prev, 'blogContent']);
             setCurrentView('blogContent');
             setCurrentBlogSlug(selectedBlog.slug); // Store slug to load content
-            // setSelectedOptionIndex(0); // No internal selection for content
           }
         }
         break;
@@ -536,8 +592,6 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts }) => { // Accept blogPos
       case 'about':
         break;
       case 'projects':
-        // These views primarily display content. Navigation out is via hotkeys (Backspace/C, H, A, P, S).
-        // No specific arrow key navigation within them for now.
         break;
     }
 
@@ -569,7 +623,6 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts }) => { // Accept blogPos
     switch (currentView) {
       case 'main':
         options.push({ key: '↑↓ Enter', label: 'Navigate/Select' });
-        // options.push({ key: 'H', label: 'Help' }); // 'Help' is implicit in main view
         options.push({ key: 'B', label: 'Blogs' });
         options.push({ key: 'A', label: 'About' });
         options.push({ key: 'P', label: 'Projects' });
@@ -578,7 +631,6 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts }) => { // Accept blogPos
         break;
       case 'blogList':
         options.push({ key: '↑↓ Enter', label: 'Navigate/Read' });
-        // options.push({ key: 'H', label: 'Help' });
         break;
       case 'blogContent':
         options.push({ key: 'h/j/k/l', label: 'Scroll' });
@@ -587,13 +639,11 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts }) => { // Accept blogPos
         options.push({ key: 'h/j/k/l', label: 'Scroll' });
         break;
       case 'projects':
-        // options.push({ key: 'H', label: 'Help' }); // For returning to main menu
         options.push({ key: 'h/j/k/l', label: 'Scroll' });
         break;
       case 'settings':
         options.push({ key: '↑↓ Enter', label: 'Navigate/Change' });
         options.push({ key: 'h/j/k/l', label: 'Scroll' });
-        // options.push({ key: 'H', label: 'Help' });
         break;
     }
     options.push({ key: 'G', label: 'GitHub', align: 'right' }); // Always show GitHub link
@@ -602,7 +652,11 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts }) => { // Accept blogPos
 
 
   return (
-    <div className={`terminal-wrapper theme-${themeMode}`}>
+    <div
+      ref={terminalWrapperRef}
+      className={`terminal-wrapper theme-${themeMode}`}
+      tabIndex={0} // Make it focusable
+    >
       <div className="terminal-header">BlogLabs Terminal</div>
       <div className="terminal-output" ref={terminalOutputRef}>
         {/* Render content based on current view */}
