@@ -25,6 +25,8 @@ import { isMobile } from '../utils/isMobileDevice';
 interface DisplayLine {
   type: 'text' | 'highlight' | 'title' | 'code' | 'error' | 'welcome' | 'prompt';
   value: string;
+  isInteractive?: boolean;
+  optionIndex?: number;
 }
 
 // Defines the structure for a blog post, including metadata and content.
@@ -127,7 +129,9 @@ const getBlogListDisplay = (highlightedIndex: number, blogs: BlogPost[]): Displa
     const isSelected = index === highlightedIndex;
     lines.push({
       type: isSelected ? 'highlight' : 'text',
-      value: `${isSelected ? '> ' : '  '}${blog.title} (${blog.date})`
+      value: `${isSelected ? '> ' : '  '}${blog.title} (${blog.date})`,
+      isInteractive: true,
+      optionIndex: index
     });
   });
   lines.push({ type: 'text', value: '' });
@@ -184,26 +188,26 @@ const getAboutMeDisplay = (aboutData: AboutContent): DisplayLine[] => {
     // Use type 'code' to leverage existing dangerouslySetInnerHTML rendering.
     // If the line is empty (e.g. from an empty paragraph in MD), render it as an empty text line for spacing.
     if (htmlLine.trim() === "") {
-        lines.push({ type: 'text', value: '' });
+      lines.push({ type: 'text', value: '' });
     } else {
-        lines.push({ type: 'code', value: htmlLine });
+      lines.push({ type: 'code', value: htmlLine });
     }
     // Add an empty text line after each paragraph's content for better readability,
     // unless it's the last line or the line itself was just for spacing.
     if (htmlLine.trim() !== "") {
-        lines.push({ type: 'text', value: '' }); 
+      lines.push({ type: 'text', value: '' });
     }
   });
 
   // Ensure there's at least one blank line before the separator if content was added
-  if (aboutData.bodyLines.length > 0 && lines[lines.length -1]?.value !== '') {
+  if (aboutData.bodyLines.length > 0 && lines[lines.length - 1]?.value !== '') {
     lines.push({ type: 'text', value: '' });
   } else if (aboutData.bodyLines.length === 0) {
     // If no body lines, add a placeholder or just a blank line
-    lines.push({ type: 'text', value: '(No additional content)'});
+    lines.push({ type: 'text', value: '(No additional content)' });
     lines.push({ type: 'text', value: '' });
   }
-  
+
   lines.push({ type: 'text', value: '──────────────────────────────────────' });
   lines.push({ type: 'text', value: '' });
   return lines;
@@ -239,7 +243,9 @@ const getSettingsDisplay = (settings: SettingOption[], highlightedIndex: number)
     }
     lines.push({
       type: isSelected ? 'highlight' : 'text',
-      value: `${isSelected ? '> ' : '  '}${setting.label.padEnd(20)} ${displayValue}`
+      value: `${isSelected ? '> ' : '  '}${setting.label.padEnd(20)} ${displayValue}`,
+      isInteractive: true,
+      optionIndex: index
     });
   });
 
@@ -333,7 +339,9 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
         const mainOptions = getMainMenuOptions();
         content = [...content, ...mainOptions.map((option, index) => ({
           type: index === selectedOptionIndex ? 'highlight' : 'text',
-          value: `${index === selectedOptionIndex ? '> ' : '  '}${option}`
+          value: `${index === selectedOptionIndex ? '> ' : '  '}${option}`,
+          isInteractive: true,
+          optionIndex: index
         }))] as DisplayLine[];
         currentOptionsLength = mainOptions.length;
         break;
@@ -374,7 +382,7 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
 
     // Scroll to top for blog content, otherwise to bottom
     if (terminalOutputRef.current) {
-        terminalOutputRef.current.scrollTop = 0;
+      terminalOutputRef.current.scrollTop = 0;
     }
   }, [currentView, selectedOptionIndex, currentBlogSlug, userSettings, blogPosts, aboutContent]); // Add aboutContent to dependency array
 
@@ -384,33 +392,33 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
     if (!wrapper) return;
 
     const showStandardCursor = () => {
-        wrapper.style.cursor = 'default'; // Or 'text', 'auto', depending on preference
+      wrapper.style.cursor = 'default'; // Or 'text', 'auto', depending on preference
     };
 
     const hideStandardCursor = () => {
-        wrapper.style.cursor = 'none';
+      wrapper.style.cursor = 'none';
     };
 
     const resetInactivityTimer = () => {
-        if (inactivityTimerRef.current) {
-            clearTimeout(inactivityTimerRef.current);
-        }
-        // Hide after 100 milliseconds of inactivity. Adjust as needed.
-        inactivityTimerRef.current = setTimeout(hideStandardCursor, 100);
+      if (inactivityTimerRef.current) {
+        clearTimeout(inactivityTimerRef.current);
+      }
+      // Hide after 100 milliseconds of inactivity. Adjust as needed.
+      inactivityTimerRef.current = setTimeout(hideStandardCursor, 100);
     };
 
     const handleMouseMove = () => {
-        showStandardCursor();
-        resetInactivityTimer();
+      showStandardCursor();
+      resetInactivityTimer();
     };
 
     const handleMouseEnter = () => {
-        showStandardCursor(); // Show cursor immediately when mouse enters
-        resetInactivityTimer();
+      showStandardCursor(); // Show cursor immediately when mouse enters
+      resetInactivityTimer();
     };
 
     const handleMouseLeave = () => {
-        // Optionally, hide cursor immediately or let the timer run out
+      // Optionally, hide cursor immediately or let the timer run out
     };
 
     // Attach listeners to the terminal wrapper itself
@@ -423,14 +431,66 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
     resetInactivityTimer();
 
     return () => {
-        wrapper.removeEventListener('mousemove', handleMouseMove);
-        wrapper.removeEventListener('mouseenter', handleMouseEnter);
-        wrapper.removeEventListener('mouseleave', handleMouseLeave);
-        if (inactivityTimerRef.current) {
-            clearTimeout(inactivityTimerRef.current);
-        }
+      wrapper.removeEventListener('mousemove', handleMouseMove);
+      wrapper.removeEventListener('mouseenter', handleMouseEnter);
+      wrapper.removeEventListener('mouseleave', handleMouseLeave);
+      if (inactivityTimerRef.current) {
+        clearTimeout(inactivityTimerRef.current);
+      }
     };
   }, [isTouchDevice]); // Empty dependency array means this runs once on mount and cleans up on unmount
+
+  // ---
+  const handleMainViewEnter = (selectedIndex: number) => {
+    const mainOptions = getMainMenuOptions();
+    const selectedOption = mainOptions[selectedIndex];
+    if (selectedOption === 'Blogs') {
+      setHistory(prev => [...prev, 'blogList']);
+      setCurrentView('blogList');
+      setSelectedOptionIndex(0);
+    } else if (selectedOption === 'About Me') {
+      setHistory(prev => [...prev, 'about']);
+      setCurrentView('about');
+      setSelectedOptionIndex(0);
+    } else if (selectedOption === 'Projects') {
+      setHistory(prev => [...prev, 'projects']);
+      setCurrentView('projects');
+      setSelectedOptionIndex(0);
+    } else if (selectedOption === 'Settings') {
+      setHistory(prev => [...prev, 'settings']);
+      setCurrentView('settings');
+      setSelectedOptionIndex(0);
+    } else if (selectedOption === 'Reboot!') {
+      window.location.href = '/';
+    }
+  };
+
+  const handleBlogListEnter = (selectedIndex: number) => {
+    const selectedBlog = blogPosts[selectedIndex];
+    if (selectedBlog) {
+      setHistory(prev => [...prev, 'blogContent']);
+      setCurrentView('blogContent');
+      setCurrentBlogSlug(selectedBlog.slug);
+    }
+  };
+
+  const handleSettingsEnter = (selectedIndex: number) => {
+    const setting = userSettings[selectedIndex];
+    if (setting) {
+      if (setting.type === 'boolean') {
+        setUserSettings(prevSettings => prevSettings.map((s, idx) =>
+          idx === selectedIndex ? { ...s, currentValue: !s.currentValue } : s
+        ));
+      } else if (setting.type === 'select' && setting.options) {
+        const currentOptIdx = setting.options.indexOf(setting.currentValue as string);
+        const nextOptIdx = (currentOptIdx + 1) % setting.options.length;
+        setUserSettings(prevSettings => prevSettings.map((s, idx) =>
+          idx === selectedIndex ? { ...s, currentValue: setting.options![nextOptIdx] } : s
+        ));
+      }
+    }
+  };
+  // ---
 
   // --- Keyboard Navigation Logic ---
 
@@ -455,12 +515,12 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
     const isScrollableView = ['blogContent', 'about', 'projects', 'settings'].includes(currentView);
     if (isScrollableView && scrollEl) {
       // down
-      if (e.key === 'j' || e.key === 'ArrowDown'){
+      if (e.key === 'j' || e.key === 'ArrowDown') {
         scrollEl.scrollBy({ top: scrollEl.clientHeight * 0.8, behavior: 'smooth' });
         return;
       }
       // up
-      if (e.key === 'k' || e.key === 'ArrowUp'){
+      if (e.key === 'k' || e.key === 'ArrowUp') {
         scrollEl.scrollBy({ top: -scrollEl.clientHeight * 0.8, behavior: 'smooth' });
         return;
       }
@@ -538,27 +598,28 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
         } else if (e.key === 'ArrowDown') {
           newSelectedOptionIndex = (selectedOptionIndex + 1) % mainOptions.length;
         } else if (e.key === 'Enter') {
-          const selectedOption = mainOptions[selectedOptionIndex];
-          if (selectedOption === 'Blogs') {
-            setHistory(prev => [...prev, 'blogList']);
-            setCurrentView('blogList');
-            setSelectedOptionIndex(0); // Reset selection for new view
-          } else if (selectedOption === 'About Me') {
-            setHistory(prev => [...prev, 'about']);
-            setCurrentView('about');
-            setSelectedOptionIndex(0);
-          } else if (selectedOption === 'Projects') {
-            setHistory(prev => [...prev, 'projects']);
-            setCurrentView('projects');
-            setSelectedOptionIndex(0);
-          } else if (selectedOption === 'Settings') {
-            setHistory(prev => [...prev, 'settings']);
-            setCurrentView('settings');
-            setSelectedOptionIndex(0);
-          } else if (selectedOption === 'Reboot!') {
-            // Optional: if we want a way to go back to the boot menu from here
-            window.location.href = '/'; // Redirect to home page
-          }
+          handleMainViewEnter(newSelectedOptionIndex);
+          // const selectedOption = mainOptions[selectedOptionIndex];
+        //   if (selectedOption === 'Blogs') {
+        //     setHistory(prev => [...prev, 'blogList']);
+        //     setCurrentView('blogList');
+        //     setSelectedOptionIndex(0); // Reset selection for new view
+        //   } else if (selectedOption === 'About Me') {
+        //     setHistory(prev => [...prev, 'about']);
+        //     setCurrentView('about');
+        //     setSelectedOptionIndex(0);
+        //   } else if (selectedOption === 'Projects') {
+        //     setHistory(prev => [...prev, 'projects']);
+        //     setCurrentView('projects');
+        //     setSelectedOptionIndex(0);
+        //   } else if (selectedOption === 'Settings') {
+        //     setHistory(prev => [...prev, 'settings']);
+        //     setCurrentView('settings');
+        //     setSelectedOptionIndex(0);
+        //   } else if (selectedOption === 'Reboot!') {
+        //     // Optional: if we want a way to go back to the boot menu from here
+        //     window.location.href = '/'; // Redirect to home page
+        //   }
         }
         break;
       case 'blogList':
@@ -569,12 +630,13 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
           newSelectedOptionIndex = (selectedOptionIndex + 1) % blogPosts.length; // Use blogPosts.length
           setSelectedOptionIndex(newSelectedOptionIndex);
         } else if (e.key === 'Enter' || e.key.toLowerCase() === 'l') {
-          const selectedBlog = blogPosts[selectedOptionIndex]; // Use blogPosts
-          if (selectedBlog) {
-            setHistory(prev => [...prev, 'blogContent']);
-            setCurrentView('blogContent');
-            setCurrentBlogSlug(selectedBlog.slug); // Store slug to load content
-          }
+          handleBlogListEnter(newSelectedOptionIndex); // Use refactored function
+          // const selectedBlog = blogPosts[selectedOptionIndex]; // Use blogPosts
+          // if (selectedBlog) {
+          //   setHistory(prev => [...prev, 'blogContent']);
+          //   setCurrentView('blogContent');
+          //   setCurrentBlogSlug(selectedBlog.slug); // Store slug to load content
+          // }
         }
         break;
       case 'settings':
@@ -583,22 +645,23 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
         } else if (e.key === 'ArrowDown') {
           newSelectedOptionIndex = (selectedOptionIndex + 1) % userSettings.length;
         } else if (e.key === 'Enter') {
-          const setting = userSettings[selectedOptionIndex];
-          if (setting) {
-            if (setting.type === 'boolean') {
-              // Toggle boolean setting
-              setUserSettings(prevSettings => prevSettings.map((s, idx) =>
-                idx === selectedOptionIndex ? { ...s, currentValue: !s.currentValue } : s
-              ));
-            } else if (setting.type === 'select' && setting.options) {
-              // Cycle through select options
-              const currentOptIdx = setting.options.indexOf(setting.currentValue as string);
-              const nextOptIdx = (currentOptIdx + 1) % setting.options.length;
-              setUserSettings(prevSettings => prevSettings.map((s, idx) =>
-                idx === selectedOptionIndex ? { ...s, currentValue: setting.options![nextOptIdx] } : s
-              ));
-            }
-          }
+          handleSettingsEnter(newSelectedOptionIndex);
+          // const setting = userSettings[selectedOptionIndex];
+          // if (setting) {
+          //   if (setting.type === 'boolean') {
+          //     // Toggle boolean setting
+          //     setUserSettings(prevSettings => prevSettings.map((s, idx) =>
+          //       idx === selectedOptionIndex ? { ...s, currentValue: !s.currentValue } : s
+          //     ));
+          //   } else if (setting.type === 'select' && setting.options) {
+          //     // Cycle through select options
+          //     const currentOptIdx = setting.options.indexOf(setting.currentValue as string);
+          //     const nextOptIdx = (currentOptIdx + 1) % setting.options.length;
+          //     setUserSettings(prevSettings => prevSettings.map((s, idx) =>
+          //       idx === selectedOptionIndex ? { ...s, currentValue: setting.options![nextOptIdx] } : s
+          //     ));
+            // }
+          // }
         }
         break;
       case 'blogContent':
@@ -674,6 +737,40 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
       <div className="terminal-output" ref={terminalOutputRef}>
         {/* Render content based on current view */}
         {displayedContent.map((line, index) => {
+
+          const handleClick = () => {
+            if (!isTouchDevice || !line.isInteractive || typeof line.optionIndex === 'undefined') {
+              return;
+            }
+            // Optional: visually highlight the tapped item briefly if desired,
+            // but direct action is usually preferred for touch.
+            // setSelectedOptionIndex(line.optionIndex);
+
+
+            if (currentView === 'main') {
+              handleMainViewEnter(line.optionIndex);
+            } else if (currentView === 'blogList') {
+              handleBlogListEnter(line.optionIndex);
+            } else if (currentView === 'settings') {
+              handleSettingsEnter(line.optionIndex);
+            }
+          };
+
+          const lineClasses = ['line', line.type];
+          if (line.isInteractive && isTouchDevice) {
+            lineClasses.push('touch-interactive');
+          }
+          // For keyboard highlight, check if the line's optionIndex matches selectedOptionIndex
+          if (line.optionIndex === selectedOptionIndex &&
+              (currentView === 'main' || currentView === 'blogList' || currentView === 'settings')) {
+            // Ensure 'highlight' type is used for keyboard selection if not already
+            // This might conflict if 'highlight' is already set by get*Display.
+            // The get*Display functions already set type to 'highlight' based on selectedOptionIndex.
+            // So, we just need to ensure the class for keyboard selection is distinct if needed.
+            // For simplicity, we rely on the 'highlight' type set by get*Display.
+          }
+
+
           // Conditional rendering:
           // If line.type is 'code', use dangerouslySetInnerHTML
           // Otherwise, render line.value as children
@@ -682,6 +779,7 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
               <div
                 key={index}
                 className={`line ${line.type}`}
+                onClick={handleClick}
                 dangerouslySetInnerHTML={{ __html: line.value }}
               ></div>
             );
@@ -690,6 +788,7 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
               <div
                 key={index}
                 className={`line ${line.type}`}
+                onClick={handleClick}
               >
                 {line.value}
               </div>
