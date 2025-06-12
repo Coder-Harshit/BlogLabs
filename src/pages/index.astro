@@ -2,6 +2,9 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 
 import "../styles/grub.css"; // Import the GRUB CSS styles
+import { isMobile } from "../utils/isMobileDevice";
+
+const showPopover = isMobile(); // Determine if the user is on a mobile device
 ---
 
 <!-- src/pages/index.astro --><!--
@@ -49,6 +52,16 @@ import "../styles/grub.css"; // Import the GRUB CSS styles
         </div>
     </div>
 
+    <!-- Popover for mobile devices -->
+    {
+        showPopover && (
+            <div class="popover">
+                <p>
+                    For the best experience, we recommend using a PC or laptop.
+                </p>
+            </div>
+        )
+    }
     <!--
         Client-side JavaScript for interactive navigation and auto-selection.
         This script handles keyboard events for navigation, stores/retrieves
@@ -206,9 +219,9 @@ import "../styles/grub.css"; // Import the GRUB CSS styles
             } else if (event.key.toLowerCase() === "r") {
                 event.preventDefault();
                 selectAndNavigate("rich");
-            } else if (event.key.toLowerCase() === "q"){
+            } else if (event.key.toLowerCase() === "q") {
                 event.preventDefault();
-                window.open('', '_self'); // Open a blank page in the same tab
+                window.open("", "_self"); // Open a blank page in the same tab
                 window.close(); // Close the window if 'Q' is pressed
                 // If still not closed within a few seconds, redirect to about:blank
                 setTimeout(() => {

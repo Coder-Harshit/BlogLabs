@@ -209,6 +209,21 @@ html[data-bloglabs-theme="dark"] body {
     /* Ensure default cursor is hidden for the terminal area */
 }
 
+/* Touch device specific styles */
+.terminal-wrapper.touch-device {
+    cursor: default; /* Show the cursor on touch devices */
+    overflow-y: auto; /* Enable vertical scrolling */
+    overflow-x: auto; /* Enable horizontal scrolling */
+    -webkit-overflow-scrolling: touch; /* Enable smooth scrolling on iOS */
+}
+
+.terminal-wrapper.touch-device .terminal-output {
+    cursor: default; /* Show the cursor on touch devices */
+    overflow-y: auto; /* Enable vertical scrolling */
+    overflow-x: auto; /* Enable horizontal scrolling */
+    -webkit-overflow-scrolling: touch; /* Enable smooth scrolling on iOS */
+}
+
 /* Custom tech cursor */
 .custom-tech-cursor {
     position: fixed;

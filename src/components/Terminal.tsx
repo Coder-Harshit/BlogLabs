@@ -17,6 +17,8 @@ import 'prismjs/components/prism-markup.js'; // HTML
 import 'prismjs/components/prism-python.js'; // Python
 import 'prismjs/components/prism-bash.js'; // Bash
 
+import { isMobile } from '../utils/isMobileDevice';
+
 // --- Type Definitions ---
 
 // Defines the structure for a single line of displayable content in the terminal.
@@ -264,6 +266,12 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
 
   const terminalOutputRef = useRef<HTMLDivElement>(null); // Ref to scroll output area
 
+  const [isTouchDevice, setIsTouchDevice] = useState<boolean>(false);
+
+  useEffect(() => {
+    setIsTouchDevice(isMobile()); // Check if the device is touch-enabled
+  }, []);
+
   // Load settings from localStorage ONLY after component mounts on the client
   useEffect(() => {
     try {
@@ -386,8 +394,8 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
         if (inactivityTimerRef.current) {
             clearTimeout(inactivityTimerRef.current);
         }
-        // Hide after .2 seconds of inactivity. Adjust as needed.
-        inactivityTimerRef.current = setTimeout(hideStandardCursor, 200);
+        // Hide after 100 milliseconds of inactivity. Adjust as needed.
+        inactivityTimerRef.current = setTimeout(hideStandardCursor, 100);
     };
 
     const handleMouseMove = () => {
@@ -421,11 +429,14 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
             clearTimeout(inactivityTimerRef.current);
         }
     };
-  }, []); // Empty dependency array means this runs once on mount and cleans up on unmount
+  }, [isTouchDevice]); // Empty dependency array means this runs once on mount and cleans up on unmount
 
   // --- Keyboard Navigation Logic ---
 
   const handleGlobalKeyDown = useCallback((e: KeyboardEvent) => {
+    if (isTouchDevice) return; // Ignore key events on touch devices
+
+
     // Prevent default browser actions for navigation keys
     const preventDefaultKeys = [
       'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter',
@@ -601,8 +612,7 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
     if (newSelectedOptionIndex !== selectedOptionIndex && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
       setSelectedOptionIndex(newSelectedOptionIndex);
     }
-  }, [selectedOptionIndex, currentView, history, userSettings, currentBlogSlug, blogPosts]); // Add blogPosts to dependency array
-
+  }, [selectedOptionIndex, currentView, history, userSettings, currentBlogSlug, blogPosts, isTouchDevice]);
 
   // Add global keydown listener when component mounts
   useEffect(() => {
@@ -656,7 +666,7 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
   return (
     <div
       ref={terminalWrapperRef}
-      className={`terminal-wrapper theme-${themeMode}`}
+      className={`terminal-wrapper theme-${themeMode} ${isTouchDevice ? 'touch-device' : ''}`}
       tabIndex={0} // Make it focusable
     >
       <div className="terminal-header">BlogLabs Terminal</div>
