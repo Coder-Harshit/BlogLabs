@@ -443,12 +443,12 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
     const isScrollableView = ['blogContent', 'about', 'projects', 'settings'].includes(currentView);
     if (isScrollableView && scrollEl) {
       // down
-      if (e.key === 'j' || e.key === 'ArrowDown') {
+      if (e.key === 'j' || e.key === 'ArrowDown'){
         scrollEl.scrollBy({ top: scrollEl.clientHeight * 0.8, behavior: 'smooth' });
         return;
       }
       // up
-      if (e.key === 'k' || e.key === 'ArrowUp') {
+      if (e.key === 'k' || e.key === 'ArrowUp'){
         scrollEl.scrollBy({ top: -scrollEl.clientHeight * 0.8, behavior: 'smooth' });
         return;
       }
@@ -550,11 +550,13 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
         }
         break;
       case 'blogList':
-        if (e.key === 'ArrowUp') {
+        if (e.key === 'ArrowUp' || e.key.toLowerCase() === 'k') {
           newSelectedOptionIndex = (selectedOptionIndex - 1 + blogPosts.length) % blogPosts.length; // Use blogPosts.length
-        } else if (e.key === 'ArrowDown') {
+          setSelectedOptionIndex(newSelectedOptionIndex);
+        } else if (e.key === 'ArrowDown' || e.key.toLowerCase() === 'j') {
           newSelectedOptionIndex = (selectedOptionIndex + 1) % blogPosts.length; // Use blogPosts.length
-        } else if (e.key === 'Enter') {
+          setSelectedOptionIndex(newSelectedOptionIndex);
+        } else if (e.key === 'Enter' || e.key.toLowerCase() === 'l') {
           const selectedBlog = blogPosts[selectedOptionIndex]; // Use blogPosts
           if (selectedBlog) {
             setHistory(prev => [...prev, 'blogContent']);
