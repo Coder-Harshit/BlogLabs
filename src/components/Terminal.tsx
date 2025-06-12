@@ -269,6 +269,7 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
   const [isTouchDevice, setIsTouchDevice] = useState<boolean>(false);
 
   useEffect(() => {
+    console.log(isMobile());
     setIsTouchDevice(isMobile()); // Check if the device is touch-enabled
   }, []);
 
@@ -698,12 +699,12 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
         {/* The 'input-line' with prompt and cursor is only for the main menu,
             acting as a visual cue for where interaction is.
             It's not a real input field, just a display of the active state. */}
-        {currentView === 'main' && (
+        {/* {currentView === 'main' && (
           <div className="input-line">
             <span className="prompt">user@bloglabs:~/$ </span>
-            <span className="cursor-block"></span> {/* Visual blinking cursor */}
+            <span className="cursor-block"></span>
           </div>
-        )}
+        )} */}
       </div>
 
       {/* Nano-like bar at the bottom */}

@@ -246,12 +246,19 @@ body {
 
 .popover {
     position: fixed;
-    top: 20px;
+    bottom: 20px; /* Changed to bottom for less intrusion */
     left: 50%;
     transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 10px 20px;
+    background-color: rgba(30, 30, 30, 0.9); /* Darker, slightly more opaque */
+    color: #00FF00; /* Green text to match terminal theme */
+    padding: 12px 20px;
     border-radius: 5px;
-    z-index: 1000;
+    z-index: 10000; /* Ensure it's on top */
+    font-family: 'VT323', monospace; /* Match terminal font if possible */
+    font-size: 0.9em;
+    border: 1px solid #00FF00; /* Green border */
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5); /* Subtle glow */
+    text-align: center;
+    
 }
+
