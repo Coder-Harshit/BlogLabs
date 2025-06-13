@@ -4,7 +4,7 @@ title: "About Me"
 
 Hello Readers!
 
-Myself **Harshit Vijay**, *founder@BlogLabs*, a passionate developer and learner.
+Myself **Harshit Vijay**, *founder@BlogLabs*, a passionate developer and an inquisite learner.
 
 I love building Applications & tools and exploring new new technologies. 
 I am currently an undergraduate, doing my Integrated Mtech (Btech+Mtech) Degree from [Jaypee Noida](https://www.jiit.ac.in/).
