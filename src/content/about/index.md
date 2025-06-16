@@ -19,3 +19,5 @@ Open to Connect @ [LINKEDIN](https://www.linkedin.com/in/harshit-vijay-coderv)
 
 Like the initiative? 
 Don't forget to leave a star :)
+
+![alt text](/photo.jpg)

@@ -2,15 +2,17 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import "../../styles/minimal-blog.css";
 import Terminal from "../../components/Terminal";
-import { getCollection, type CollectionEntry, getEntry } from "astro:content"; // Added getEntry
+import { getCollection, type CollectionEntry, getEntry } from "astro:content";
 import { marked } from "marked";
 import * as Prism from "prismjs";
 import "prismjs/components/prism-javascript.js";
 import "prismjs/components/prism-markup.js";
+import path from 'node:path'; // For resolving public directory path
+import { processHtmlForMinimalTui } from '../../utils/processHtmlForMinimal'; // Import the new utility
 
 marked.setOptions({
   gfm: true,
-  highlight(code, lang) {
+  highlight(code: string, lang: string) {
     const grammar = Prism.languages[lang] || Prism.languages.javascript;
     return Prism.highlight(code, grammar, lang);
   },
@@ -22,7 +24,9 @@ import type {
   ProjectContent
 } from "../../interfaces";
 
-// --- Fetch and process Blog Posts (existing code) ---
+const PUBLIC_DIR_PATH = path.resolve(process.cwd(), 'public');
+
+// --- Fetch and process Blog Posts (existing code - no image processing needed here for now) ---
 const allBlogEntries: CollectionEntry<"blogs">[] = await getCollection("blogs");
 const blogPosts: BlogPostContent[] = await Promise.all(
   allBlogEntries.map(async (entry) => {
@@ -67,71 +71,59 @@ const blogPosts: BlogPostContent[] = await Promise.all(
 );
 
 
+// --- Fetch and process About Me content ---
 let aboutMeContent: AboutContent = { title: "About Me", bodyLines: ["Failed to load about content."] };
-
 try {
-    const aboutEntry = await getEntry('about', 'index'); // Assuming your file is src/content/about/index.md
+    const aboutEntry = await getEntry('about', 'index');
     if (aboutEntry) {
-        // Split the raw Markdown body by paragraphs (separated by blank lines)
         const markdownParagraphs = aboutEntry.body.split(/\n\s*\n/);
-
         const htmlBodyLines = await Promise.all(
             markdownParagraphs.map(async (mdPara) => {
-                if (mdPara.trim() === '') return ''; // Handle potentially empty strings from split
-                // Convert each Markdown paragraph to HTML
-                // marked() typically wraps paragraphs in <p>...</p>.
-                // We'll remove these outer <p> tags as each item in bodyLines will be a "line" or block in the terminal.
-                let htmlLine = await marked(mdPara.trim());
-                htmlLine = htmlLine.replace(/^<p>/i, '').replace(/<\/p>$/i, '').trim();
-                return htmlLine;
+                if (mdPara.trim() === '') return '';
+                let htmlSegment = await marked(mdPara.trim());
+                // Remove outer <p> tags if marked adds them
+                htmlSegment = htmlSegment.replace(/^<p>/i, '').replace(/<\/p>$/i, '').trim();
+                // Process this HTML segment for images
+                htmlSegment = await processHtmlForMinimalTui(htmlSegment, PUBLIC_DIR_PATH);
+                return htmlSegment;
             })
         );
-
         aboutMeContent = {
             title: aboutEntry.data.title || "About Me",
-            // Filter out any completely empty lines that might result from multiple blank lines in Markdown
-            bodyLines: htmlBodyLines.filter(line => line.length > 0),
+            bodyLines: htmlBodyLines.filter(line => line.length > 0 && line !== '<br>'), // Filter out empty or just <br>
         };
     }
 } catch (error) {
     console.error("Error fetching or processing 'about' content:", error);
-    // aboutMeContent remains the default error message
 }
 
 // --- Fetch and process Projects ---
 const allProjectEntries: CollectionEntry<"projects">[] = await getCollection("projects");
 const projects: ProjectContent[] = await Promise.all(
   allProjectEntries.map(async (entry) => {
-    // Process the body of the project markdown, similar to "About Me"
-    let content: string[] = [];
+    let projectBodyHtmlLines: string[] = [];
     if (entry.body) {
       const markdownParagraphs = entry.body.split(/\n\s*\n/);
-      content = await Promise.all(
+      projectBodyHtmlLines = await Promise.all(
         markdownParagraphs.map(async (mdPara) => {
           if (mdPara.trim() === '') return '';
-          let htmlLine = await marked(mdPara.trim());
-          // Remove outer <p> tags if marked adds them and you want raw lines
-          htmlLine = htmlLine.replace(/^<p>/i, '').replace(/<\/p>$/i, '').trim();
-          return htmlLine;
+          let htmlSegment = await marked(mdPara.trim());
+          htmlSegment = htmlSegment.replace(/^<p>/i, '').replace(/<\/p>$/i, '').trim();
+          htmlSegment = await processHtmlForMinimalTui(htmlSegment, PUBLIC_DIR_PATH);
+          return htmlSegment;
         })
       );
-      content = content.filter(line => line.length > 0);
+      projectBodyHtmlLines = projectBodyHtmlLines.filter(line => line.length > 0 && line !== '<br>');
     }
     return {
       name: entry.data.name,
-      description: entry.data.description, // This is the short description from frontmatter
+      description: entry.data.description,
       githubUrl: entry.data.githubUrl || "",
       liveUrl: entry.data.liveUrl,
-      content: content, // This will be the processed body content
-
-      // const htmlDetails = await marked(entry.body);
-      // const textDetails = htmlDetails.replace(/<[^>]+>/g, '').trim().split('\n').filter(line => line.length > 0);
-      // details: textDetails,
+      content: projectBodyHtmlLines, // This will be the processed body content
     };
   })
 );
-
-
 ---
 <!-- src/pages/minimal-blog.astro -->
 <BaseLayout

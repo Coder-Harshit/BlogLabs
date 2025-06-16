@@ -15,6 +15,8 @@
     "@types/react-dom": "^19.1.6",
     "astro": "^5.8.1",
     "gsap": "^3.13.0",
+    "image-to-ascii": "^3.2.2",
+    "jsdom": "^26.1.0",
     "marked": "^15.0.12",
     "prismjs": "^1.30.0",
     "react": "^19.1.0",
@@ -22,6 +24,7 @@
     "tailwindcss": "^4.1.8"
   },
   "devDependencies": {
+    "@types/jsdom": "^21.1.7",
     "@types/prismjs": "^1.26.5"
   }
 }

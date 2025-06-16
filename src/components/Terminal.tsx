@@ -50,11 +50,41 @@ import type {
 
 // Dummy settings data. Values will be managed by localStorage.
 const defaultSettings: SettingOption[] = [
-  { key: 'themeMode', label: 'Theme Mode', type: 'select', options: ['terminal', 'light', 'dark'], currentValue: 'terminal' }, // 'terminal' is default for minimal
-  { key: 'fontSize', label: 'Font Size', type: 'select', options: ['small', 'medium', 'large'], currentValue: 'medium' },
-  { key: 'fontFamily', label: 'Font Family', type: 'select', options: ['Courier New', 'Ubuntu', 'IBM Plex Mono', 'Fira Code', 'JetBrains Mono', 'Tektur'], currentValue: 'Courier New' }, // Added more monospace fonts
-  { key: 'showWelcome', label: 'Show Welcome on Home', type: 'boolean', currentValue: true },
+  {
+    key: 'themeMode',
+    label: 'Theme Mode',
+    type: 'select',
+    options: ['terminal', 'light', 'dark'],
+    currentValue: 'terminal'
+  }, // 'terminal' is default for minimal
+  {
+    key: 'fontSize',
+    label: 'Font Size',
+    type: 'select',
+    options: ['small', 'medium', 'large'],
+    currentValue: 'medium'
+  },
+  {
+    key: 'fontFamily',
+    label: 'Font Family',
+    type: 'select',
+    options: ['Courier New', 'Ubuntu', 'IBM Plex Mono', 'Fira Code', 'JetBrains Mono', 'Tektur'],
+    currentValue: 'Courier New'
+  }, // Added more monospace fonts
+  {
+    key: 'showWelcome',
+    label: 'Show Welcome on Home',
+    type: 'boolean',
+    currentValue: true
+  },
   // { key: 'showHelpMenu', label: 'Show Help Menu', type: 'boolean', currentValue: true }
+  {
+    key: 'imageDisplay',
+    label: 'Media Display',
+    type: 'select',
+    options: ['none', 'ascii', 'full'],
+    currentValue: 'ascii'
+  }
 ];
 
 
@@ -167,7 +197,7 @@ const getAboutMeDisplay = (aboutData: AboutContent): DisplayLine[] => {
     if (htmlLine.trim() === "") {
       lines.push({ type: 'text', value: '' });
     } else {
-      lines.push({ type: 'code', value: htmlLine });
+      lines.push({ type: 'code', value: htmlLine, isHtml: true });
     }
     // Add an empty text line after each paragraph's content for better readability,
     // unless it's the last line or the line itself was just for spacing.
@@ -308,7 +338,7 @@ const getProjectContentDisplay = (project: Project | null): DisplayLine[] => {
     lines.push({ type: 'title', value: '─── Details ────────────────────────' });
     lines.push({ type: 'text', value: '' });
     project.content.forEach(bodyLine => {
-      lines.push({ type: 'code', value: bodyLine }); // Assuming bodyLine is HTML
+      lines.push({ type: 'code', value: bodyLine, isHtml: true }); // Assuming bodyLine is HTML
       lines.push({ type: 'text', value: '' }); // Add spacing after each body line
     });
   } else {
@@ -329,9 +359,9 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent, projects }
   // Initialize userSettings with default values for SSR
   const [userSettings, setUserSettings] = useState<SettingOption[]>(defaultSettings);
   const [displayedContent, setDisplayedContent] = useState<DisplayLine[]>([]); // Current content to show
-  const [currentView, setCurrentView] = useState<'main' | 'blogList' | 'blogContent' | 'about' | 'projects' | 'settings' | 'projectList' | 'projectContent'>('main');
+  const [currentView, setCurrentView] = useState<'main' | 'blogList' | 'blogContent' | 'about' | 'settings' | 'projectList' | 'projectContent'>('main');
   const [selectedOptionIndex, setSelectedOptionIndex] = useState<number>(0); // For TUI menu navigation
-  const [history, setHistory] = useState<('main' | 'blogList' | 'blogContent' | 'about' | 'projects' | 'settings' | 'projectList' | 'projectContent')[]>(['main']); // To track navigation
+  const [history, setHistory] = useState<('main' | 'blogList' | 'blogContent' | 'about' | 'settings' | 'projectList' | 'projectContent')[]>(['main']); // To track navigation
   const [currentBlogSlug, setCurrentBlogSlug] = useState<string | null>(null); // For blogContent view
   const [currentProjectIndex, setCurrentProjectIndex] = useState<number | null>(null); // For projectContent view
   // pull our settings flags
@@ -344,7 +374,7 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent, projects }
   const [isTouchDevice, setIsTouchDevice] = useState<boolean>(false);
 
   useEffect(() => {
-    console.log(isMobile());
+    // console.log(isMobile());
     setIsTouchDevice(isMobile()); // Check if the device is touch-enabled
   }, []);
 
@@ -365,7 +395,7 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent, projects }
       console.error("Failed to load settings from localStorage:", e);
     }
   }, []); // Empty dependency array ensures this runs once on mount
-
+  const imageDisplay = userSettings.find(s => s.key === 'imageDisplay')?.currentValue as 'none' | 'ascii' | 'full';
   // Save settings to localStorage whenever they change, but only on the client
   useEffect(() => {
     try {
@@ -431,11 +461,11 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent, projects }
         content = getAboutMeDisplay(aboutContent); // Use aboutContent from props
         currentOptionsLength = 0; // No interactive options
         break;
-      case 'projects':
-        setCurrentView('projectList');
-        setHistory(prev => [...prev, 'projectList']);
-        currentOptionsLength = projects.length; // No interactive options
-        break;
+      // case 'projects':
+      //   setCurrentView('projectList');
+      //   setHistory(prev => [...prev, 'projectList']);
+      //   currentOptionsLength = projects.length; // No interactive options
+      //   break;
       case 'projectList':
         content = getProjectListDisplay(projects, selectedOptionIndex);
         currentOptionsLength = projects.length;
@@ -528,7 +558,7 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent, projects }
       setHistory(prev => [...prev, 'projectList']);
       setCurrentView('projectList');
       setSelectedOptionIndex(0);
-      setCurrentProjectIndex(null); // Reset current project index
+      // setCurrentProjectIndex(null); // Reset current project index
     } else if (selectedOption === 'Settings') {
       setHistory(prev => [...prev, 'settings']);
       setCurrentView('settings');
@@ -594,7 +624,7 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent, projects }
 
     // ── vim/arrow scroll only in content‐scrollable views ──
     const scrollEl = terminalOutputRef.current;
-    const isScrollableView = ['blogContent', 'about', 'projects'].includes(currentView);
+    const isScrollableView = ['blogContent', 'about', 'projectList', 'projectContent'].includes(currentView);
     if (isScrollableView && scrollEl) {
       // down
       if (e.key === 'j' || e.key === 'ArrowDown') {
@@ -645,9 +675,9 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent, projects }
       setCurrentView('about');
       setSelectedOptionIndex(0);
       handled = true;
-    } else if (e.key.toLowerCase() === 'p' && currentView !== 'projects' && currentView === 'main') { // 'p' for projects
-      setHistory(prev => [...prev, 'projects']);
-      setCurrentView('projects');
+    } else if (e.key.toLowerCase() === 'p' && currentView !== 'projectList' && currentView === 'main') { // 'p' for projects
+      setHistory(prev => [...prev, 'projectList']);
+      setCurrentView('projectList');
       setSelectedOptionIndex(0);
       handled = true;
     } else if (e.key.toLowerCase() === 's' && currentView !== 'settings' && currentView === 'main') { // 's' for settings
@@ -794,6 +824,7 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent, projects }
     <div
       ref={terminalWrapperRef}
       className={`terminal-wrapper theme-${themeMode} ${isTouchDevice ? 'touch-device' : ''}`}
+      data-image-display={imageDisplay}
       tabIndex={0} // Make it focusable
     >
       <div className="terminal-header">BlogLabs Terminal</div>

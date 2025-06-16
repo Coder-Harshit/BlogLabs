@@ -790,3 +790,62 @@ html[data-bloglabs-theme="dark"] body {
         gap: 10px;
     }
 }
+
+.ascii-art {
+  font-family: var(--terminal-font-family, 'Courier New', monospace); /* Use terminal font */
+  font-size: 0.6em;  /* ASCII art is often dense, make it smaller */
+  line-height: 0.7;  /* Compress line height for density */
+  white-space: pre;  /* Crucial for preserving ASCII layout */
+  overflow-x: auto; /* Allow horizontal scroll if art is wider than container */
+  display: block;   /* Ensure it takes block display */
+  color: var(--terminal-green); /* Or your default text color */
+  background-color: transparent; /* Or match terminal background */
+  padding: 5px 0; /* Some vertical padding */
+  margin: 5px 0;  /* Some vertical margin */
+  border: none;     /* Remove any default pre borders */
+  text-align: left; /* Ensure ASCII art is left-aligned */
+}
+
+/* Ensure that when ASCII art is inside a highlighted line, it doesn't inherit weird styles */
+.terminal-output .line.highlight .ascii-art {
+    color: var(--terminal-green); /* Or your desired ASCII color on highlight */
+    background-color: transparent !important; /* Ensure no highlight background on the pre itself */
+}
+
+/* default hide both until wrapper attribute is read */
+.ascii-art,
+.media-original {
+  display: none;
+}
+
+/* ASCII-only */
+.terminal-wrapper[data-image-display="ascii"] .ascii-art {
+  display: block;
+}
+.terminal-wrapper[data-image-display="ascii"] .media-original {
+  display: none;
+}
+
+/* full media */
+.terminal-wrapper[data-image-display="full"] .ascii-art {
+  display: none;
+}
+.terminal-wrapper[data-image-display="full"] .media-original {
+  display: block;
+}
+
+/* hide all */
+.terminal-wrapper[data-image-display="none"] .ascii-art,
+.terminal-wrapper[data-image-display="none"] .media-original {
+  display: none;
+}
+
+/* optional styling */
+.media-block {
+  margin: 1em 0;
+}
+.media-original {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
