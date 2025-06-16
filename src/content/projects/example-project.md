@@ -1,10 +1,10 @@
 ---
-name: "BlogLabs Minimal TUI"
-description: "The very project you are currently viewing: A text-user interface (TUI) based blog built with Astro and React."
-githubUrl: "https://github.com/yourusername/bloglabs-repo-link"
+name: "OSPECTxfgchjkakjdvhsj"
+description: "Comprehensive System Diagnostics and Insights"
+githubUrl: "https://github.com/Coder-Harshit/OSpect"
 ---
 
-description: This project demonstrates the power of a highly efficient, keyboard-driven text-based interface. It focuses on delivering content rapidly and effectively, without the overhead of complex graphical elements.
+This project demonstrates the power of a highly efficient, keyboard-driven text-based interface. It focuses on delivering content rapidly and effectively, without the overhead of complex graphical elements.
 
 Key features include:
 

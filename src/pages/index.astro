@@ -45,10 +45,9 @@ import "../styles/grub.css"; // Import the GRUB CSS styles
         <div class="grub-footer">
             Use &uarr; and &darr; to navigate. Press &crarr; to select.
             <br />
-            (Also 'M' for Minimal, 'R' for Rich)
+            (Also 'M' for Minimal, 'R' for Rich, 'Q' for Quit)
         </div>
     </div>
-
     <!--
         Client-side JavaScript for interactive navigation and auto-selection.
         This script handles keyboard events for navigation, stores/retrieves
@@ -56,6 +55,10 @@ import "../styles/grub.css"; // Import the GRUB CSS styles
         timer for automatic selection if no user input is detected.
     -->
     <script>
+        import { isMobile } from "../utils/isMobileDevice";
+
+        const showPopover = isMobile(); // Determine if the user is on a mobile device
+        console.log("POPOVER ?", showPopover);
         // Get all menu list items
         const menuOptions = Array.from(
             document.querySelectorAll(".grub-menu li"),
@@ -63,6 +66,7 @@ import "../styles/grub.css"; // Import the GRUB CSS styles
         const countdownElement = document.getElementById("countdown");
         const defaultSelectionId = "minimal"; // Default option if no previous choice is stored
         const autoSelectTime = 5; // Time in seconds for auto-selection
+        const popoverDisplayTime = 2500; // 2.5 seconds for popover
 
         let selectedIndex: number; // Tracks the currently highlighted option
         let autoSelectTimer: number | undefined; // Timer ID for auto-selection
@@ -70,10 +74,38 @@ import "../styles/grub.css"; // Import the GRUB CSS styles
         let userHasInteracted = false; // Flag to track if user has pressed any key
 
         /**
+         * Creates and displays a popover message if on a mobile device.
+         */
+        function displayMobilePopover() {
+            if (isMobile()) {
+                console.log("Client is mobile, displaying popover.");
+                const popover = document.createElement("div");
+                popover.className = "popover";
+                const popoverText = document.createElement("p");
+                popoverText.textContent = "For the best experience, we recommend using a PC or laptop.";
+                popover.appendChild(popoverText);
+                document.body.appendChild(popover); // Append to body or a specific container
+            // Automatically remove the popover after a delay
+                setTimeout(() => {
+                    if (popover && popover.parentNode) {
+                        popover.parentNode.removeChild(popover);
+                        console.log("Popover removed.");
+                    }
+                }, popoverDisplayTime);
+            } else {
+                console.log("Client is not mobile.");
+            }
+        }
+
+
+        /**
          * Initializes the selected option based on localStorage or default.
          * Sets up the initial visual selection and starts the auto-selection timer.
          */
         function initializeSelection() {
+            displayMobilePopover(); // Show popover if on mobile
+
+
             const lastChosenId = localStorage.getItem("lastChosenBlogOption");
             const initialId = lastChosenId || defaultSelectionId;
 
@@ -206,8 +238,15 @@ import "../styles/grub.css"; // Import the GRUB CSS styles
             } else if (event.key.toLowerCase() === "r") {
                 event.preventDefault();
                 selectAndNavigate("rich");
+            } else if (event.key.toLowerCase() === "q") {
+                event.preventDefault();
+                window.open("", "_self"); // Open a blank page in the same tab
+                window.close(); // Close the window if 'Q' is pressed
+                // If still not closed within a few seconds, redirect to about:blank
+                setTimeout(() => {
+                    window.location.href = "about:blank";
+                }, 100);
             }
-
             // After a key press, if it was just navigation, restart the timer
             // but only if the action didn't result in immediate navigation.
             if (
