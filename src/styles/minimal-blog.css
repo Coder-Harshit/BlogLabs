@@ -548,7 +548,8 @@ html[data-bloglabs-theme="dark"] body {
 }
 
 .terminal-output .line.highlight {
-    background-color: var(--terminal-green-highlight);
+    /* background-color: var(--terminal-blue-highlight); */
+    background-color: rgba(0, 255, 0, 0.5);
     /* Green highlight for selected TUI options */
     color: var(--terminal-black);
     /* Black text on highlight */

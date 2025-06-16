@@ -30,6 +30,7 @@ const projectsCollection = defineCollection({
     description: z.string(), // Project description
     githubUrl: z.string().url().optional(), // Optional GitHub URL
     // Add any specific schema fields for your projects here
+    liveUrl: z.string().url().optional(), // Optional live URL for the project
   }),
 });
 

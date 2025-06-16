@@ -18,72 +18,35 @@ import 'prismjs/components/prism-python.js'; // Python
 import 'prismjs/components/prism-bash.js'; // Bash
 
 import { isMobile } from '../utils/isMobileDevice';
+import { getLolcatHtml } from '../utils/lolcat';
+
+import type {
+  BlogPost,
+  DisplayLine,
+  SettingOption,
+  AboutContent,
+  Project,
+  TerminalProps,
+} from '../interfaces';
 
 // --- Type Definitions ---
 
-// Defines the structure for a single line of displayable content in the terminal.
-interface DisplayLine {
-  type: 'text' | 'highlight' | 'title' | 'code' | 'error' | 'welcome' | 'prompt';
-  value: string;
-  isInteractive?: boolean;
-  optionIndex?: number;
-}
-
-// Defines the structure for a blog post, including metadata and content.
-// This type is now received as a prop, matching the output from minimal-blog.astro processing.
-interface BlogPost {
-  slug: string;
-  title: string;
-  author: string;
-  date: string; // YYYY-MM-DD
-  summary: string; // Short description for list view
-  content: string[]; // Array of strings for paragraph/line-by-line content
-  codeBlocks?: { language: string; code: string; }[]; // Structured for code blocks
-}
-
-// Defines the structure for a project entry.
-interface Project {
-  name: string;
-  description: string;
-  githubUrl: string;
-}
-
-// Defines the structure for settings options.
-interface SettingOption {
-  key: string;
-  label: string;
-  type: 'select' | 'boolean';
-  options?: string[]; // For 'select' type
-  currentValue?: string | boolean; // For display
-}
-
-// Defines the structure for about content.
-interface AboutContent {
-  title: string;
-  bodyLines: string[];
-}
-
-// Props for the Terminal component
-interface TerminalProps {
-  blogPosts: BlogPost[]; // Now receives blog posts as a prop
-  aboutContent: AboutContent; // Now receives about content as a prop
-}
 
 // --- Mock Data (Only for projects and settings now, blogs come from props) ---
 
-// Dummy projects data
-const mockProjects: Project[] = [
-  {
-    name: 'BlogLabs Project',
-    description: 'This very website, demonstrating TUI/CLI principles with Astro and React.',
-    githubUrl: 'https://github.com/yourusername/bloglabs'
-  },
-  {
-    name: 'CLI Game Engine',
-    description: 'A personal project building a simple text-based adventure game engine.',
-    githubUrl: 'https://github.com/yourusername/cli-game'
-  }
-];
+// // Dummy projects data
+// const mockProjects: Project[] = [
+//   {
+//     name: 'BlogLabs Project',
+//     description: 'This very website, demonstrating TUI/CLI principles with Astro and React.',
+//     githubUrl: 'https://github.com/yourusername/bloglabs'
+//   },
+//   {
+//     name: 'CLI Game Engine',
+//     description: 'A personal project building a simple text-based adventure game engine.',
+//     githubUrl: 'https://github.com/yourusername/cli-game'
+//   }
+// ];
 
 // Dummy settings data. Values will be managed by localStorage.
 const defaultSettings: SettingOption[] = [
@@ -96,6 +59,20 @@ const defaultSettings: SettingOption[] = [
 
 
 // --- Helper Functions for Content Rendering ---
+
+// const getLolcatHtml = (text: string): string => {
+//   const colors = [
+//     '#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#8B00FF' // Rainbow colors
+//     // Or use your terminal theme colors
+//     // '#C586C0', '#CE9178', '#6A9955', '#B5CEA8', '#4EC9B0', '#DCDCAA', '#9CDCFE', '#569CD6'
+//   ];
+//   const CHARS_PER_COLOR_SEGMENT = 1.75; // Adjust this for frequency
+//   return text.split('').map((char, index) => {
+//     if (char === ' ') return ' '; // Preserve spaces
+//     const colorIndex = Math.floor(index / CHARS_PER_COLOR_SEGMENT) % colors.length;
+//     return `<span style="color: ${colors[colorIndex]}; text-shadow: none;">${char}</span>`;
+//   }).join('');
+// };
 
 const getWelcomeScreen = (): DisplayLine[] => {
   return [
@@ -213,19 +190,43 @@ const getAboutMeDisplay = (aboutData: AboutContent): DisplayLine[] => {
   return lines;
 };
 
-const getProjectsDisplay = (projects: Project[]): DisplayLine[] => {
-  const lines: DisplayLine[] = [
-    { type: 'title', value: '─── My Projects ──────────────────────' },
-    { type: 'text', value: '' }
-  ];
-  projects.forEach(project => {
-    lines.push({ type: 'text', value: `- ${project.name}` });
-    lines.push({ type: 'text', value: `  ${project.description}` });
-    lines.push({ type: 'text', value: `  GitHub: ${project.githubUrl}` });
-    lines.push({ type: 'text', value: '' });
-  });
-  return lines;
-};
+// const getProjectsDisplay = (projects: Project[]): DisplayLine[] => {
+//   const lines: DisplayLine[] = [
+//     { type: 'title', value: '─── My Projects ──────────────────────' },
+//     { type: 'text', value: '' }
+//   ];
+//   if (projects.length === 0) {
+//     lines.push({ type: 'text', value: 'No projects to display yet.' });
+//     lines.push({ type: 'text', value: '' });
+//   } else {
+//     projects.forEach(project => {
+//       lines.push({ type: 'text', value: `- ${project.name}` });
+//       lines.push({ type: 'text', value: `  ${project.description}` }); // Uses frontmatter description
+//       lines.push({ type: 'text', value: `  GitHub: ${project.githubUrl}` });
+//       {
+//         project.liveUrl &&
+//           lines.push({ type: 'text', value: `  Live: ${project.liveUrl}` });
+//       }
+//       // If you added 'details' to the Project interface and processed them:
+//       // if (project.details && project.details.length > 0) {
+//       //   lines.push({ type: 'text', value: '  Details:' });
+//       //   project.details.forEach(detailLine => {
+//       //     lines.push({ type: 'text', value: `    ${detailLine}` });
+//       //   });
+//       // }
+//       // Display processed body content
+//       if (project.content && project.content.length > 0) {
+//         lines.push({ type: 'text', value: '' }); // Add a little space before body details
+//         project.content.forEach(content => {
+//           // Assuming contents are pre-processed HTML snippets like 'About Me'
+//           lines.push({ type: 'code', value: content });
+//         });
+//       }
+//       lines.push({ type: 'text', value: '' }); // Space after each project
+//     });
+//   }
+//   return lines;
+// };
 
 const getSettingsDisplay = (settings: SettingOption[], highlightedIndex: number): DisplayLine[] => {
   const lines: DisplayLine[] = [
@@ -253,18 +254,86 @@ const getSettingsDisplay = (settings: SettingOption[], highlightedIndex: number)
   return lines;
 };
 
+// ...after getAboutMeDisplay...
+
+const getProjectListDisplay = (projectsData: Project[], highlightedIndex: number): DisplayLine[] => {
+  const lines: DisplayLine[] = [
+    { type: 'title', value: '─── My Projects ──────────────────────' },
+    { type: 'text', value: '' }
+  ];
+  if (projectsData.length === 0) {
+    lines.push({ type: 'text', value: 'No projects to display yet.' });
+  } else {
+    projectsData.forEach((project, index) => {
+      const isSelected = index === highlightedIndex;
+      // Use lolcat for the name in the list view as well, or keep it simple
+      // const displayName = isSelected ? `> ${project.name}` : `  ${project.name}`;
+      // For lolcat in list (might be too much, but for consistency):
+      const lolcatName = getLolcatHtml(project.name);
+      lines.push({
+        // type: isSelected ? 'highlight' : 'code', // Use 'code' for dangerouslySetInnerHTML
+        type: isSelected ? 'highlight' : 'code', // Use 'code' for dangerouslySetInnerHTML
+        value: `${isSelected ? '> ' : '  '}${lolcatName}`, // Add opacity for non-selected items
+        isInteractive: true,
+        optionIndex: index,
+        isHtml: true,
+      });
+      lines.push({ type: 'text', value: `    ${project.description}` }); // Show short desc
+      lines.push({ type: 'text', value: '' });
+    });
+  }
+  lines.push({ type: 'text', value: '' });
+  return lines;
+};
+
+const getProjectContentDisplay = (project: Project | null): DisplayLine[] => {
+  if (!project) {
+    return [{ type: 'error', value: 'Error: Project not found.' }];
+  }
+  const lines: DisplayLine[] = [
+    // Use 'code' type for the lolcat name to render HTML
+    { type: 'code', value: `─── ${getLolcatHtml(project.name)} ${'─'.repeat(Math.max(0, 30 - project.name.length))} ` },
+    { type: 'text', value: '' },
+    { type: 'text', value: `Description: ${project.description}` }, // Frontmatter description
+    { type: 'text', value: `GitHub: ${project.githubUrl}` },
+  ];
+
+  if (project.liveUrl) {
+    lines.push({ type: 'text', value: `Live URL: ${project.liveUrl}` });
+  }
+  lines.push({ type: 'text', value: '' });
+
+  // Display processed body content (project.bodyLines was mapped to project.content in index.astro)
+  if (project.content && project.content.length > 0) {
+    lines.push({ type: 'title', value: '─── Details ────────────────────────' });
+    lines.push({ type: 'text', value: '' });
+    project.content.forEach(bodyLine => {
+      lines.push({ type: 'code', value: bodyLine }); // Assuming bodyLine is HTML
+      lines.push({ type: 'text', value: '' }); // Add spacing after each body line
+    });
+  } else {
+    lines.push({ type: 'text', value: '(No additional details provided)' });
+    lines.push({ type: 'text', value: '' });
+  }
+  lines.push({ type: 'text', value: '──────────────────────────────────────' });
+  lines.push({ type: 'text', value: '' });
+  return lines;
+};
+
+// Remove or comment out the old getProjectsDisplay function
+// const getProjectsDisplay = (projectsData: Project[]): DisplayLine[] => { ... };
 
 // --- Main Terminal Component ---
 
-const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // Accept blogPosts and aboutContent as props
+const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent, projects }) => { // Accept blogPosts and aboutContent as props
   // Initialize userSettings with default values for SSR
   const [userSettings, setUserSettings] = useState<SettingOption[]>(defaultSettings);
   const [displayedContent, setDisplayedContent] = useState<DisplayLine[]>([]); // Current content to show
-  const [currentView, setCurrentView] = useState<'main' | 'blogList' | 'blogContent' | 'about' | 'projects' | 'settings'>('main');
+  const [currentView, setCurrentView] = useState<'main' | 'blogList' | 'blogContent' | 'about' | 'projects' | 'settings' | 'projectList' | 'projectContent'>('main');
   const [selectedOptionIndex, setSelectedOptionIndex] = useState<number>(0); // For TUI menu navigation
-  const [history, setHistory] = useState<('main' | 'blogList' | 'blogContent' | 'about' | 'projects' | 'settings')[]>(['main']); // To track navigation
+  const [history, setHistory] = useState<('main' | 'blogList' | 'blogContent' | 'about' | 'projects' | 'settings' | 'projectList' | 'projectContent')[]>(['main']); // To track navigation
   const [currentBlogSlug, setCurrentBlogSlug] = useState<string | null>(null); // For blogContent view
-
+  const [currentProjectIndex, setCurrentProjectIndex] = useState<number | null>(null); // For projectContent view
   // pull our settings flags
   const themeMode = userSettings.find(s => s.key === 'themeMode')?.currentValue as string || 'terminal';
   const terminalWrapperRef = useRef<HTMLDivElement>(null); // Assuming you have this for focus
@@ -363,8 +432,18 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
         currentOptionsLength = 0; // No interactive options
         break;
       case 'projects':
-        content = getProjectsDisplay(mockProjects);
-        currentOptionsLength = 0; // No interactive options
+        setCurrentView('projectList');
+        setHistory(prev => [...prev, 'projectList']);
+        currentOptionsLength = projects.length; // No interactive options
+        break;
+      case 'projectList':
+        content = getProjectListDisplay(projects, selectedOptionIndex);
+        currentOptionsLength = projects.length;
+        break;
+      case 'projectContent':
+        const selectedProject = (currentProjectIndex !== null && currentProjectIndex >= 0 && projects[currentProjectIndex]) ? projects[currentProjectIndex] : null;
+        content = getProjectContentDisplay(selectedProject);
+        currentOptionsLength = 0;
         break;
       case 'settings':
         content = getSettingsDisplay(userSettings, selectedOptionIndex);
@@ -384,7 +463,7 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
     if (terminalOutputRef.current) {
       terminalOutputRef.current.scrollTop = 0;
     }
-  }, [currentView, selectedOptionIndex, currentBlogSlug, userSettings, blogPosts, aboutContent]); // Add aboutContent to dependency array
+  }, [currentView, selectedOptionIndex, currentBlogSlug, userSettings, blogPosts, aboutContent, projects, currentProjectIndex]);
 
   // Effect for standard cursor auto-hide logic
   useEffect(() => {
@@ -403,7 +482,6 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
       if (inactivityTimerRef.current) {
         clearTimeout(inactivityTimerRef.current);
       }
-      // Hide after 100 milliseconds of inactivity. Adjust as needed.
       inactivityTimerRef.current = setTimeout(hideStandardCursor, 100);
     };
 
@@ -413,18 +491,13 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
     };
 
     const handleMouseEnter = () => {
-      showStandardCursor(); // Show cursor immediately when mouse enters
+      showStandardCursor();
       resetInactivityTimer();
-    };
-
-    const handleMouseLeave = () => {
-      // Optionally, hide cursor immediately or let the timer run out
     };
 
     // Attach listeners to the terminal wrapper itself
     wrapper.addEventListener('mousemove', handleMouseMove);
     wrapper.addEventListener('mouseenter', handleMouseEnter);
-    wrapper.addEventListener('mouseleave', handleMouseLeave);
 
     // Initial state: cursor visible, then timer starts
     showStandardCursor();
@@ -433,7 +506,6 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
     return () => {
       wrapper.removeEventListener('mousemove', handleMouseMove);
       wrapper.removeEventListener('mouseenter', handleMouseEnter);
-      wrapper.removeEventListener('mouseleave', handleMouseLeave);
       if (inactivityTimerRef.current) {
         clearTimeout(inactivityTimerRef.current);
       }
@@ -453,9 +525,10 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
       setCurrentView('about');
       setSelectedOptionIndex(0);
     } else if (selectedOption === 'Projects') {
-      setHistory(prev => [...prev, 'projects']);
-      setCurrentView('projects');
+      setHistory(prev => [...prev, 'projectList']);
+      setCurrentView('projectList');
       setSelectedOptionIndex(0);
+      setCurrentProjectIndex(null); // Reset current project index
     } else if (selectedOption === 'Settings') {
       setHistory(prev => [...prev, 'settings']);
       setCurrentView('settings');
@@ -471,6 +544,15 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
       setHistory(prev => [...prev, 'blogContent']);
       setCurrentView('blogContent');
       setCurrentBlogSlug(selectedBlog.slug);
+    }
+  };
+
+  const handleProjectListEnter = (selectedIndex: number) => {
+    if (projects[selectedIndex]) {
+      setCurrentProjectIndex(selectedIndex); // Set the index of the project to view
+      setHistory(prev => [...prev, 'projectContent']);
+      setCurrentView('projectContent');
+      setSelectedOptionIndex(0); // No selection in content view
     }
   };
 
@@ -553,22 +635,22 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
         setSelectedOptionIndex(0);
         handled = true;
       }
-    } else if (e.key.toLowerCase() === 'b' && currentView !== 'blogList') { // 'b' for blogs
+    } else if (e.key.toLowerCase() === 'b' && currentView !== 'blogList' && currentView === 'main') { // 'b' for blogs
       setHistory(prev => [...prev, 'blogList']);
       setCurrentView('blogList');
       setSelectedOptionIndex(0);
       handled = true;
-    } else if (e.key.toLowerCase() === 'a' && currentView !== 'about') { // 'a' for about
+    } else if (e.key.toLowerCase() === 'a' && currentView !== 'about' && currentView === 'main') { // 'a' for about
       setHistory(prev => [...prev, 'about']);
       setCurrentView('about');
       setSelectedOptionIndex(0);
       handled = true;
-    } else if (e.key.toLowerCase() === 'p' && currentView !== 'projects') { // 'p' for projects
+    } else if (e.key.toLowerCase() === 'p' && currentView !== 'projects' && currentView === 'main') { // 'p' for projects
       setHistory(prev => [...prev, 'projects']);
       setCurrentView('projects');
       setSelectedOptionIndex(0);
       handled = true;
-    } else if (e.key.toLowerCase() === 's' && currentView !== 'settings') { // 's' for settings
+    } else if (e.key.toLowerCase() === 's' && currentView !== 'settings' && currentView === 'main') { // 's' for settings
       setHistory(prev => [...prev, 'settings']);
       setCurrentView('settings');
       setSelectedOptionIndex(0);
@@ -599,27 +681,6 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
           newSelectedOptionIndex = (selectedOptionIndex + 1) % mainOptions.length;
         } else if (e.key === 'Enter') {
           handleMainViewEnter(newSelectedOptionIndex);
-          // const selectedOption = mainOptions[selectedOptionIndex];
-        //   if (selectedOption === 'Blogs') {
-        //     setHistory(prev => [...prev, 'blogList']);
-        //     setCurrentView('blogList');
-        //     setSelectedOptionIndex(0); // Reset selection for new view
-        //   } else if (selectedOption === 'About Me') {
-        //     setHistory(prev => [...prev, 'about']);
-        //     setCurrentView('about');
-        //     setSelectedOptionIndex(0);
-        //   } else if (selectedOption === 'Projects') {
-        //     setHistory(prev => [...prev, 'projects']);
-        //     setCurrentView('projects');
-        //     setSelectedOptionIndex(0);
-        //   } else if (selectedOption === 'Settings') {
-        //     setHistory(prev => [...prev, 'settings']);
-        //     setCurrentView('settings');
-        //     setSelectedOptionIndex(0);
-        //   } else if (selectedOption === 'Reboot!') {
-        //     // Optional: if we want a way to go back to the boot menu from here
-        //     window.location.href = '/'; // Redirect to home page
-        //   }
         }
         break;
       case 'blogList':
@@ -630,13 +691,7 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
           newSelectedOptionIndex = (selectedOptionIndex + 1) % blogPosts.length; // Use blogPosts.length
           setSelectedOptionIndex(newSelectedOptionIndex);
         } else if (e.key === 'Enter' || e.key.toLowerCase() === 'l') {
-          handleBlogListEnter(newSelectedOptionIndex); // Use refactored function
-          // const selectedBlog = blogPosts[selectedOptionIndex]; // Use blogPosts
-          // if (selectedBlog) {
-          //   setHistory(prev => [...prev, 'blogContent']);
-          //   setCurrentView('blogContent');
-          //   setCurrentBlogSlug(selectedBlog.slug); // Store slug to load content
-          // }
+          handleBlogListEnter(newSelectedOptionIndex);
         }
         break;
       case 'settings':
@@ -646,22 +701,6 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
           newSelectedOptionIndex = (selectedOptionIndex + 1) % userSettings.length;
         } else if (e.key === 'Enter') {
           handleSettingsEnter(newSelectedOptionIndex);
-          // const setting = userSettings[selectedOptionIndex];
-          // if (setting) {
-          //   if (setting.type === 'boolean') {
-          //     // Toggle boolean setting
-          //     setUserSettings(prevSettings => prevSettings.map((s, idx) =>
-          //       idx === selectedOptionIndex ? { ...s, currentValue: !s.currentValue } : s
-          //     ));
-          //   } else if (setting.type === 'select' && setting.options) {
-          //     // Cycle through select options
-          //     const currentOptIdx = setting.options.indexOf(setting.currentValue as string);
-          //     const nextOptIdx = (currentOptIdx + 1) % setting.options.length;
-          //     setUserSettings(prevSettings => prevSettings.map((s, idx) =>
-          //       idx === selectedOptionIndex ? { ...s, currentValue: setting.options![nextOptIdx] } : s
-          //     ));
-            // }
-          // }
         }
         break;
       case 'blogContent':
@@ -669,6 +708,21 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
       case 'about':
         break;
       case 'projects':
+        break;
+      case 'projectList':
+        if (e.key === 'ArrowUp' || e.key.toLowerCase() === 'k') {
+          newSelectedOptionIndex = (selectedOptionIndex - 1 + projects.length) % projects.length; // Use projects.length
+          setSelectedOptionIndex(newSelectedOptionIndex);
+        }
+        else if (e.key === 'ArrowDown' || e.key.toLowerCase() === 'j') {
+          newSelectedOptionIndex = (selectedOptionIndex + 1) % projects.length; // Use projects.length
+          setSelectedOptionIndex(newSelectedOptionIndex);
+        }
+        else if (e.key === 'Enter' || e.key.toLowerCase() === 'l') {
+          handleProjectListEnter(newSelectedOptionIndex);
+        }
+        break;
+      case 'projectContent':
         break;
     }
 
@@ -694,6 +748,7 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
     // Back/Cancel option always available if not on main view
     if (currentView !== 'main') {
       options.push({ key: '^C / Backspace', label: 'Back' });
+      options.push({ key: 'Esc', label: 'Main Menu' });
     }
     // Add view-specific options
     switch (currentView) {
@@ -714,7 +769,15 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
       case 'about':
         options.push({ key: 'h/j/k/l', label: 'Scroll' });
         break;
-      case 'projects':
+      // case 'projects': // This view name might be obsolete now
+      //   // If 'projects' still exists as a view, define its nano bar.
+      //   // Otherwise, this case can be removed if main menu 'Projects' goes to 'projectList'.
+      //   options.push({ key: 'h/j/k/l', label: 'Scroll' });
+      //   break;
+      case 'projectList': // New
+        options.push({ key: '↑↓/kj Enter/l', label: 'Navigate/View' });
+        break;
+      case 'projectContent': // New
         options.push({ key: 'h/j/k/l', label: 'Scroll' });
         break;
       case 'settings':
@@ -742,27 +805,23 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
             if (!isTouchDevice || !line.isInteractive || typeof line.optionIndex === 'undefined') {
               return;
             }
-            // Optional: visually highlight the tapped item briefly if desired,
-            // but direct action is usually preferred for touch.
-            // setSelectedOptionIndex(line.optionIndex);
-
-
             if (currentView === 'main') {
               handleMainViewEnter(line.optionIndex);
             } else if (currentView === 'blogList') {
               handleBlogListEnter(line.optionIndex);
             } else if (currentView === 'settings') {
               handleSettingsEnter(line.optionIndex);
+            } else if (currentView === 'projectList') { // Add projectList
+              handleProjectListEnter(line.optionIndex);
             }
           };
-
           const lineClasses = ['line', line.type];
           if (line.isInteractive && isTouchDevice) {
             lineClasses.push('touch-interactive');
           }
           // For keyboard highlight, check if the line's optionIndex matches selectedOptionIndex
           if (line.optionIndex === selectedOptionIndex &&
-              (currentView === 'main' || currentView === 'blogList' || currentView === 'settings')) {
+            (currentView === 'main' || currentView === 'blogList' || currentView === 'settings')) {
             // Ensure 'highlight' type is used for keyboard selection if not already
             // This might conflict if 'highlight' is already set by get*Display.
             // The get*Display functions already set type to 'highlight' based on selectedOptionIndex.
@@ -774,7 +833,7 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent }) => { // 
           // Conditional rendering:
           // If line.type is 'code', use dangerouslySetInnerHTML
           // Otherwise, render line.value as children
-          if (line.type === 'code') {
+          if (line.isHtml || line.type === 'code') {
             return (
               <div
                 key={index}

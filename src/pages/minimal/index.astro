@@ -16,15 +16,11 @@ marked.setOptions({
   },
 } as any);
 
-interface BlogPostContent {
-  slug: string;
-  title: string;
-  author: string;
-  date: string;
-  summary: string;
-  content: string[];
-  codeBlocks?: { language: string; code: string }[];
-}
+import type {
+  BlogPostContent,
+  AboutContent,
+  ProjectContent
+} from "../../interfaces";
 
 // --- Fetch and process Blog Posts (existing code) ---
 const allBlogEntries: CollectionEntry<"blogs">[] = await getCollection("blogs");
@@ -70,11 +66,6 @@ const blogPosts: BlogPostContent[] = await Promise.all(
   }),
 );
 
-// --- Fetch and process About Me content ---
-interface AboutContent {
-    title: string;
-    bodyLines: string[]; // Each string will now be an HTML snippet
-}
 
 let aboutMeContent: AboutContent = { title: "About Me", bodyLines: ["Failed to load about content."] };
 
@@ -106,11 +97,46 @@ try {
     console.error("Error fetching or processing 'about' content:", error);
     // aboutMeContent remains the default error message
 }
+
+// --- Fetch and process Projects ---
+const allProjectEntries: CollectionEntry<"projects">[] = await getCollection("projects");
+const projects: ProjectContent[] = await Promise.all(
+  allProjectEntries.map(async (entry) => {
+    // Process the body of the project markdown, similar to "About Me"
+    let content: string[] = [];
+    if (entry.body) {
+      const markdownParagraphs = entry.body.split(/\n\s*\n/);
+      content = await Promise.all(
+        markdownParagraphs.map(async (mdPara) => {
+          if (mdPara.trim() === '') return '';
+          let htmlLine = await marked(mdPara.trim());
+          // Remove outer <p> tags if marked adds them and you want raw lines
+          htmlLine = htmlLine.replace(/^<p>/i, '').replace(/<\/p>$/i, '').trim();
+          return htmlLine;
+        })
+      );
+      content = content.filter(line => line.length > 0);
+    }
+    return {
+      name: entry.data.name,
+      description: entry.data.description, // This is the short description from frontmatter
+      githubUrl: entry.data.githubUrl || "",
+      liveUrl: entry.data.liveUrl,
+      content: content, // This will be the processed body content
+
+      // const htmlDetails = await marked(entry.body);
+      // const textDetails = htmlDetails.replace(/<[^>]+>/g, '').trim().split('\n').filter(line => line.length > 0);
+      // details: textDetails,
+    };
+  })
+);
+
+
 ---
 <!-- src/pages/minimal-blog.astro -->
 <BaseLayout
   title="BlogLabs - Minimal TUI"
   description="A minimal terminal UI for BlogLabs."
 >
-  <Terminal client:load blogPosts={blogPosts} aboutContent={aboutMeContent} />
+  <Terminal client:load blogPosts={blogPosts} aboutContent={aboutMeContent} projects={projects} />
 </BaseLayout>
