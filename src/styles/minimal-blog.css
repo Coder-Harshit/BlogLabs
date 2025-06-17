@@ -3,849 +3,757 @@
 
 /* Define CSS variables for font settings, with fallbacks */
 :root {
-    --terminal-font-family: 'IBM Plex Mono', 'Courier New', Courier, monospace;
-    /* Prioritize a good terminal font */
+    --terminal-font-family: 'JetBrains Mono', 'Fira Code', 'IBM Plex Mono', 'Courier New', Courier, monospace;
     --terminal-font-size: 1em;
-    --terminal-green-light: #00FF00;
-    --terminal-green-dark: #00AA00;
-    --terminal-green-header: #005500;
-    --terminal-green-highlight: #00AA00;
-    --terminal-yellow: #AAFF00;
-    --terminal-red: #FF0000;
-    --terminal-cyan: #00FFFF;
-    --terminal-black: #000;
-
+    
+    /* Enhanced terminal color palette */
+    --terminal-bg: #0a0a0a;
+    --terminal-bg-alt: #111111;
+    --terminal-fg: #00ff41;
+    --terminal-fg-dim: #00cc33;
+    --terminal-fg-bright: #66ff66;
+    --terminal-accent: #ffff00;
+    --terminal-accent-dim: #cccc00;
+    --terminal-error: #ff4444;
+    --terminal-warning: #ffaa00;
+    --terminal-info: #44aaff;
+    --terminal-success: #44ff44;
+    --terminal-border: #333333;
+    --terminal-border-bright: #555555;
+    --terminal-selection: rgba(0, 255, 65, 0.3);
+    --terminal-shadow: rgba(0, 255, 65, 0.2);
+    
+    /* Scanline effect */
+    --scanline-opacity: 0.04;
+    --scanline-speed: 2s;
+    
+    /* CRT effect variables */
+    --crt-flicker: 0.15s;
+    --crt-distortion: 2px;
+    
     /* VS Code inspired syntax highlighting colors for terminal theme */
     --code-keyword: #C586C0;
-    /* Purple for keywords */
     --code-string: #CE9178;
-    /* Orange for strings */
     --code-comment: #6A9955;
-    /* Green for comments */
     --code-number: #B5CEA8;
-    /* Light green for numbers */
     --code-builtin: #4EC9B0;
-    /* Teal for built-ins */
     --code-function: #DCDCAA;
-    /* Yellow for functions */
     --code-property: #9CDCFE;
-    /* Light blue for properties */
     --code-boolean: #569CD6;
-    /* Blue for booleans */
     --code-react: #61DAFB;
-    /* React blue */
     --code-jsx-tag: #4FC1FF;
-    /* Light blue for JSX tags */
     --code-jsx-prop: #92C5F8;
-    /* Lighter blue for JSX props */
     --code-jsx-expression: #FFD700;
-    /* Gold for JSX expressions */
     --code-html-tag: #569CD6;
-    /* Blue for HTML tags */
     --code-html-attr: #92C5F8;
-    /* Light blue for HTML attributes */
     --code-css-selector: #D7BA7D;
-    /* Gold for CSS selectors */
     --code-css-property: #9CDCFE;
-    /* Light blue for CSS properties */
     --code-css-value: #CE9178;
-    /* Orange for CSS values */
     --code-css-variable: #4FC1FF;
-    /* Light blue for CSS variables */
     --code-color: #F44747;
-    /* Red for color values */
     --code-template-expression: #FFD700;
-    /* Gold for template expressions */
     --code-default: #D4D4D4;
-    /* Light gray for default text */
 
     /* Light Theme Syntax Colors */
     --lt-code-keyword: #0000FF;
-    /* Blue for keywords */
     --lt-code-string: #A31515;
-    /* Dark red for strings */
     --lt-code-comment: #008000;
-    /* Green for comments */
     --lt-code-number: #098658;
-    /* Dark teal for numbers */
     --lt-code-builtin: #267F99;
-    /* Teal for built-ins */
     --lt-code-function: #795E26;
-    /* Brown for functions */
     --lt-code-property: #001080;
-    /* Dark blue for properties */
     --lt-code-boolean: #0000FF;
-    /* Blue for booleans */
     --lt-code-react: #007ACC;
-    /* Darker React blue */
     --lt-code-jsx-tag: #800000;
-    /* Maroon for JSX tags */
     --lt-code-jsx-prop: #FF0000;
-    /* Red for JSX props */
     --lt-code-jsx-expression: #A52A2A;
-    /* Brown for JSX expressions */
     --lt-code-html-tag: #800000;
-    /* Maroon for HTML tags */
     --lt-code-html-attr: #FF0000;
-    /* Red for HTML attributes */
     --lt-code-css-selector: #800000;
-    /* Maroon for CSS selectors */
     --lt-code-css-property: #0000FF;
-    /* Blue for CSS properties */
     --lt-code-css-value: #098658;
-    /* Dark teal for CSS values */
     --lt-code-css-variable: #267F99;
-    /* Teal for CSS variables */
     --lt-code-color: #FF0000;
-    /* Red for color values */
     --lt-code-template-expression: #A52A2A;
-    /* Brown for template expressions */
     --lt-code-default: #1E1E1E;
-    /* Dark gray for default text in light theme */
 }
 
-/* Minimal Blog specific styles, primarily for the Terminal component container */
+/* Enhanced body with CRT effects */
 body {
     margin: 0;
     padding: 0;
     display: flex;
     justify-content: center;
     align-items: center;
-    /* Make body fill the entire viewport */
     width: 100vw;
     height: 100vh;
-    background-color: var(--terminal-black);
-    /* Black background for the terminal feel */
-    color: var(--terminal-green-light);
-    /* Green text for consistency */
+    background: 
+        radial-gradient(ellipse at center, var(--terminal-bg) 0%, #000000 100%),
+        linear-gradient(0deg, transparent 50%, rgba(0, 255, 65, var(--scanline-opacity)) 50%);
+    background-size: 100% 100%, 100% 4px;
+    color: var(--terminal-fg);
     font-family: var(--terminal-font-family);
-    /* Use CSS variable for font family */
     font-size: var(--terminal-font-size);
-    /* Use CSS variable for font size */
     overflow: hidden;
-    /* Prevent body scrollbars */
     user-select: none;
-    /* Prevent text selection */
     -webkit-user-select: none;
-    /* For Safari */
     -moz-user-select: none;
-    /* For Firefox */
     -ms-user-select: none;
-    /* For Internet Explorer/Edge */
-    text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
-    /* Subtle glow for text */
-    animation: text-flicker 0.1s infinite alternate;
-    /* More subtle flicker */
     cursor: none;
-    /* Hide the mouse cursor */
+    
+    /* Enhanced CRT effects */
+    animation: 
+        crt-flicker var(--crt-flicker) infinite linear alternate,
+        scanlines var(--scanline-speed) linear infinite;
 }
 
-/* Default terminal theme styles for body */
+/* CRT Animations */
+@keyframes crt-flicker {
+    0% { opacity: 1; }
+    98% { opacity: 1; }
+    99% { opacity: 0.98; }
+    100% { opacity: 1; }
+}
+
+@keyframes scanlines {
+    0% { background-position: 0 0, 0 0; }
+    100% { background-position: 0 0, 0 4px; }
+}
+
+/* Theme variations */
 html[data-bloglabs-theme="terminal"] body,
 body {
-    /* Fallback if attribute isn't set, assuming terminal is default */
-    background-color: var(--terminal-black);
-    color: var(--terminal-green-light);
-    text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
-    animation: text-flicker 0.1s infinite alternate;
+    background: 
+        radial-gradient(ellipse at center, var(--terminal-bg) 0%, #000000 100%),
+        linear-gradient(0deg, transparent 50%, rgba(0, 255, 65, var(--scanline-opacity)) 50%);
+    background-size: 100% 100%, 100% 4px;
+    color: var(--terminal-fg);
+    animation: 
+        crt-flicker var(--crt-flicker) infinite linear alternate,
+        scanlines var(--scanline-speed) linear infinite;
 }
 
 html[data-bloglabs-theme="light"] body {
-    background-color: #f0f0f0;
-    /* Light gray page background */
-    color: #333333;
-    /* Default dark text for the page */
-    text-shadow: none;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    color: #212529;
     animation: none;
 }
 
 html[data-bloglabs-theme="dark"] body {
-    background-color: #121212;
-    /* Dark page background */
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
     color: #e0e0e0;
-    /* Default light text for the page */
-    text-shadow: none;
     animation: none;
 }
 
-/* Keyframes for a more refined text flicker */
-@keyframes text-flicker {
-    0% {
-        opacity: 1;
-        text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
-    }
-
-    50% {
-        opacity: 0.98;
-        text-shadow: 0 0 4px rgba(0, 255, 0, 0.4);
-    }
-
-    100% {
-        opacity: 1;
-        text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
-    }
-}
-
-/* Terminal Wrapper for layout and overall terminal look */
+/* Enhanced Terminal Wrapper */
 .terminal-wrapper {
-    /* Make terminal wrapper fill almost entire screen */
-    width: 98vw;
-    /* Almost full width */
-    height: 98vh;
-    /* Almost full height */
-    background-color: rgba(0, 0, 0, 0.95);
-    /* Slightly transparent black */
-    border: 2px solid var(--terminal-green-dark);
-    /* Terminal border */
-    box-shadow: 0 0 20px rgba(0, 255, 0, 0.6);
-    /* Enhanced green glow */
+    width: 95vw;
+    height: 95vh;
+    background: var(--terminal-bg);
+    border: 2px solid var(--terminal-border-bright);
+    border-radius: 8px;
+    box-shadow: 
+        0 0 50px var(--terminal-shadow),
+        inset 0 0 100px rgba(0, 255, 65, 0.05),
+        0 0 0 1px rgba(0, 255, 65, 0.1);
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    /* Hide scrollbars within the wrapper */
     position: relative;
-    /* For cursor positioning */
-    cursor: none;
-    /* Ensure default cursor is hidden for the terminal area */
-}
-
-/* Touch device specific styles */
-.terminal-wrapper.touch-device {
-    cursor: default; /* Show the cursor on touch devices */
-    overflow-y: auto; /* Enable vertical scrolling */
-    overflow-x: auto; /* Enable horizontal scrolling */
-    -webkit-overflow-scrolling: touch; /* Enable smooth scrolling on iOS */
-}
-
-.terminal-wrapper.touch-device .terminal-output {
-    cursor: default; /* Show the cursor on touch devices */
-    overflow-y: auto; /* Enable vertical scrolling */
-    overflow-x: auto; /* Enable horizontal scrolling */
-    -webkit-overflow-scrolling: touch; /* Enable smooth scrolling on iOS */
-}
-
-/* Custom tech cursor */
-.custom-tech-cursor {
-    position: fixed;
-    /* Use fixed to position relative to viewport, works well if terminal is full-screenish */
-    width: 10px;
-    /* Width of the block cursor */
-    height: 1.5em;
-    /* Height, can be tied to line-height */
-    background-color: var(--terminal-cursor-color, var(--terminal-foreground-color, #00FF00));
-    /* Use existing or new CSS var */
-    z-index: 9999;
-    pointer-events: none;
-    /* Important: allows clicks to pass through to elements underneath */
-    opacity: 0;
-    /* Start hidden */
-    transition: opacity 0.1s ease-out;
-    /* Smooth fade for visibility */
-    transform: translate(-2px, -2px);
-    /* Slight offset so top-left of cursor aligns with pointer tip */
-}
-
-.custom-tech-cursor.visible {
-    opacity: 1;
-}
-
-.custom-tech-cursor.blinking.visible {
-    /* Only blink when visible */
-    animation: blinkAnimation 1s steps(2, start) infinite;
-}
-
-@keyframes blinkAnimation {
-    to {
-        background-color: transparent;
+    backdrop-filter: blur(1px);
+    
+    /* Subtle inner glow */
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(ellipse at center, transparent 40%, rgba(0, 255, 65, 0.02) 100%);
+        pointer-events: none;
+        z-index: 1;
     }
 }
 
-/* Theme selector via wrapper class */
-.terminal-wrapper.theme-light {
-    background-color: #f8f8f8;
-    /* Slightly off-white wrapper background */
-    color: #2c3e50;
-    /* Dark blue-gray text */
-    border: 2px solid #bdc3c7;
-    /* Light silver border */
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
-    /* Softer shadow */
-    text-shadow: none;
-    /* Ensure no inherited glow */
-    animation: none;
-    /* Ensure no inherited flicker */
+/* Touch device optimizations */
+.terminal-wrapper.touch-device {
+    cursor: default;
+    overflow-y: auto;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    
+    &::before {
+        display: none;
+    }
 }
 
-.terminal-wrapper.theme-light .terminal-header {
-    background-color: #e8e8e8;
-    /* Light gray header */
-    color: #34495e;
-    /* Darker blue-gray for header text */
-    border-bottom-color: #bdc3c7;
-    text-shadow: none;
+.terminal-wrapper.touch-device .terminal-output {
+    cursor: default;
+    overflow-y: auto;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
-.terminal-wrapper.theme-light .terminal-output {
-    background-color: #ffffff;
-    /* White output area */
-    color: #333333;
-    /* Blackish text for output */
-    scrollbar-color: #bdc3c7 #f0f0f0;
-    /* Light scrollbar */
-    text-shadow: none;
-}
-
-.terminal-wrapper.theme-light .terminal-output::-webkit-scrollbar-track {
-    background: #f0f0f0;
-}
-
-.terminal-wrapper.theme-light .terminal-output::-webkit-scrollbar-thumb {
-    background-color: #bdc3c7;
-    border-color: #95a5a6;
-}
-
-.terminal-wrapper.theme-light .terminal-output .line {
-    text-shadow: none;
-}
-
-.terminal-wrapper.theme-light .terminal-output .line.welcome {
-    color: #27ae60;
-    /* Emerald green for welcome */
-}
-
-.terminal-wrapper.theme-light .terminal-output .line.title {
-    color: #2980b9;
-    /* Peter river blue for titles */
-    text-decoration-color: #2980b9;
-}
-
-.terminal-wrapper.theme-light .terminal-output .line.highlight {
-    background-color: #3498db;
-    /* Brighter blue highlight */
-    color: #ffffff;
-    /* White text on highlight */
-}
-
-.terminal-wrapper.theme-light .terminal-output .line.prompt {
-    color: #27ae60;
-    /* Emerald green for prompt */
-}
-
-.terminal-wrapper.theme-light .terminal-output .line.error {
-    color: #c0392b;
-    /* Pomegranate red for errors */
-}
-
-.terminal-wrapper.theme-light .terminal-output .line.code {
-    color: var(--lt-code-default);
-    /* Default dark text for code */
-    background-color: #f9f9f9;
-    /* Very light gray background for code blocks */
-    border: 1px solid #eee;
-    padding: 0.2em 0.4em;
-    /* Minimal padding inside the line for code */
-}
-
-/* Light Theme Syntax Highlighting */
-.terminal-wrapper.theme-light .code-keyword {
-    color: var(--lt-code-keyword);
-    font-weight: bold;
-}
-
-.terminal-wrapper.theme-light .code-string {
-    color: var(--lt-code-string);
-}
-
-.terminal-wrapper.theme-light .code-comment {
-    color: var(--lt-code-comment);
-    font-style: italic;
-}
-
-.terminal-wrapper.theme-light .code-number {
-    color: var(--lt-code-number);
-}
-
-.terminal-wrapper.theme-light .code-builtin {
-    color: var(--lt-code-builtin);
-}
-
-.terminal-wrapper.theme-light .code-function {
-    color: var(--lt-code-function);
-}
-
-.terminal-wrapper.theme-light .code-property {
-    color: var(--lt-code-property);
-}
-
-.terminal-wrapper.theme-light .code-boolean {
-    color: var(--lt-code-boolean);
-    font-weight: bold;
-}
-
-.terminal-wrapper.theme-light .code-react {
-    color: var(--lt-code-react);
-    font-weight: bold;
-}
-
-.terminal-wrapper.theme-light .code-jsx-tag {
-    color: var(--lt-code-jsx-tag);
-}
-
-.terminal-wrapper.theme-light .code-jsx-prop {
-    color: var(--lt-code-jsx-prop);
-}
-
-.terminal-wrapper.theme-light .code-jsx-expression {
-    color: var(--lt-code-jsx-expression);
-}
-
-.terminal-wrapper.theme-light .code-html-tag {
-    color: var(--lt-code-html-tag);
-}
-
-.terminal-wrapper.theme-light .code-html-attr {
-    color: var(--lt-code-html-attr);
-}
-
-.terminal-wrapper.theme-light .code-css-selector {
-    color: var(--lt-code-css-selector);
-}
-
-.terminal-wrapper.theme-light .code-css-property {
-    color: var(--lt-code-css-property);
-}
-
-.terminal-wrapper.theme-light .code-css-value {
-    color: var(--lt-code-css-value);
-}
-
-.terminal-wrapper.theme-light .code-css-variable {
-    color: var(--lt-code-css-variable);
-}
-
-.terminal-wrapper.theme-light .code-color {
-    color: var(--lt-code-color);
-}
-
-.terminal-wrapper.theme-light .code-template-expression {
-    color: var(--lt-code-template-expression);
-}
-
-.terminal-wrapper.theme-light .code-default {
-    color: var(--lt-code-default);
-}
-
-.terminal-wrapper.theme-light .input-line .prompt {
-    color: #27ae60;
-    /* Emerald green prompt */
-}
-
-.terminal-wrapper.theme-light .cursor-block {
-    background-color: #333333;
-    /* Dark cursor */
-}
-
-.terminal-wrapper.theme-light .nano-bar {
-    background-color: #e8e8e8;
-    /* Light gray nano bar */
-    color: #34495e;
-    /* Darker blue-gray for nano bar text */
-    border-top-color: #bdc3c7;
-    text-shadow: none;
-}
-
-.terminal-wrapper.theme-dark {
-    background-color: #1e1e1e;
-}
-
-.terminal-wrapper.theme-dark .terminal-output {
-    background-color: #1e1e1e;
-    color: #d4d4d4;
-}
-
-/* Terminal Header (top bar of the simulated terminal) */
+/* Enhanced Terminal Header */
 .terminal-header {
-    background-color: var(--terminal-green-header);
-    /* Darker green header */
-    color: var(--terminal-yellow);
-    /* Brighter green text */
-    padding: 8px 15px;
+    background: linear-gradient(180deg, var(--terminal-border-bright) 0%, var(--terminal-border) 100%);
+    color: var(--terminal-accent);
+    padding: 12px 20px;
     font-size: 0.9em;
+    font-weight: 600;
     text-align: center;
-    border-bottom: 1px solid var(--terminal-green-dark);
-    text-shadow: none;
-    /* No flicker on header */
+    border-bottom: 1px solid var(--terminal-border-bright);
+    text-shadow: 0 0 10px currentColor;
+    position: relative;
+    z-index: 2;
+    
+    /* Terminal window controls */
+    &::before {
+        content: '● ● ●';
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 0.8em;
+        color: var(--terminal-error);
+        letter-spacing: 3px;
+    }
+    
+    &::after {
+        content: '⚡ BLOGLABS v2.0';
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 0.75em;
+        color: var(--terminal-fg-dim);
+        opacity: 0.7;
+    }
 }
 
-/* Terminal Output Area (where commands and results are displayed) */
+/* Enhanced Terminal Output */
 .terminal-output {
     flex-grow: 1;
-    /* Takes available space */
-    padding: 15px 20px;
-    /* Increased padding */
+    padding: 20px 25px;
     overflow-y: auto;
-    /* Enable scrolling for content */
     overflow-x: auto;
-    /* Enable horizontal scrolling for wide code blocks */
     white-space: pre-wrap;
-    /* Preserve whitespace and wrap text */
     word-break: break-word;
-    /* Break long words */
+    line-height: 1.5;
+    position: relative;
+    z-index: 2;
+    
+    /* Custom scrollbar */
     scrollbar-width: thin;
-    /* Firefox scrollbar */
-    scrollbar-color: var(--terminal-green-dark) var(--terminal-black);
-    /* Firefox scrollbar colors */
-    line-height: 1.4;
-    /* Slightly increased line height for readability */
+    scrollbar-color: var(--terminal-border-bright) transparent;
+    
+    &::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+        background: var(--terminal-border-bright);
+        border-radius: 4px;
+        border: 1px solid var(--terminal-border);
+        
+        &:hover {
+            background: var(--terminal-fg-dim);
+        }
+    }
+    
+    &::-webkit-scrollbar-corner {
+        background: transparent;
+    }
 }
 
-/* Custom scrollbar for WebKit browsers */
-.terminal-output::-webkit-scrollbar {
-    width: 8px;
-}
-
-.terminal-output::-webkit-scrollbar-track {
-    background: var(--terminal-black);
-}
-
-.terminal-output::-webkit-scrollbar-thumb {
-    background-color: var(--terminal-green-dark);
-    border-radius: 4px;
-    border: 1px solid var(--terminal-green-header);
-}
-
-/* Individual line styling in output */
+/* Enhanced line styling */
 .terminal-output .line {
-    margin-bottom: 2px;
+    margin-bottom: 3px;
     white-space: pre;
-    /* Preserve spacing for all line types */
+    transition: all 0.2s ease;
+    position: relative;
+    
+    &:hover:not(.code) {
+        text-shadow: 0 0 8px currentColor;
+    }
 }
 
-/* Override white-space for non-code lines to allow wrapping */
 .terminal-output .line:not(.code) {
     white-space: pre-wrap;
 }
 
+/* Enhanced welcome styling */
 .terminal-output .line.welcome {
-    color: var(--terminal-green-light);
-    /* Brighter green for welcome messages */
+    color: var(--terminal-fg-bright);
     text-align: center;
     font-weight: bold;
-    letter-spacing: 1px;
-    margin-bottom: 10px;
-    /* More space after welcome */
+    letter-spacing: 2px;
+    margin: 15px 0;
+    text-shadow: 0 0 15px currentColor;
+    animation: welcome-glow 3s ease-in-out infinite alternate;
 }
 
+@keyframes welcome-glow {
+    0% { text-shadow: 0 0 15px currentColor; }
+    100% { text-shadow: 0 0 25px currentColor, 0 0 35px currentColor; }
+}
+
+/* Enhanced title styling */
 .terminal-output .line.title {
-    color: var(--terminal-yellow);
-    /* Yellow-green for section titles */
+    color: var(--terminal-accent);
     font-weight: bold;
-    margin-top: 10px;
-    /* More space before titles */
-    margin-bottom: 5px;
+    margin: 15px 0 8px 0;
     text-decoration: underline;
-    /* Underline titles */
+    text-decoration-color: var(--terminal-accent-dim);
+    text-shadow: 0 0 10px currentColor;
+    position: relative;
+    
+    &::before {
+        content: '▶ ';
+        color: var(--terminal-fg-bright);
+        margin-right: 5px;
+    }
 }
 
+/* Enhanced highlight with smooth transitions */
 .terminal-output .line.highlight {
-    /* background-color: var(--terminal-blue-highlight); */
-    background-color: rgba(0, 255, 0, 0.5);
-    /* Green highlight for selected TUI options */
-    color: var(--terminal-black);
-    /* Black text on highlight */
+    background: linear-gradient(90deg, var(--terminal-selection) 0%, rgba(0, 255, 65, 0.1) 100%);
+    color: var(--terminal-bg);
     text-shadow: none;
-    /* Remove glow on highlight */
+    padding: 4px 8px;
+    margin: 2px -8px;
+    border-radius: 4px;
+    border-left: 3px solid var(--terminal-fg-bright);
+    transition: all 0.3s ease;
+    position: relative;
+    
+    &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: var(--terminal-fg-bright);
+        box-shadow: 0 0 10px var(--terminal-fg-bright);
+        animation: highlight-pulse 2s ease-in-out infinite alternate;
+    }
 }
 
+@keyframes highlight-pulse {
+    0% { box-shadow: 0 0 10px var(--terminal-fg-bright); }
+    100% { box-shadow: 0 0 20px var(--terminal-fg-bright), 0 0 30px var(--terminal-fg-bright); }
+}
+
+/* Interactive elements for touch devices */
+.terminal-output .line.touch-interactive {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+        background: rgba(0, 255, 65, 0.1);
+        padding: 2px 6px;
+        margin: 1px -6px;
+        border-radius: 3px;
+    }
+    
+    &:active {
+        background: var(--terminal-selection);
+        transform: translateX(2px);
+    }
+}
+
+/* Enhanced prompt styling */
 .terminal-output .line.prompt {
-    color: var(--terminal-green-light);
-    /* Green prompt */
+    color: var(--terminal-fg-bright);
     font-weight: bold;
+    text-shadow: 0 0 8px currentColor;
+    
+    &::before {
+        content: '❯ ';
+        color: var(--terminal-accent);
+        margin-right: 5px;
+    }
 }
 
+/* Enhanced error styling */
 .terminal-output .line.error {
-    color: var(--terminal-red);
-    /* Red for error messages */
+    color: var(--terminal-error);
     font-weight: bold;
+    text-shadow: 0 0 10px currentColor;
+    
+    &::before {
+        content: '✗ ';
+        margin-right: 5px;
+    }
 }
 
-/* Styling for links within rendered Markdown content (inside .line.code) */
-.terminal-output .line.code a {
-    color: var(--terminal-link-color, #87CEFA); /* e.g., LightSkyBlue - define this variable or use a direct color */
-    text-decoration: underline;
-    /* Make links clearly identifiable */
-    cursor: pointer !important;
-    /* IMPORTANT: Override global 'cursor: none' specifically for links */
-}
-
-.terminal-output .line.code a:hover,
-.terminal-output .line.code a:focus,
-.terminal-output .line.code a:focus-visible {
-    color: var(--terminal-link-hover-color, #FFD700); /* e.g., Gold - for hover/focus */
-    background-color: var(--terminal-link-hover-bg, rgba(80, 80, 0, 0.2));
-    /* Subtle background on hover/focus */
-    outline: 1px dotted var(--terminal-link-hover-color, #FFD700);
-    /* Ensure focus is visible */
-}
-
-/* Styling for the code lines themselves, within the ASCII box */
+/* Enhanced code styling */
 .terminal-output .line.code {
     color: var(--code-default);
     font-weight: normal;
-    font-family: 'Fira Code', 'JetBrains Mono', 'IBM Plex Mono', monospace;
+    font-family: var(--terminal-font-family);
     white-space: normal !important;
-    /* let Prism’s <pre> handle spacing & scrolling */
-    line-height: 1.3;
+    line-height: 1.4;
     overflow-x: visible;
-    /* Allow content to extend if needed */
     word-break: keep-all;
-    /* Prevent breaking of code */
+    background: rgba(0, 0, 0, 0.3);
+    padding: 8px 12px;
+    margin: 8px 0;
+    border-radius: 6px;
+    border-left: 3px solid var(--terminal-border-bright);
+    position: relative;
+    
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent 0%, var(--terminal-border-bright) 50%, transparent 100%);
+    }
 }
 
-/* Specific code highlighting classes with VS Code colors */
-.code-keyword {
-    color: var(--code-keyword);
-    font-weight: bold;
+/* Enhanced link styling */
+.terminal-output .line.code a {
+    color: var(--terminal-info);
+    text-decoration: underline;
+    cursor: pointer !important;
+    transition: all 0.2s ease;
+    
+    &:hover,
+    &:focus {
+        color: var(--terminal-accent);
+        text-shadow: 0 0 8px currentColor;
+        background: rgba(255, 255, 0, 0.1);
+        padding: 1px 3px;
+        border-radius: 2px;
+    }
 }
 
-.code-string {
-    color: var(--code-string);
-}
+/* Enhanced syntax highlighting */
+.code-keyword { color: var(--code-keyword); font-weight: bold; }
+.code-string { color: var(--code-string); }
+.code-comment { color: var(--code-comment); font-style: italic; opacity: 0.8; }
+.code-number { color: var(--code-number); }
+.code-builtin { color: var(--code-builtin); }
+.code-function { color: var(--code-function); }
+.code-property { color: var(--code-property); }
+.code-boolean { color: var(--code-boolean); font-weight: bold; }
+.code-react { color: var(--code-react); font-weight: bold; }
+.code-jsx-tag { color: var(--code-jsx-tag); }
+.code-jsx-prop { color: var(--code-jsx-prop); }
+.code-jsx-expression { color: var(--code-jsx-expression); }
+.code-html-tag { color: var(--code-html-tag); }
+.code-html-attr { color: var(--code-html-attr); }
+.code-css-selector { color: var(--code-css-selector); }
+.code-css-property { color: var(--code-css-property); }
+.code-css-value { color: var(--code-css-value); }
+.code-css-variable { color: var(--code-css-variable); }
+.code-color { color: var(--code-color); }
+.code-template-expression { color: var(--code-template-expression); }
 
-.code-comment {
-    color: var(--code-comment);
-    font-style: italic;
-}
-
-.code-number {
-    color: var(--code-number);
-}
-
-.code-builtin {
-    color: var(--code-builtin);
-}
-
-
-.code-function {
-    color: var(--code-function);
-}
-
-
-.code-property {
-    color: var(--code-property);
-}
-
-.code-boolean {
-    color: var(--code-boolean);
-    font-weight: bold;
-}
-
-.code-react {
-    color: var(--code-react);
-    font-weight: bold;
-}
-
-.code-jsx-tag {
-    color: var(--code-jsx-tag);
-}
-
-.code-jsx-prop {
-    color: var(--code-jsx-prop);
-}
-
-.code-jsx-expression {
-    color: var(--code-jsx-expression);
-}
-
-.code-html-tag {
-    color: var(--code-html-tag);
-}
-
-.code-html-attr {
-    color: var(--code-html-attr);
-}
-
-.code-css-selector {
-    color: var(--code-css-selector);
-}
-
-.code-css-property {
-    color: var(--code-css-property);
-}
-
-.code-css-value {
-    color: var(--code-css-value);
-}
-
-.code-css-variable {
-    color: var(--code-css-variable);
-}
-
-.code-color {
-    color: var(--code-color);
-}
-
-.code-template-expression {
-    color: var(--code-template-expression);
-}
-
-/* Input line (now just a visual prompt with cursor) */
+/* Enhanced input line */
 .input-line {
     display: flex;
     align-items: baseline;
-    padding: 5px 20px;
-    /* Match output padding */
-    margin-top: 5px;
+    padding: 8px 25px;
+    margin-top: 10px;
+    position: relative;
+    z-index: 2;
 }
 
 .input-line .prompt {
-    color: var(--terminal-green-light);
-    /* Green prompt */
-    margin-right: 5px;
+    color: var(--terminal-fg-bright);
+    margin-right: 8px;
+    text-shadow: 0 0 8px currentColor;
+    
+    &::before {
+        content: '┌─[';
+        color: var(--terminal-border-bright);
+    }
+    
+    &::after {
+        content: ']─❯';
+        color: var(--terminal-border-bright);
+    }
 }
 
-/* Custom blinking cursor block for prompt */
+/* Enhanced cursor */
 .cursor-block {
     display: inline-block;
-    width: 0.75em;
-    /* Width of cursor */
-    height: 1em;
-    /* Height of cursor (approx font-size) */
-    background-color: var(--terminal-green-light);
-    /* Green block cursor */
-    animation: blink-cursor 0.75s step-end infinite;
+    width: 0.8em;
+    height: 1.2em;
+    background: var(--terminal-fg-bright);
+    animation: enhanced-blink 1s step-end infinite;
     vertical-align: text-bottom;
-    /* Align with text baseline */
-    margin-left: 2px;
-    /* Space after prompt */
+    margin-left: 4px;
+    border-radius: 2px;
+    box-shadow: 0 0 10px var(--terminal-fg-bright);
 }
 
-@keyframes blink-cursor {
-
-    from,
-    to {
-        opacity: 0;
-    }
-
-    50% {
-        opacity: 1;
-    }
+@keyframes enhanced-blink {
+    0%, 50% { opacity: 1; box-shadow: 0 0 10px var(--terminal-fg-bright); }
+    51%, 100% { opacity: 0; box-shadow: none; }
 }
 
-/* Nano-like bar styling */
+/* Enhanced nano bar */
 .nano-bar {
-    background-color: var(--terminal-green-header);
-    /* Darker green */
-    color: var(--terminal-yellow);
-    /* Brighter green */
-    padding: 8px 20px;
-    /* Increased padding */
-    font-size: 0.9em;
+    background: linear-gradient(180deg, var(--terminal-border) 0%, var(--terminal-bg-alt) 100%);
+    color: var(--terminal-accent);
+    padding: 10px 25px;
+    font-size: 0.85em;
     display: flex;
     justify-content: flex-start;
     flex-wrap: wrap;
-    /* Allow options to wrap */
-    gap: 20px;
-    /* Space between options */
-    border-top: 1px solid var(--terminal-green-dark);
-    text-shadow: none;
-    /* No flicker on nano bar */
+    gap: 25px;
+    border-top: 1px solid var(--terminal-border-bright);
+    position: relative;
+    z-index: 2;
+    
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent 0%, var(--terminal-border-bright) 50%, transparent 100%);
+    }
 }
 
 .nano-option {
-    font-weight: bold;
+    font-weight: 600;
     white-space: nowrap;
-    /* Prevent option labels from breaking */
+    color: var(--terminal-fg-dim);
+    transition: all 0.2s ease;
+    
+    &:hover {
+        color: var(--terminal-fg-bright);
+        text-shadow: 0 0 8px currentColor;
+    }
+    
+    &::before {
+        content: '[';
+        color: var(--terminal-border-bright);
+        margin-right: 2px;
+    }
+    
+    &::after {
+        content: ']';
+        color: var(--terminal-border-bright);
+        margin-left: 2px;
+    }
 }
 
 .nano-option--right {
     margin-left: auto;
-    /* Push right-aligned options to the right */
+    color: var(--terminal-accent-dim);
 }
 
-/* Responsive adjustments */
+/* Enhanced ASCII art */
+.ascii-art {
+    font-family: var(--terminal-font-family);
+    font-size: 0.7em;
+    line-height: 0.8;
+    white-space: pre;
+    overflow-x: auto;
+    display: block;
+    color: var(--terminal-fg-dim);
+    background: rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid var(--terminal-border);
+    border-radius: 4px;
+    text-align: left;
+    position: relative;
+    
+    &::before {
+        content: '┌─ ASCII ART ─┐';
+        position: absolute;
+        top: -10px;
+        left: 10px;
+        background: var(--terminal-bg);
+        padding: 0 8px;
+        font-size: 0.8em;
+        color: var(--terminal-border-bright);
+    }
+}
+
+/* Media display controls */
+.media-block {
+    margin: 1.5em 0;
+    position: relative;
+}
+
+.media-original {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 6px;
+    border: 1px solid var(--terminal-border);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Display mode controls */
+.terminal-wrapper[data-image-display="ascii"] .ascii-art { display: block; }
+.terminal-wrapper[data-image-display="ascii"] .media-original { display: none; }
+.terminal-wrapper[data-image-display="full"] .ascii-art { display: none; }
+.terminal-wrapper[data-image-display="full"] .media-original { display: block; }
+.terminal-wrapper[data-image-display="none"] .ascii-art,
+.terminal-wrapper[data-image-display="none"] .media-original { display: none; }
+
+/* Light theme overrides */
+.terminal-wrapper.theme-light {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    color: #212529;
+    border-color: #dee2e6;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    
+    .terminal-header {
+        background: linear-gradient(180deg, #e9ecef 0%, #dee2e6 100%);
+        color: #495057;
+        border-bottom-color: #dee2e6;
+    }
+    
+    .terminal-output {
+        background: #ffffff;
+        color: #212529;
+        scrollbar-color: #dee2e6 #f8f9fa;
+    }
+    
+    .line.welcome { color: #28a745; }
+    .line.title { color: #007bff; }
+    .line.highlight {
+        background: linear-gradient(90deg, rgba(0, 123, 255, 0.1) 0%, rgba(0, 123, 255, 0.05) 100%);
+        color: #ffffff;
+        border-left-color: #007bff;
+    }
+    .line.prompt { color: #28a745; }
+    .line.error { color: #dc3545; }
+    .line.code {
+        background: #f8f9fa;
+        border-left-color: #dee2e6;
+        color: var(--lt-code-default);
+    }
+    
+    .nano-bar {
+        background: linear-gradient(180deg, #dee2e6 0%, #e9ecef 100%);
+        color: #495057;
+        border-top-color: #dee2e6;
+    }
+}
+
+/* Dark theme overrides */
+.terminal-wrapper.theme-dark {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    color: #e0e0e0;
+    border-color: #404040;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    
+    .terminal-output {
+        background: #1a1a1a;
+        color: #e0e0e0;
+        scrollbar-color: #404040 #2d2d2d;
+    }
+}
+
+/* Responsive enhancements */
 @media (max-width: 768px) {
     .terminal-wrapper {
         width: 100vw;
         height: 100vh;
         border: none;
-        /* Remove border on very small screens for max space */
+        border-radius: 0;
         box-shadow: none;
     }
-
+    
     .terminal-header {
-        font-size: 0.75em;
-        padding: 6px 10px;
+        font-size: 0.8em;
+        padding: 8px 15px;
+        
+        &::before,
+        &::after {
+            display: none;
+        }
     }
+    
+    .terminal-output,
+    .input-line {
+        font-size: 0.9em;
+        padding: 15px;
+    }
+    
+    .nano-bar {
+        font-size: 0.75em;
+        padding: 8px 15px;
+        gap: 15px;
+        flex-direction: column;
+        
+        .nano-option--right {
+            margin-left: 0;
+            margin-top: 5px;
+        }
+    }
+    
+    .ascii-art {
+        font-size: 0.6em;
+        padding: 8px;
+    }
+}
 
+@media (max-width: 480px) {
     .terminal-output,
     .input-line {
         font-size: 0.85em;
-        padding: 10px 10px;
+        padding: 12px;
     }
-
+    
     .nano-bar {
         font-size: 0.7em;
-        padding: 6px 10px;
-        gap: 10px;
+        padding: 6px 12px;
     }
 }
 
-.ascii-art {
-  font-family: var(--terminal-font-family, 'Courier New', monospace); /* Use terminal font */
-  font-size: 0.6em;  /* ASCII art is often dense, make it smaller */
-  line-height: 0.7;  /* Compress line height for density */
-  white-space: pre;  /* Crucial for preserving ASCII layout */
-  overflow-x: auto; /* Allow horizontal scroll if art is wider than container */
-  display: block;   /* Ensure it takes block display */
-  color: var(--terminal-green); /* Or your default text color */
-  background-color: transparent; /* Or match terminal background */
-  padding: 5px 0; /* Some vertical padding */
-  margin: 5px 0;  /* Some vertical margin */
-  border: none;     /* Remove any default pre borders */
-  text-align: left; /* Ensure ASCII art is left-aligned */
+/* Performance optimizations */
+.terminal-wrapper * {
+    will-change: auto;
 }
 
-/* Ensure that when ASCII art is inside a highlighted line, it doesn't inherit weird styles */
-.terminal-output .line.highlight .ascii-art {
-    color: var(--terminal-green); /* Or your desired ASCII color on highlight */
-    background-color: transparent !important; /* Ensure no highlight background on the pre itself */
+.terminal-output .line.highlight {
+    will-change: transform, background-color;
 }
 
-/* default hide both until wrapper attribute is read */
-.ascii-art,
-.media-original {
-  display: none;
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    body {
+        animation: none !important;
+    }
+    
+    .terminal-wrapper::before {
+        display: none;
+    }
 }
 
-/* ASCII-only */
-.terminal-wrapper[data-image-display="ascii"] .ascii-art {
-  display: block;
-}
-.terminal-wrapper[data-image-display="ascii"] .media-original {
-  display: none;
-}
-
-/* full media */
-.terminal-wrapper[data-image-display="full"] .ascii-art {
-  display: none;
-}
-.terminal-wrapper[data-image-display="full"] .media-original {
-  display: block;
-}
-
-/* hide all */
-.terminal-wrapper[data-image-display="none"] .ascii-art,
-.terminal-wrapper[data-image-display="none"] .media-original {
-  display: none;
-}
-
-/* optional styling */
-.media-block {
-  margin: 1em 0;
-}
-.media-original {
-  max-width: 100%;
-  height: auto;
-  display: block;
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    :root {
+        --terminal-fg: #ffffff;
+        --terminal-bg: #000000;
+        --terminal-border-bright: #ffffff;
+        --terminal-selection: rgba(255, 255, 255, 0.3);
+    }
 }

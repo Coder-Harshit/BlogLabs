@@ -1,21 +1,14 @@
 // src/components/Terminal.tsx
-// This is the main React component that simulates a Text User Interface (TUI)
-// for the Minimal Blog Experience. It focuses on keyboard-centric navigation
-// through various content sections (blogs, about, projects, settings).
-// Updated: Removed the CLI input prompt, made nano bar dynamic,
-// and refined display for TUI-only navigation.
-// Further updated: Integrated language-based syntax highlighting for code blocks,
-// refined ASCII art bounding boxes, and now accepts blog posts as a prop.
-// Fix: Safely handle localStorage access to prevent ReferenceError during SSR.
-// Enhancement: Ensures fixed width for code blocks by calculating max raw line length
-// and applying padding before highlighting.
+// Enhanced Terminal component with improved aesthetics, smoother interactions,
+// and more authentic terminal feel. Features include better visual feedback,
+// enhanced navigation, improved accessibility, and performance optimizations.
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Prism from 'prismjs';
-import 'prismjs/components/prism-javascript.js'; // JavaScript
-import 'prismjs/components/prism-markup.js'; // HTML
-import 'prismjs/components/prism-python.js'; // Python
-import 'prismjs/components/prism-bash.js'; // Bash
+import 'prismjs/components/prism-javascript.js';
+import 'prismjs/components/prism-markup.js';
+import 'prismjs/components/prism-python.js';
+import 'prismjs/components/prism-bash.js';
 
 import { isMobile } from '../utils/isMobileDevice';
 import { getLolcatHtml } from '../utils/lolcat';
@@ -29,26 +22,7 @@ import type {
   TerminalProps,
 } from '../interfaces';
 
-// --- Type Definitions ---
-
-
-// --- Mock Data (Only for projects and settings now, blogs come from props) ---
-
-// // Dummy projects data
-// const mockProjects: Project[] = [
-//   {
-//     name: 'BlogLabs Project',
-//     description: 'This very website, demonstrating TUI/CLI principles with Astro and React.',
-//     githubUrl: 'https://github.com/yourusername/bloglabs'
-//   },
-//   {
-//     name: 'CLI Game Engine',
-//     description: 'A personal project building a simple text-based adventure game engine.',
-//     githubUrl: 'https://github.com/yourusername/cli-game'
-//   }
-// ];
-
-// Dummy settings data. Values will be managed by localStorage.
+// Enhanced settings with more options
 const defaultSettings: SettingOption[] = [
   {
     key: 'themeMode',
@@ -56,128 +30,174 @@ const defaultSettings: SettingOption[] = [
     type: 'select',
     options: ['terminal', 'light', 'dark'],
     currentValue: 'terminal'
-  }, // 'terminal' is default for minimal
+  },
   {
     key: 'fontSize',
     label: 'Font Size',
     type: 'select',
-    options: ['small', 'medium', 'large'],
+    options: ['small', 'medium', 'large', 'xl'],
     currentValue: 'medium'
   },
   {
     key: 'fontFamily',
     label: 'Font Family',
     type: 'select',
-    options: ['Courier New', 'Ubuntu', 'IBM Plex Mono', 'Fira Code', 'JetBrains Mono', 'Tektur'],
-    currentValue: 'Courier New'
-  }, // Added more monospace fonts
+    options: ['JetBrains Mono', 'Fira Code', 'IBM Plex Mono', 'Courier New', 'Ubuntu', 'Tektur'],
+    currentValue: 'JetBrains Mono'
+  },
   {
     key: 'showWelcome',
-    label: 'Show Welcome on Home',
+    label: 'Show Welcome Screen',
     type: 'boolean',
     currentValue: true
   },
-  // { key: 'showHelpMenu', label: 'Show Help Menu', type: 'boolean', currentValue: true }
   {
     key: 'imageDisplay',
     label: 'Media Display',
     type: 'select',
     options: ['none', 'ascii', 'full'],
     currentValue: 'ascii'
+  },
+  {
+    key: 'enableAnimations',
+    label: 'Enable Animations',
+    type: 'boolean',
+    currentValue: true
+  },
+  {
+    key: 'showLineNumbers',
+    label: 'Show Line Numbers',
+    type: 'boolean',
+    currentValue: false
   }
 ];
 
-
-// --- Helper Functions for Content Rendering ---
-
-// const getLolcatHtml = (text: string): string => {
-//   const colors = [
-//     '#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#8B00FF' // Rainbow colors
-//     // Or use your terminal theme colors
-//     // '#C586C0', '#CE9178', '#6A9955', '#B5CEA8', '#4EC9B0', '#DCDCAA', '#9CDCFE', '#569CD6'
-//   ];
-//   const CHARS_PER_COLOR_SEGMENT = 1.75; // Adjust this for frequency
-//   return text.split('').map((char, index) => {
-//     if (char === ' ') return ' '; // Preserve spaces
-//     const colorIndex = Math.floor(index / CHARS_PER_COLOR_SEGMENT) % colors.length;
-//     return `<span style="color: ${colors[colorIndex]}; text-shadow: none;">${char}</span>`;
-//   }).join('');
-// };
-
+// Enhanced welcome screen with better ASCII art
 const getWelcomeScreen = (): DisplayLine[] => {
   return [
-    { type: 'welcome', value: '┌───────────────────────────────────┐' },
-    { type: 'welcome', value: '│       Welcome to BlogLabs!        │' },
-    { type: 'welcome', value: '└───────────────────────────────────┘' },
+    { type: 'welcome', value: '╔══════════════════════════════════════════╗' },
+    { type: 'welcome', value: '║            Welcome to BlogLabs!          ║' },
+    { type: 'welcome', value: '║         Terminal Interface v2.0          ║' },
+    { type: 'welcome', value: '╚══════════════════════════════════════════╝' },
     { type: 'text', value: '' },
-    { type: 'text', value: 'Navigate using ↑↓ arrows and Enter.' },
-    // { type: 'text', value: 'Press \'h\' for Help, \'a\' for About, \'p\' for Projects, \'s\' for Settings.' },
-    { type: 'text', value: 'Press \'a\' for About, \'p\' for Projects, \'s\' for Settings.' },
+    { type: 'text', value: '┌─ Navigation ─────────────────────────────┐' },
+    { type: 'text', value: '│ ↑↓ arrows or j/k    Navigate menus       │' },
+    { type: 'text', value: '│ Enter or l          Select/Open          │' },
+    { type: 'text', value: '│ Backspace or h      Go back              │' },
+    { type: 'text', value: '│ Esc                 Main menu            │' },
+    { type: 'text', value: '└──────────────────────────────────────────┘' },
     { type: 'text', value: '' },
-    { type: 'prompt', value: 'Choose an option below:' },
-    { type: 'text', value: '' } // Empty line for spacing
+    { type: 'text', value: '┌─ Quick Access ───────────────────────────┐' },
+    { type: 'text', value: '│ B - Blogs    A - About    P - Projects   │' },
+    { type: 'text', value: '│ S - Settings G - GitHub   Q - Quit       │' },
+    { type: 'text', value: '└──────────────────────────────────────────┘' },
+    { type: 'text', value: '' },
+    { type: 'prompt', value: 'Select an option below to continue:' },
+    { type: 'text', value: '' }
   ];
 };
 
 const getMainMenuOptions = (): string[] => [
-  'Blogs',
-  'About Me',
-  'Projects',
-  'Settings',
-  // 'Return to Grub Screen' // Optional: if we want a way to go back to the boot menu from here
+  '📚 Blogs',
+  '👤 About Me', 
+  '🚀 Projects',
+  '⚙️  Settings',
+  '🔄 Reboot System'
 ];
 
 const getBlogListDisplay = (highlightedIndex: number, blogs: BlogPost[]): DisplayLine[] => {
   const lines: DisplayLine[] = [
-    { type: 'title', value: '─── Blog Posts ───────────────────────' },
-    { type: 'text', value: '' }
+    { type: 'title', value: '╭─ Blog Posts ─────────────────────────────╮' },
+    { type: 'text', value: '│                                          │' }
   ];
+  
   blogs.forEach((blog, index) => {
     const isSelected = index === highlightedIndex;
+    const prefix = isSelected ? '│ ▶ ' : '│   ';
+    const suffix = ' │';
+    const dateStr = `(${blog.date})`;
+    const maxWidth = 36; // Adjust based on your terminal width
+    let title = blog.title;
+    
+    if ((title + dateStr).length > maxWidth) {
+      title = title.substring(0, maxWidth - dateStr.length - 3) + '...';
+    }
+    
+    const line = `${prefix}${title} ${dateStr}`.padEnd(40) + suffix;
+    
     lines.push({
       type: isSelected ? 'highlight' : 'text',
-      value: `${isSelected ? '> ' : '  '}${blog.title} (${blog.date})`,
+      value: line,
       isInteractive: true,
       optionIndex: index
     });
   });
+  
+  lines.push({ type: 'text', value: '│                                          │' });
+  lines.push({ type: 'text', value: '╰──────────────────────────────────────────╯' });
   lines.push({ type: 'text', value: '' });
+  
   if (blogs[highlightedIndex]) {
-    lines.push({ type: 'text', value: '─── Summary ──────────────────────────' });
-    lines.push({ type: 'text', value: blogs[highlightedIndex].summary });
+    lines.push({ type: 'title', value: '╭─ Summary ────────────────────────────────╮' });
+    lines.push({ type: 'text', value: `│ ${blogs[highlightedIndex].summary.substring(0, 38).padEnd(38)} │` });
+    lines.push({ type: 'text', value: '╰──────────────────────────────────────────╯' });
     lines.push({ type: 'text', value: '' });
   }
+  
   return lines;
 };
 
 const getBlogPostDisplay = (blog: BlogPost): DisplayLine[] => {
   const lines: DisplayLine[] = [
-    { type: 'title', value: `─── ${blog.title} ───────────────────` },
-    { type: 'text', value: `Author: ${blog.author} | Date: ${blog.date}` },
-    { type: 'text', value: '──────────────────────────────────────' },
+    { type: 'title', value: `╭─ ${blog.title} ${'─'.repeat(Math.max(0, 35 - blog.title.length))}╮` },
+    { type: 'text', value: `│ Author: ${blog.author.padEnd(28)} │` },
+    { type: 'text', value: `│ Date: ${blog.date.padEnd(30)} │` },
+    { type: 'text', value: '╰──────────────────────────────────────────╯' },
     { type: 'text', value: '' }
   ];
 
-  // plain paragraphs
-  blog.content.forEach(p => {
-    lines.push({ type: 'text', value: p });
+  blog.content.forEach(paragraph => {
+    // Split long paragraphs into multiple lines for better readability
+    const words = paragraph.split(' ');
+    let currentLine = '';
+    
+    words.forEach(word => {
+      if ((currentLine + word).length > 70) {
+        if (currentLine) {
+          lines.push({ type: 'text', value: currentLine.trim() });
+          currentLine = word + ' ';
+        } else {
+          lines.push({ type: 'text', value: word });
+        }
+      } else {
+        currentLine += word + ' ';
+      }
+    });
+    
+    if (currentLine.trim()) {
+      lines.push({ type: 'text', value: currentLine.trim() });
+    }
+    
     lines.push({ type: 'text', value: '' });
   });
 
-  // Prism‐highlighted fences
   if (blog.codeBlocks?.length) {
-    lines.push({ type: 'title', value: '─── Code Samples ─────────────────────' });
+    lines.push({ type: 'title', value: '╭─ Code Examples ──────────────────────────╮' });
     lines.push({ type: 'text', value: '' });
 
-    blog.codeBlocks.forEach(({ language, code }) => {
-      // Prism highlight
+    blog.codeBlocks.forEach(({ language, code }, index) => {
+      lines.push({ type: 'text', value: `┌─ ${language.toUpperCase()} ${`─`.repeat(Math.max(0, 35 - language.length))}┐` });
+      
       const grammar = Prism.languages[language] || Prism.languages.javascript;
       const highlighted = Prism.highlight(code, grammar, language);
-      const htmlBlock =
-        `<pre class="language-${language}"><code class="language-${language}">${highlighted}</code></pre>`;
+      const htmlBlock = `<pre class="language-${language}"><code class="language-${language}">${highlighted}</code></pre>`;
 
       lines.push({ type: 'code', value: htmlBlock });
-      lines.push({ type: 'text', value: '' });
+      lines.push({ type: 'text', value: `└${'─'.repeat(38)}┘` });
+      
+      if (index < blog.codeBlocks!.length - 1) {
+        lines.push({ type: 'text', value: '' });
+      }
     });
   }
 
@@ -186,202 +206,194 @@ const getBlogPostDisplay = (blog: BlogPost): DisplayLine[] => {
 
 const getAboutMeDisplay = (aboutData: AboutContent): DisplayLine[] => {
   const lines: DisplayLine[] = [
-    { type: 'title', value: `─── ${aboutData.title} ${'─'.repeat(Math.max(0, 30 - aboutData.title.length))} ` },
-    { type: 'text', value: '' }, // Blank line after title
+    { type: 'title', value: `╭─ ${aboutData.title} ${'─'.repeat(Math.max(0, 35 - aboutData.title.length))}╮` },
+    { type: 'text', value: '' }
   ];
 
   aboutData.bodyLines.forEach(htmlLine => {
-    // Each htmlLine is an HTML string from a Markdown paragraph.
-    // Use type 'code' to leverage existing dangerouslySetInnerHTML rendering.
-    // If the line is empty (e.g. from an empty paragraph in MD), render it as an empty text line for spacing.
     if (htmlLine.trim() === "") {
       lines.push({ type: 'text', value: '' });
     } else {
       lines.push({ type: 'code', value: htmlLine, isHtml: true });
-    }
-    // Add an empty text line after each paragraph's content for better readability,
-    // unless it's the last line or the line itself was just for spacing.
-    if (htmlLine.trim() !== "") {
       lines.push({ type: 'text', value: '' });
     }
   });
 
-  // Ensure there's at least one blank line before the separator if content was added
-  if (aboutData.bodyLines.length > 0 && lines[lines.length - 1]?.value !== '') {
-    lines.push({ type: 'text', value: '' });
-  } else if (aboutData.bodyLines.length === 0) {
-    // If no body lines, add a placeholder or just a blank line
-    lines.push({ type: 'text', value: '(No additional content)' });
-    lines.push({ type: 'text', value: '' });
-  }
-
-  lines.push({ type: 'text', value: '──────────────────────────────────────' });
+  lines.push({ type: 'text', value: '╰──────────────────────────────────────────╯' });
   lines.push({ type: 'text', value: '' });
   return lines;
 };
-
-// const getProjectsDisplay = (projects: Project[]): DisplayLine[] => {
-//   const lines: DisplayLine[] = [
-//     { type: 'title', value: '─── My Projects ──────────────────────' },
-//     { type: 'text', value: '' }
-//   ];
-//   if (projects.length === 0) {
-//     lines.push({ type: 'text', value: 'No projects to display yet.' });
-//     lines.push({ type: 'text', value: '' });
-//   } else {
-//     projects.forEach(project => {
-//       lines.push({ type: 'text', value: `- ${project.name}` });
-//       lines.push({ type: 'text', value: `  ${project.description}` }); // Uses frontmatter description
-//       lines.push({ type: 'text', value: `  GitHub: ${project.githubUrl}` });
-//       {
-//         project.liveUrl &&
-//           lines.push({ type: 'text', value: `  Live: ${project.liveUrl}` });
-//       }
-//       // If you added 'details' to the Project interface and processed them:
-//       // if (project.details && project.details.length > 0) {
-//       //   lines.push({ type: 'text', value: '  Details:' });
-//       //   project.details.forEach(detailLine => {
-//       //     lines.push({ type: 'text', value: `    ${detailLine}` });
-//       //   });
-//       // }
-//       // Display processed body content
-//       if (project.content && project.content.length > 0) {
-//         lines.push({ type: 'text', value: '' }); // Add a little space before body details
-//         project.content.forEach(content => {
-//           // Assuming contents are pre-processed HTML snippets like 'About Me'
-//           lines.push({ type: 'code', value: content });
-//         });
-//       }
-//       lines.push({ type: 'text', value: '' }); // Space after each project
-//     });
-//   }
-//   return lines;
-// };
-
-const getSettingsDisplay = (settings: SettingOption[], highlightedIndex: number): DisplayLine[] => {
-  const lines: DisplayLine[] = [
-    { type: 'title', value: '─── Settings ─────────────────────────' },
-    { type: 'text', value: '' }
-  ];
-
-  settings.forEach((setting, index) => {
-    const isSelected = index === highlightedIndex;
-    let displayValue = '';
-    if (setting.type === 'boolean') {
-      displayValue = setting.currentValue ? '[X]' : '[ ]';
-    } else if (setting.type === 'select' && setting.options) {
-      displayValue = `[${setting.currentValue || 'N/A'}]`;
-    }
-    lines.push({
-      type: isSelected ? 'highlight' : 'text',
-      value: `${isSelected ? '> ' : '  '}${setting.label.padEnd(20)} ${displayValue}`,
-      isInteractive: true,
-      optionIndex: index
-    });
-  });
-
-  lines.push({ type: 'text', value: '' });
-  return lines;
-};
-
-// ...after getAboutMeDisplay...
 
 const getProjectListDisplay = (projectsData: Project[], highlightedIndex: number): DisplayLine[] => {
   const lines: DisplayLine[] = [
-    { type: 'title', value: '─── My Projects ──────────────────────' },
-    { type: 'text', value: '' }
+    { type: 'title', value: '╭─ My Projects ────────────────────────────╮' },
+    { type: 'text', value: '│                                          │' }
   ];
+  
   if (projectsData.length === 0) {
-    lines.push({ type: 'text', value: 'No projects to display yet.' });
+    lines.push({ type: 'text', value: '│ No projects to display yet.             │' });
   } else {
     projectsData.forEach((project, index) => {
       const isSelected = index === highlightedIndex;
-      // Use lolcat for the name in the list view as well, or keep it simple
-      // const displayName = isSelected ? `> ${project.name}` : `  ${project.name}`;
-      // For lolcat in list (might be too much, but for consistency):
+      const prefix = isSelected ? '│ ▶ ' : '│   ';
       const lolcatName = getLolcatHtml(project.name);
+      
       lines.push({
-        // type: isSelected ? 'highlight' : 'code', // Use 'code' for dangerouslySetInnerHTML
-        type: isSelected ? 'highlight' : 'code', // Use 'code' for dangerouslySetInnerHTML
-        value: `${isSelected ? '> ' : '  '}${lolcatName}`, // Add opacity for non-selected items
+        type: isSelected ? 'highlight' : 'code',
+        value: `${prefix}${lolcatName}`,
         isInteractive: true,
         optionIndex: index,
         isHtml: true,
       });
-      lines.push({ type: 'text', value: `    ${project.description}` }); // Show short desc
-      lines.push({ type: 'text', value: '' });
+      
+      const description = project.description.length > 34 
+        ? project.description.substring(0, 31) + '...' 
+        : project.description;
+      lines.push({ type: 'text', value: `│     ${description.padEnd(34)} │` });
+      lines.push({ type: 'text', value: '│                                          │' });
     });
   }
+  
+  lines.push({ type: 'text', value: '╰──────────────────────────────────────────╯' });
   lines.push({ type: 'text', value: '' });
   return lines;
 };
 
 const getProjectContentDisplay = (project: Project | null): DisplayLine[] => {
   if (!project) {
-    return [{ type: 'error', value: 'Error: Project not found.' }];
+    return [{ type: 'error', value: '✗ Error: Project not found.' }];
   }
+  
   const lines: DisplayLine[] = [
-    // Use 'code' type for the lolcat name to render HTML
-    { type: 'code', value: `─── ${getLolcatHtml(project.name)} ${'─'.repeat(Math.max(0, 30 - project.name.length))} ` },
+    { type: 'code', value: `╭─ ${getLolcatHtml(project.name)} ${'─'.repeat(Math.max(0, 35 - project.name.length))}╮`, isHtml: true },
     { type: 'text', value: '' },
-    { type: 'text', value: `Description: ${project.description}` }, // Frontmatter description
-    { type: 'text', value: `GitHub: ${project.githubUrl}` },
+    { type: 'text', value: `📝 ${project.description}` },
+    { type: 'text', value: `🔗 ${project.githubUrl}` },
   ];
 
   if (project.liveUrl) {
-    lines.push({ type: 'text', value: `Live URL: ${project.liveUrl}` });
+    lines.push({ type: 'text', value: `🌐 ${project.liveUrl}` });
   }
+  
   lines.push({ type: 'text', value: '' });
 
-  // Display processed body content (project.bodyLines was mapped to project.content in index.astro)
   if (project.content && project.content.length > 0) {
-    lines.push({ type: 'title', value: '─── Details ────────────────────────' });
+    lines.push({ type: 'title', value: '╭─ Details ────────────────────────────────╮' });
     lines.push({ type: 'text', value: '' });
+    
     project.content.forEach(bodyLine => {
-      lines.push({ type: 'code', value: bodyLine, isHtml: true }); // Assuming bodyLine is HTML
-      lines.push({ type: 'text', value: '' }); // Add spacing after each body line
+      lines.push({ type: 'code', value: bodyLine, isHtml: true });
+      lines.push({ type: 'text', value: '' });
     });
   } else {
     lines.push({ type: 'text', value: '(No additional details provided)' });
     lines.push({ type: 'text', value: '' });
   }
-  lines.push({ type: 'text', value: '──────────────────────────────────────' });
+  
+  lines.push({ type: 'text', value: '╰──────────────────────────────────────────╯' });
   lines.push({ type: 'text', value: '' });
   return lines;
 };
 
-// Remove or comment out the old getProjectsDisplay function
-// const getProjectsDisplay = (projectsData: Project[]): DisplayLine[] => { ... };
+const getSettingsDisplay = (settings: SettingOption[], highlightedIndex: number): DisplayLine[] => {
+  const lines: DisplayLine[] = [
+    { type: 'title', value: '╭─ Settings ───────────────────────────────╮' },
+    { type: 'text', value: '│                                          │' }
+  ];
 
-// --- Main Terminal Component ---
+  settings.forEach((setting, index) => {
+    const isSelected = index === highlightedIndex;
+    const prefix = isSelected ? '│ ▶ ' : '│   ';
+    
+    let displayValue = '';
+    if (setting.type === 'boolean') {
+      displayValue = setting.currentValue ? '[✓]' : '[ ]';
+    } else if (setting.type === 'select' && setting.options) {
+      displayValue = `[${setting.currentValue || 'N/A'}]`;
+    }
+    
+    const label = setting.label.padEnd(20);
+    const line = `${prefix}${label} ${displayValue}`.padEnd(40) + ' │';
+    
+    lines.push({
+      type: isSelected ? 'highlight' : 'text',
+      value: line,
+      isInteractive: true,
+      optionIndex: index
+    });
+  });
 
-const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent, projects }) => { // Accept blogPosts and aboutContent as props
-  // Initialize userSettings with default values for SSR
+  lines.push({ type: 'text', value: '│                                          │' });
+  lines.push({ type: 'text', value: '╰──────────────────────────────────────────╯' });
+  lines.push({ type: 'text', value: '' });
+  
+  // Show current setting description
+  if (settings[highlightedIndex]) {
+    const currentSetting = settings[highlightedIndex];
+    lines.push({ type: 'title', value: '╭─ Setting Info ───────────────────────────╮' });
+    
+    let info = '';
+    switch (currentSetting.key) {
+      case 'themeMode':
+        info = 'Change the visual theme of the terminal';
+        break;
+      case 'fontSize':
+        info = 'Adjust the font size for better readability';
+        break;
+      case 'fontFamily':
+        info = 'Choose your preferred monospace font';
+        break;
+      case 'showWelcome':
+        info = 'Toggle the welcome screen on startup';
+        break;
+      case 'imageDisplay':
+        info = 'Control how images are displayed';
+        break;
+      case 'enableAnimations':
+        info = 'Enable or disable visual animations';
+        break;
+      case 'showLineNumbers':
+        info = 'Show line numbers in code blocks';
+        break;
+      default:
+        info = 'Press Enter to modify this setting';
+    }
+    
+    lines.push({ type: 'text', value: `│ ${info.substring(0, 38).padEnd(38)} │` });
+    lines.push({ type: 'text', value: '╰──────────────────────────────────────────╯' });
+  }
+  
+  return lines;
+};
+
+// Main Terminal Component
+const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent, projects }) => {
   const [userSettings, setUserSettings] = useState<SettingOption[]>(defaultSettings);
-  const [displayedContent, setDisplayedContent] = useState<DisplayLine[]>([]); // Current content to show
+  const [displayedContent, setDisplayedContent] = useState<DisplayLine[]>([]);
   const [currentView, setCurrentView] = useState<'main' | 'blogList' | 'blogContent' | 'about' | 'settings' | 'projectList' | 'projectContent'>('main');
-  const [selectedOptionIndex, setSelectedOptionIndex] = useState<number>(0); // For TUI menu navigation
-  const [history, setHistory] = useState<('main' | 'blogList' | 'blogContent' | 'about' | 'settings' | 'projectList' | 'projectContent')[]>(['main']); // To track navigation
-  const [currentBlogSlug, setCurrentBlogSlug] = useState<string | null>(null); // For blogContent view
-  const [currentProjectIndex, setCurrentProjectIndex] = useState<number | null>(null); // For projectContent view
-  // pull our settings flags
-  const themeMode = userSettings.find(s => s.key === 'themeMode')?.currentValue as string || 'terminal';
-  const terminalWrapperRef = useRef<HTMLDivElement>(null); // Assuming you have this for focus
-  const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null); // For standard cursor auto-hide
-
-  const terminalOutputRef = useRef<HTMLDivElement>(null); // Ref to scroll output area
-
+  const [selectedOptionIndex, setSelectedOptionIndex] = useState<number>(0);
+  const [history, setHistory] = useState<('main' | 'blogList' | 'blogContent' | 'about' | 'settings' | 'projectList' | 'projectContent')[]>(['main']);
+  const [currentBlogSlug, setCurrentBlogSlug] = useState<string | null>(null);
+  const [currentProjectIndex, setCurrentProjectIndex] = useState<number | null>(null);
+  
+  const terminalWrapperRef = useRef<HTMLDivElement>(null);
+  const terminalOutputRef = useRef<HTMLDivElement>(null);
+  const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [isTouchDevice, setIsTouchDevice] = useState<boolean>(false);
 
+  // Get current settings
+  const themeMode = userSettings.find(s => s.key === 'themeMode')?.currentValue as string || 'terminal';
+  const imageDisplay = userSettings.find(s => s.key === 'imageDisplay')?.currentValue as 'none' | 'ascii' | 'full';
+  const enableAnimations = userSettings.find(s => s.key === 'enableAnimations')?.currentValue as boolean;
+
   useEffect(() => {
-    // console.log(isMobile());
-    setIsTouchDevice(isMobile()); // Check if the device is touch-enabled
+    setIsTouchDevice(isMobile());
   }, []);
 
-  // Load settings from localStorage ONLY after component mounts on the client
+  // Load settings from localStorage
   useEffect(() => {
     try {
-      if (typeof window !== 'undefined' && window.localStorage) { // Check if localStorage is available
+      if (typeof window !== 'undefined' && window.localStorage) {
         const storedSettings = localStorage.getItem('bloglabsSettings');
         if (storedSettings) {
           const parsed = JSON.parse(storedSettings);
@@ -394,40 +406,51 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent, projects }
     } catch (e) {
       console.error("Failed to load settings from localStorage:", e);
     }
-  }, []); // Empty dependency array ensures this runs once on mount
-  const imageDisplay = userSettings.find(s => s.key === 'imageDisplay')?.currentValue as 'none' | 'ascii' | 'full';
-  // Save settings to localStorage whenever they change, but only on the client
+  }, []);
+
+  // Save settings to localStorage
   useEffect(() => {
     try {
-      if (typeof window !== 'undefined' && window.localStorage) { // Check if localStorage is available
+      if (typeof window !== 'undefined' && window.localStorage) {
         localStorage.setItem('bloglabsSettings', JSON.stringify(userSettings));
       }
-    }
-    catch (e) {
+    } catch (e) {
       console.error("Failed to save settings to localStorage:", e);
     }
   }, [userSettings]);
 
-  // Update terminal font based on settings
-
   // Apply CSS variables from settings
   useEffect(() => {
     const root = document.documentElement;
-    const fm = userSettings.find(s => s.key === 'fontFamily')!.currentValue as string;
-    const fs = userSettings.find(s => s.key === 'fontSize')!.currentValue as string;
-    root.style.setProperty('--terminal-font-family', `"${fm}"`);
-    root.style.setProperty('--terminal-font-size',
-      fs === 'small' ? '0.85em' : fs === 'large' ? '1.15em' : '1em'
-    );
-    // update wrapper class
+    const fontFamily = userSettings.find(s => s.key === 'fontFamily')!.currentValue as string;
+    const fontSize = userSettings.find(s => s.key === 'fontSize')!.currentValue as string;
+    
+    root.style.setProperty('--terminal-font-family', `"${fontFamily}"`);
+    
+    const fontSizeMap = {
+      'small': '0.8em',
+      'medium': '1em', 
+      'large': '1.2em',
+      'xl': '1.4em'
+    };
+    root.style.setProperty('--terminal-font-size', fontSizeMap[fontSize as keyof typeof fontSizeMap] || '1em');
+    
     root.setAttribute('data-bloglabs-theme', themeMode);
-    // themeMode could toggle elsewhere if you add CSS classes…
-  }, [userSettings]);
+    
+    // Disable animations if setting is off
+    if (!enableAnimations) {
+      root.style.setProperty('--crt-flicker', '0s');
+      root.style.setProperty('--scanline-speed', '0s');
+    } else {
+      root.style.setProperty('--crt-flicker', '0.15s');
+      root.style.setProperty('--scanline-speed', '2s');
+    }
+  }, [userSettings, themeMode, enableAnimations]);
 
-  // Handle display content update based on current view
+  // Handle display content update
   useEffect(() => {
     let content: DisplayLine[] = [];
-    let currentOptionsLength = 0; // To correctly calculate selection bounds
+    let currentOptionsLength = 0;
 
     switch (currentView) {
       case 'main':
@@ -438,132 +461,123 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent, projects }
         const mainOptions = getMainMenuOptions();
         content = [...content, ...mainOptions.map((option, index) => ({
           type: index === selectedOptionIndex ? 'highlight' : 'text',
-          value: `${index === selectedOptionIndex ? '> ' : '  '}${option}`,
+          value: `${index === selectedOptionIndex ? '▶ ' : '  '}${option}`,
           isInteractive: true,
           optionIndex: index
         }))] as DisplayLine[];
         currentOptionsLength = mainOptions.length;
         break;
+        
       case 'blogList':
-        content = getBlogListDisplay(selectedOptionIndex, blogPosts); // Use blogPosts from props
-        currentOptionsLength = blogPosts.length; // Use blogPosts from props
+        content = getBlogListDisplay(selectedOptionIndex, blogPosts);
+        currentOptionsLength = blogPosts.length;
         break;
+        
       case 'blogContent':
-        const blog = blogPosts.find(b => b.slug === currentBlogSlug); // Use blogPosts from props
+        const blog = blogPosts.find(b => b.slug === currentBlogSlug);
         if (blog) {
           content = getBlogPostDisplay(blog);
         } else {
-          content = [{ type: 'error', value: 'Error: Blog not found.' }];
+          content = [{ type: 'error', value: '✗ Error: Blog not found.' }];
         }
-        currentOptionsLength = 0; // No interactive options in this view
+        currentOptionsLength = 0;
         break;
+        
       case 'about':
-        content = getAboutMeDisplay(aboutContent); // Use aboutContent from props
-        currentOptionsLength = 0; // No interactive options
+        content = getAboutMeDisplay(aboutContent);
+        currentOptionsLength = 0;
         break;
-      // case 'projects':
-      //   setCurrentView('projectList');
-      //   setHistory(prev => [...prev, 'projectList']);
-      //   currentOptionsLength = projects.length; // No interactive options
-      //   break;
+        
       case 'projectList':
         content = getProjectListDisplay(projects, selectedOptionIndex);
         currentOptionsLength = projects.length;
         break;
+        
       case 'projectContent':
-        const selectedProject = (currentProjectIndex !== null && currentProjectIndex >= 0 && projects[currentProjectIndex]) ? projects[currentProjectIndex] : null;
+        const selectedProject = (currentProjectIndex !== null && currentProjectIndex >= 0 && projects[currentProjectIndex]) 
+          ? projects[currentProjectIndex] : null;
         content = getProjectContentDisplay(selectedProject);
         currentOptionsLength = 0;
         break;
+        
       case 'settings':
         content = getSettingsDisplay(userSettings, selectedOptionIndex);
         currentOptionsLength = userSettings.length;
         break;
     }
+    
     setDisplayedContent(content);
 
-    // Reset selection if it's out of bounds for the new view
+    // Reset selection if out of bounds
     if (selectedOptionIndex >= currentOptionsLength && currentOptionsLength > 0) {
       setSelectedOptionIndex(0);
     } else if (currentOptionsLength === 0 && selectedOptionIndex !== 0) {
-      setSelectedOptionIndex(0); // For views with no options
+      setSelectedOptionIndex(0);
     }
 
-    // Scroll to top for blog content, otherwise to bottom
+    // Scroll to top
     if (terminalOutputRef.current) {
       terminalOutputRef.current.scrollTop = 0;
     }
   }, [currentView, selectedOptionIndex, currentBlogSlug, userSettings, blogPosts, aboutContent, projects, currentProjectIndex]);
 
-  // Effect for standard cursor auto-hide logic
+  // Cursor auto-hide logic
   useEffect(() => {
     const wrapper = terminalWrapperRef.current;
-    if (!wrapper) return;
+    if (!wrapper || isTouchDevice) return;
 
-    const showStandardCursor = () => {
-      wrapper.style.cursor = 'default'; // Or 'text', 'auto', depending on preference
-    };
+    const showCursor = () => wrapper.style.cursor = 'default';
+    const hideCursor = () => wrapper.style.cursor = 'none';
 
-    const hideStandardCursor = () => {
-      wrapper.style.cursor = 'none';
-    };
-
-    const resetInactivityTimer = () => {
+    const resetTimer = () => {
       if (inactivityTimerRef.current) {
         clearTimeout(inactivityTimerRef.current);
       }
-      inactivityTimerRef.current = setTimeout(hideStandardCursor, 100);
+      inactivityTimerRef.current = setTimeout(hideCursor, 2000);
     };
 
     const handleMouseMove = () => {
-      showStandardCursor();
-      resetInactivityTimer();
+      showCursor();
+      resetTimer();
     };
 
-    const handleMouseEnter = () => {
-      showStandardCursor();
-      resetInactivityTimer();
-    };
-
-    // Attach listeners to the terminal wrapper itself
     wrapper.addEventListener('mousemove', handleMouseMove);
-    wrapper.addEventListener('mouseenter', handleMouseEnter);
+    wrapper.addEventListener('mouseenter', handleMouseMove);
 
-    // Initial state: cursor visible, then timer starts
-    showStandardCursor();
-    resetInactivityTimer();
+    showCursor();
+    resetTimer();
 
     return () => {
       wrapper.removeEventListener('mousemove', handleMouseMove);
-      wrapper.removeEventListener('mouseenter', handleMouseEnter);
+      wrapper.removeEventListener('mouseenter', handleMouseMove);
       if (inactivityTimerRef.current) {
         clearTimeout(inactivityTimerRef.current);
       }
     };
-  }, [isTouchDevice]); // Empty dependency array means this runs once on mount and cleans up on unmount
+  }, [isTouchDevice]);
 
-  // ---
+  // Navigation handlers
   const handleMainViewEnter = (selectedIndex: number) => {
     const mainOptions = getMainMenuOptions();
     const selectedOption = mainOptions[selectedIndex];
-    if (selectedOption === 'Blogs') {
+    
+    if (selectedOption.includes('Blogs')) {
       setHistory(prev => [...prev, 'blogList']);
       setCurrentView('blogList');
       setSelectedOptionIndex(0);
-    } else if (selectedOption === 'About Me') {
+    } else if (selectedOption.includes('About')) {
       setHistory(prev => [...prev, 'about']);
       setCurrentView('about');
       setSelectedOptionIndex(0);
-    } else if (selectedOption === 'Projects') {
+    } else if (selectedOption.includes('Projects')) {
       setHistory(prev => [...prev, 'projectList']);
       setCurrentView('projectList');
       setSelectedOptionIndex(0);
-      // setCurrentProjectIndex(null); // Reset current project index
-    } else if (selectedOption === 'Settings') {
+    } else if (selectedOption.includes('Settings')) {
       setHistory(prev => [...prev, 'settings']);
       setCurrentView('settings');
       setSelectedOptionIndex(0);
-    } else if (selectedOption === 'Reboot!') {
+    } else if (selectedOption.includes('Reboot')) {
       window.location.href = '/';
     }
   };
@@ -579,10 +593,10 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent, projects }
 
   const handleProjectListEnter = (selectedIndex: number) => {
     if (projects[selectedIndex]) {
-      setCurrentProjectIndex(selectedIndex); // Set the index of the project to view
+      setCurrentProjectIndex(selectedIndex);
       setHistory(prev => [...prev, 'projectContent']);
       setCurrentView('projectContent');
-      setSelectedOptionIndex(0); // No selection in content view
+      setSelectedOptionIndex(0);
     }
   };
 
@@ -602,46 +616,40 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent, projects }
       }
     }
   };
-  // ---
 
-  // --- Keyboard Navigation Logic ---
-
+  // Enhanced keyboard navigation
   const handleGlobalKeyDown = useCallback((e: KeyboardEvent) => {
-    if (isTouchDevice) return; // Ignore key events on touch devices
+    if (isTouchDevice) return;
 
-
-    // Prevent default browser actions for navigation keys
     const preventDefaultKeys = [
       'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter',
-      'Backspace',
-      'b', 'a', 'p', 's', 'c', 'escape', 'g',
-      // vim motions
+      'Backspace', 'Escape', 'b', 'a', 'p', 's', 'c', 'g', 'q',
       'h', 'j', 'k', 'l'
     ];
+    
     if (preventDefaultKeys.includes(e.key) || preventDefaultKeys.includes(e.key.toLowerCase())) {
       e.preventDefault();
     }
 
-    // ── vim/arrow scroll only in content‐scrollable views ──
+    // Scroll handling for content views
     const scrollEl = terminalOutputRef.current;
-    const isScrollableView = ['blogContent', 'about', 'projectList', 'projectContent'].includes(currentView);
+    const isScrollableView = ['blogContent', 'about', 'projectContent'].includes(currentView);
+    
     if (isScrollableView && scrollEl) {
-      // down
+      const scrollAmount = scrollEl.clientHeight * 0.8;
+      
       if (e.key === 'j' || e.key === 'ArrowDown') {
-        scrollEl.scrollBy({ top: scrollEl.clientHeight * 0.8, behavior: 'smooth' });
+        scrollEl.scrollBy({ top: scrollAmount, behavior: 'smooth' });
         return;
       }
-      // up
       if (e.key === 'k' || e.key === 'ArrowUp') {
-        scrollEl.scrollBy({ top: -scrollEl.clientHeight * 0.8, behavior: 'smooth' });
+        scrollEl.scrollBy({ top: -scrollAmount, behavior: 'smooth' });
         return;
       }
-      // right
       if (e.key === 'l' || e.key === 'ArrowRight') {
         scrollEl.scrollBy({ left: 100, behavior: 'smooth' });
         return;
       }
-      // left
       if (e.key === 'h' || e.key === 'ArrowLeft') {
         scrollEl.scrollBy({ left: -100, behavior: 'smooth' });
         return;
@@ -651,233 +659,213 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent, projects }
     let newSelectedOptionIndex = selectedOptionIndex;
     let handled = false;
 
-    // --- Common Navigation / Hotkeys ---
-    if (e.key === 'Backspace' || e.key.toLowerCase() === 'c') { // 'c' for cancel/back
-      if (history.length > 1) { // If there's a history to go back to
+    // Global navigation
+    if (e.key === 'Backspace' || e.key.toLowerCase() === 'c') {
+      if (history.length > 1) {
         const prevView = history[history.length - 2];
-        setHistory(prevHistory => prevHistory.slice(0, -1)); // Remove current view from history
-        setCurrentView(prevView); // Go to previous view
-        setSelectedOptionIndex(0); // Reset selection for previous view
+        setHistory(prevHistory => prevHistory.slice(0, -1));
+        setCurrentView(prevView);
+        setSelectedOptionIndex(0);
         handled = true;
-      } else if (currentView !== 'main') { // If only one history entry, go to main
+      } else if (currentView !== 'main') {
         setHistory(['main']);
         setCurrentView('main');
         setSelectedOptionIndex(0);
         handled = true;
       }
-    } else if (e.key.toLowerCase() === 'b' && currentView !== 'blogList' && currentView === 'main') { // 'b' for blogs
-      setHistory(prev => [...prev, 'blogList']);
-      setCurrentView('blogList');
-      setSelectedOptionIndex(0);
-      handled = true;
-    } else if (e.key.toLowerCase() === 'a' && currentView !== 'about' && currentView === 'main') { // 'a' for about
-      setHistory(prev => [...prev, 'about']);
-      setCurrentView('about');
-      setSelectedOptionIndex(0);
-      handled = true;
-    } else if (e.key.toLowerCase() === 'p' && currentView !== 'projectList' && currentView === 'main') { // 'p' for projects
-      setHistory(prev => [...prev, 'projectList']);
-      setCurrentView('projectList');
-      setSelectedOptionIndex(0);
-      handled = true;
-    } else if (e.key.toLowerCase() === 's' && currentView !== 'settings' && currentView === 'main') { // 's' for settings
-      setHistory(prev => [...prev, 'settings']);
-      setCurrentView('settings');
-      setSelectedOptionIndex(0);
-      handled = true;
     } else if (e.key === 'Escape') {
-      if (currentView === 'main') { // Esc to go to main (or back)
-        window.location.href = '/'; // Redirect to home page
+      if (currentView === 'main') {
+        window.location.href = '/';
       } else {
         setHistory(['main']);
         setCurrentView('main');
         setSelectedOptionIndex(0);
         handled = true;
       }
-    } else if (e.key.toLowerCase() === 'g') {
-      window.open('https://github.com/Coder-Harshit/bloglabs');
+    } else if (e.key.toLowerCase() === 'q') {
+      window.location.href = '/';
       handled = true;
     }
 
-    if (handled) return; // If a common hotkey was handled, stop here.
+    // Quick access keys (only from main view)
+    if (currentView === 'main') {
+      if (e.key.toLowerCase() === 'b') {
+        setHistory(prev => [...prev, 'blogList']);
+        setCurrentView('blogList');
+        setSelectedOptionIndex(0);
+        handled = true;
+      } else if (e.key.toLowerCase() === 'a') {
+        setHistory(prev => [...prev, 'about']);
+        setCurrentView('about');
+        setSelectedOptionIndex(0);
+        handled = true;
+      } else if (e.key.toLowerCase() === 'p') {
+        setHistory(prev => [...prev, 'projectList']);
+        setCurrentView('projectList');
+        setSelectedOptionIndex(0);
+        handled = true;
+      } else if (e.key.toLowerCase() === 's') {
+        setHistory(prev => [...prev, 'settings']);
+        setCurrentView('settings');
+        setSelectedOptionIndex(0);
+        handled = true;
+      }
+    }
 
-    // --- View-Specific Navigation ---
+    if (e.key.toLowerCase() === 'g') {
+      window.open('https://github.com/Coder-Harshit/bloglabs', '_blank');
+      handled = true;
+    }
+
+    if (handled) return;
+
+    // View-specific navigation
     switch (currentView) {
       case 'main':
         const mainOptions = getMainMenuOptions();
-        if (e.key === 'ArrowUp') {
+        if (e.key === 'ArrowUp' || e.key.toLowerCase() === 'k') {
           newSelectedOptionIndex = (selectedOptionIndex - 1 + mainOptions.length) % mainOptions.length;
-        } else if (e.key === 'ArrowDown') {
+        } else if (e.key === 'ArrowDown' || e.key.toLowerCase() === 'j') {
           newSelectedOptionIndex = (selectedOptionIndex + 1) % mainOptions.length;
-        } else if (e.key === 'Enter') {
+        } else if (e.key === 'Enter' || e.key.toLowerCase() === 'l') {
           handleMainViewEnter(newSelectedOptionIndex);
         }
         break;
+        
       case 'blogList':
         if (e.key === 'ArrowUp' || e.key.toLowerCase() === 'k') {
-          newSelectedOptionIndex = (selectedOptionIndex - 1 + blogPosts.length) % blogPosts.length; // Use blogPosts.length
+          newSelectedOptionIndex = (selectedOptionIndex - 1 + blogPosts.length) % blogPosts.length;
           setSelectedOptionIndex(newSelectedOptionIndex);
         } else if (e.key === 'ArrowDown' || e.key.toLowerCase() === 'j') {
-          newSelectedOptionIndex = (selectedOptionIndex + 1) % blogPosts.length; // Use blogPosts.length
+          newSelectedOptionIndex = (selectedOptionIndex + 1) % blogPosts.length;
           setSelectedOptionIndex(newSelectedOptionIndex);
         } else if (e.key === 'Enter' || e.key.toLowerCase() === 'l') {
           handleBlogListEnter(newSelectedOptionIndex);
         }
         break;
-      case 'settings':
-        if (e.key === 'ArrowUp') {
-          newSelectedOptionIndex = (selectedOptionIndex - 1 + userSettings.length) % userSettings.length;
-        } else if (e.key === 'ArrowDown') {
-          newSelectedOptionIndex = (selectedOptionIndex + 1) % userSettings.length;
-        } else if (e.key === 'Enter') {
-          handleSettingsEnter(newSelectedOptionIndex);
-        }
-        break;
-      case 'blogContent':
-        break;
-      case 'about':
-        break;
-      case 'projects':
-        break;
+        
       case 'projectList':
         if (e.key === 'ArrowUp' || e.key.toLowerCase() === 'k') {
-          newSelectedOptionIndex = (selectedOptionIndex - 1 + projects.length) % projects.length; // Use projects.length
+          newSelectedOptionIndex = (selectedOptionIndex - 1 + projects.length) % projects.length;
           setSelectedOptionIndex(newSelectedOptionIndex);
-        }
-        else if (e.key === 'ArrowDown' || e.key.toLowerCase() === 'j') {
-          newSelectedOptionIndex = (selectedOptionIndex + 1) % projects.length; // Use projects.length
+        } else if (e.key === 'ArrowDown' || e.key.toLowerCase() === 'j') {
+          newSelectedOptionIndex = (selectedOptionIndex + 1) % projects.length;
           setSelectedOptionIndex(newSelectedOptionIndex);
-        }
-        else if (e.key === 'Enter' || e.key.toLowerCase() === 'l') {
+        } else if (e.key === 'Enter' || e.key.toLowerCase() === 'l') {
           handleProjectListEnter(newSelectedOptionIndex);
         }
         break;
-      case 'projectContent':
+        
+      case 'settings':
+        if (e.key === 'ArrowUp' || e.key.toLowerCase() === 'k') {
+          newSelectedOptionIndex = (selectedOptionIndex - 1 + userSettings.length) % userSettings.length;
+        } else if (e.key === 'ArrowDown' || e.key.toLowerCase() === 'j') {
+          newSelectedOptionIndex = (selectedOptionIndex + 1) % userSettings.length;
+        } else if (e.key === 'Enter' || e.key.toLowerCase() === 'l') {
+          handleSettingsEnter(newSelectedOptionIndex);
+        }
         break;
     }
 
-    // Update selected index if it changed
-    if (newSelectedOptionIndex !== selectedOptionIndex && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+    // Update selected index for menu navigation
+    if (newSelectedOptionIndex !== selectedOptionIndex && 
+        (e.key === 'ArrowUp' || e.key === 'ArrowDown' || 
+         e.key.toLowerCase() === 'k' || e.key.toLowerCase() === 'j')) {
       setSelectedOptionIndex(newSelectedOptionIndex);
     }
-  }, [selectedOptionIndex, currentView, history, userSettings, currentBlogSlug, blogPosts, isTouchDevice]);
+  }, [selectedOptionIndex, currentView, history, userSettings, currentBlogSlug, blogPosts, isTouchDevice, projects]);
 
-  // Add global keydown listener when component mounts
+  // Add keyboard event listener
   useEffect(() => {
     document.addEventListener('keydown', handleGlobalKeyDown);
-    return () => {
-      document.removeEventListener('keydown', handleGlobalKeyDown);
-    };
+    return () => document.removeEventListener('keydown', handleGlobalKeyDown);
   }, [handleGlobalKeyDown]);
 
-  // --- Render ---
-
-  // Helper to determine active nano bar options
+  // Enhanced nano bar options
   const getNanoBarOptions = useCallback(() => {
     const options: { key: string; label: string; align?: string }[] = [];
-    // Back/Cancel option always available if not on main view
+    
     if (currentView !== 'main') {
-      options.push({ key: '^C / Backspace', label: 'Back' });
-      options.push({ key: 'Esc', label: 'Main Menu' });
+      options.push({ key: '^C', label: 'Back' });
+      options.push({ key: 'Esc', label: 'Main' });
     }
-    // Add view-specific options
+    
     switch (currentView) {
       case 'main':
-        options.push({ key: '↑↓ Enter', label: 'Navigate/Select' });
-        options.push({ key: 'B', label: 'Blogs' });
-        options.push({ key: 'A', label: 'About' });
-        options.push({ key: 'P', label: 'Projects' });
-        options.push({ key: 'S', label: 'Settings' });
-        options.push({ key: 'Esc', label: 'Reboot' });
+        options.push({ key: '↑↓/jk', label: 'Navigate' });
+        options.push({ key: 'Enter/l', label: 'Select' });
+        options.push({ key: 'B/A/P/S', label: 'Quick Access' });
+        options.push({ key: 'Q/Esc', label: 'Quit' });
         break;
       case 'blogList':
-        options.push({ key: '↑↓ Enter', label: 'Navigate/Read' });
+      case 'projectList':
+        options.push({ key: '↑↓/jk', label: 'Navigate' });
+        options.push({ key: 'Enter/l', label: 'Open' });
         break;
       case 'blogContent':
-        options.push({ key: 'h/j/k/l', label: 'Scroll' });
-        break;
       case 'about':
-        options.push({ key: 'h/j/k/l', label: 'Scroll' });
-        break;
-      // case 'projects': // This view name might be obsolete now
-      //   // If 'projects' still exists as a view, define its nano bar.
-      //   // Otherwise, this case can be removed if main menu 'Projects' goes to 'projectList'.
-      //   options.push({ key: 'h/j/k/l', label: 'Scroll' });
-      //   break;
-      case 'projectList': // New
-        options.push({ key: '↑↓/kj Enter/l', label: 'Navigate/View' });
-        break;
-      case 'projectContent': // New
-        options.push({ key: 'h/j/k/l', label: 'Scroll' });
+      case 'projectContent':
+        options.push({ key: 'jk/↑↓', label: 'Scroll' });
+        options.push({ key: 'hl/←→', label: 'H-Scroll' });
         break;
       case 'settings':
-        options.push({ key: '↑↓ Enter', label: 'Navigate/Change' });
-        options.push({ key: 'h/j/k/l', label: 'Scroll' });
+        options.push({ key: '↑↓/jk', label: 'Navigate' });
+        options.push({ key: 'Enter/l', label: 'Change' });
         break;
     }
-    options.push({ key: 'G', label: 'GitHub', align: 'right' }); // Always show GitHub link
+    
+    options.push({ key: 'G', label: 'GitHub', align: 'right' });
     return options;
   }, [currentView]);
-
 
   return (
     <div
       ref={terminalWrapperRef}
       className={`terminal-wrapper theme-${themeMode} ${isTouchDevice ? 'touch-device' : ''}`}
       data-image-display={imageDisplay}
-      tabIndex={0} // Make it focusable
+      tabIndex={0}
     >
-      <div className="terminal-header">BlogLabs Terminal</div>
+      <div className="terminal-header">
+        <span>BlogLabs Terminal Interface</span>
+      </div>
+      
       <div className="terminal-output" ref={terminalOutputRef}>
-        {/* Render content based on current view */}
         {displayedContent.map((line, index) => {
-
           const handleClick = () => {
             if (!isTouchDevice || !line.isInteractive || typeof line.optionIndex === 'undefined') {
               return;
             }
+            
             if (currentView === 'main') {
               handleMainViewEnter(line.optionIndex);
             } else if (currentView === 'blogList') {
               handleBlogListEnter(line.optionIndex);
             } else if (currentView === 'settings') {
               handleSettingsEnter(line.optionIndex);
-            } else if (currentView === 'projectList') { // Add projectList
+            } else if (currentView === 'projectList') {
               handleProjectListEnter(line.optionIndex);
             }
           };
+
           const lineClasses = ['line', line.type];
           if (line.isInteractive && isTouchDevice) {
             lineClasses.push('touch-interactive');
           }
-          // For keyboard highlight, check if the line's optionIndex matches selectedOptionIndex
-          if (line.optionIndex === selectedOptionIndex &&
-            (currentView === 'main' || currentView === 'blogList' || currentView === 'settings')) {
-            // Ensure 'highlight' type is used for keyboard selection if not already
-            // This might conflict if 'highlight' is already set by get*Display.
-            // The get*Display functions already set type to 'highlight' based on selectedOptionIndex.
-            // So, we just need to ensure the class for keyboard selection is distinct if needed.
-            // For simplicity, we rely on the 'highlight' type set by get*Display.
-          }
 
-
-          // Conditional rendering:
-          // If line.type is 'code', use dangerouslySetInnerHTML
-          // Otherwise, render line.value as children
           if (line.isHtml || line.type === 'code') {
             return (
               <div
                 key={index}
-                className={`line ${line.type}`}
+                className={lineClasses.join(' ')}
                 onClick={handleClick}
                 dangerouslySetInnerHTML={{ __html: line.value }}
-              ></div>
+              />
             );
           } else {
             return (
               <div
                 key={index}
-                className={`line ${line.type}`}
+                className={lineClasses.join(' ')}
                 onClick={handleClick}
               >
                 {line.value}
@@ -885,21 +873,14 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent, projects }
             );
           }
         })}
-        {/* The 'input-line' with prompt and cursor is only for the main menu,
-            acting as a visual cue for where interaction is.
-            It's not a real input field, just a display of the active state. */}
-        {/* {currentView === 'main' && (
-          <div className="input-line">
-            <span className="prompt">user@bloglabs:~/$ </span>
-            <span className="cursor-block"></span>
-          </div>
-        )} */}
       </div>
 
-      {/* Nano-like bar at the bottom */}
       <div className="nano-bar">
         {getNanoBarOptions().map((option, index) => (
-          <span key={index} className={`nano-option ${option.align === 'right' ? ' nano-option--right' : ''}`}>
+          <span 
+            key={index} 
+            className={`nano-option ${option.align === 'right' ? 'nano-option--right' : ''}`}
+          >
             {option.key}: {option.label}
           </span>
         ))}
