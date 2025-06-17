@@ -82,8 +82,9 @@ const defaultSettings: SettingOption[] = [
     key: 'imageDisplay',
     label: 'Media Display',
     type: 'select',
-    options: ['none', 'ascii', 'full'],
-    currentValue: 'ascii'
+    // options: ['none', 'ascii', 'full'],
+    options: ['none', 'full'],
+    currentValue: 'none'
   }
 ];
 
@@ -107,8 +108,10 @@ const defaultSettings: SettingOption[] = [
 const getWelcomeScreen = (): DisplayLine[] => {
   return [
     { type: 'welcome', value: '┌───────────────────────────────────┐' },
-    { type: 'welcome', value: '│       Welcome to BlogLabs!        │' },
+    { type: 'welcome', value: '│\t\t\t\t\t\t\t\tWelcome to BlogLabs!\t\t\t\t\t\t\t\t|' },
     { type: 'welcome', value: '└───────────────────────────────────┘' },
+    // { type: 'welcome', value: '│       <span class="typewriter">Welcome to BlogLabs!</span>       │', isHtml: true },
+
     { type: 'text', value: '' },
     { type: 'text', value: 'Navigate using ↑↓ arrows and Enter.' },
     // { type: 'text', value: 'Press \'h\' for Help, \'a\' for About, \'p\' for Projects, \'s\' for Settings.' },
@@ -395,7 +398,8 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent, projects }
       console.error("Failed to load settings from localStorage:", e);
     }
   }, []); // Empty dependency array ensures this runs once on mount
-  const imageDisplay = userSettings.find(s => s.key === 'imageDisplay')?.currentValue as 'none' | 'ascii' | 'full';
+  // const imageDisplay = userSettings.find(s => s.key === 'imageDisplay')?.currentValue as 'none' | 'ascii' | 'full';
+  const imageDisplay = userSettings.find(s => s.key === 'imageDisplay')?.currentValue as 'none' | 'full';
   // Save settings to localStorage whenever they change, but only on the client
   useEffect(() => {
     try {
@@ -736,8 +740,6 @@ const Terminal: React.FC<TerminalProps> = ({ blogPosts, aboutContent, projects }
       case 'blogContent':
         break;
       case 'about':
-        break;
-      case 'projects':
         break;
       case 'projectList':
         if (e.key === 'ArrowUp' || e.key.toLowerCase() === 'k') {

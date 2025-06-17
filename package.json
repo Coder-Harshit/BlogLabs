@@ -13,14 +13,14 @@
     "@tailwindcss/vite": "^4.1.8",
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.6",
-    "astro": "^5.8.1",
+    "astro": "^5.9.3",
     "gsap": "^3.13.0",
-    "image-to-ascii": "^3.2.2",
     "jsdom": "^26.1.0",
     "marked": "^15.0.12",
     "prismjs": "^1.30.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "sharp": "^0.34.2",
     "tailwindcss": "^4.1.8"
   },
   "devDependencies": {

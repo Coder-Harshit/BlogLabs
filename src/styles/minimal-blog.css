@@ -3,7 +3,9 @@
 
 /* Define CSS variables for font settings, with fallbacks */
 :root {
-    --terminal-font-family: 'IBM Plex Mono', 'Courier New', Courier, monospace;
+    --typewriter-chars: 21; 
+
+    --terminal-font-family: 'Fira Code', 'IBM Plex Mono', 'Courier New', Courier, monospace;
     /* Prioritize a good terminal font */
     --terminal-font-size: 1em;
     --terminal-green-light: #00FF00;
@@ -207,9 +209,81 @@ html[data-bloglabs-theme="dark"] body {
     /* For cursor positioning */
     cursor: none;
     /* Ensure default cursor is hidden for the terminal area */
+    border: 2px solid transparent;
+    border-image: linear-gradient(45deg, #00ff00, #00aa00, #00ff00) 1;
+    animation: borderRotate 8s linear infinite;
 }
 
-/* Touch device specific styles */
+/* 1. rotating gradient border */
+@keyframes borderRotate {
+  to {
+    border-image-source: linear-gradient(405deg, #00ff00, #00aa00, #00ff00);
+  }
+}
+
+/* 1b. scan lines overlay */
+.terminal-wrapper::before {
+  content: "";
+  pointer-events: none;
+  position: absolute; top: 0; left: 0; width:100%; height:100%;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0,0,0,0) 0px,
+    rgba(0,0,0,0.05) 1px,
+    rgba(0,0,0,0) 2px
+  );
+  mix-blend-mode: overlay;
+  z-index: 1;
+}
+.terminal-output { position: relative; z-index: 2; }
+
+/* 2. fade-in each line as it appears */
+.terminal-output .line {
+  opacity: 0;
+  animation: fadeInLine 0.3s ease forwards;
+}
+@keyframes fadeInLine {
+  to { opacity: 1; }
+}
+
+/* 2b. fade-in whole view on change */
+.terminal-output {
+  animation: fadeInView 0.5s ease-out;
+}
+@keyframes fadeInView {
+  from { opacity: 0 }
+  to   { opacity: 1 }
+}
+
+/* 3. typewriter + blinking cursor for welcome */
+.typewriter {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: .15em solid var(--terminal-green-light);
+  animation:
+    typing 2s steps(var(--typewriter-chars), end) forwards,
+    blinkCursor .75s step-end infinite;
+}
+@keyframes typing {
+  from { width: 0 }
+  to   { width: 100% }
+}
+@keyframes blinkCursor {
+  0%, 100% { border-color: transparent }
+    50% { border-color: var(--terminal-green-light) }
+}
+
+/* 4. subtle grain/noise background */
+.terminal-wrapper::after {
+  content: "";
+  pointer-events: none;
+  position: absolute; top:0; left:0; width:100%; height:100%;
+  background: url("data:image/svg+xml;utf8, <svg xmlns='http://www.w3.org/2000/svg' width='20' height='20'> <filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.8' /></filter> <rect width='100%' height='100%' filter='url(%23f)' opacity='0.02' /></svg>");
+  mix-blend-mode: overlay;
+  z-index: 1;
+}
+
 .terminal-wrapper.touch-device {
     cursor: default; /* Show the cursor on touch devices */
     overflow-y: auto; /* Enable vertical scrolling */

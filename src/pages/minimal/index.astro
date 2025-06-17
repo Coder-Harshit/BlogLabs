@@ -1,14 +1,14 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import "../../styles/minimal-blog.css";
-import Terminal from "../../components/Terminal";
+// import Terminal from "../../components/Terminal";
 import { getCollection, type CollectionEntry, getEntry } from "astro:content";
 import { marked } from "marked";
 import * as Prism from "prismjs";
 import "prismjs/components/prism-javascript.js";
 import "prismjs/components/prism-markup.js";
 import path from 'node:path'; // For resolving public directory path
-import { processHtmlForMinimalTui } from '../../utils/processHtmlForMinimal'; // Import the new utility
+import { processHtmlForMinimalTui } from '../../utils/processHtmlForMinimal';
 
 marked.setOptions({
   gfm: true,
@@ -23,6 +23,7 @@ import type {
   AboutContent,
   ProjectContent
 } from "../../interfaces";
+import BootedShell from "../../components/BootShell";
 
 const PUBLIC_DIR_PATH = path.resolve(process.cwd(), 'public');
 
@@ -130,5 +131,6 @@ const projects: ProjectContent[] = await Promise.all(
   title="BlogLabs - Minimal TUI"
   description="A minimal terminal UI for BlogLabs."
 >
-  <Terminal client:load blogPosts={blogPosts} aboutContent={aboutMeContent} projects={projects} />
+  <BootedShell client:load blogPosts={blogPosts} aboutContent={aboutMeContent} projects={projects} />
+<!-- <Terminal client:load blogPosts={blogPosts} aboutContent={aboutMeContent} projects={projects} /> -->
 </BaseLayout>
